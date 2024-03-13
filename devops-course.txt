@@ -1017,6 +1017,177 @@ ELB-Elastic Load Balancer:
                                   3.classic load balancer - which is simplest one.
 
 
+     Main flow of elastic load balancer is:
+                                            1.create a ec2 instance with website.
+                                            2.create AMI for that instance.
+                                            3.create launch template and launch it.
+                                            4.create target groups.
+                                            5.create load balancer.
+
+
+
+CloudWatch:
+            it monitors the performance of aws environment-standard infrastructure metrics.
+
+
+            Metrics:
+                    Aws cloud watch allows you to record metrics for services such as EBS,EC2
+                    Amazon RDS,ColudFront etc.
+
+            Events: 
+                  Aws events delivers a near real time stream of systems that describe change
+                  in amazon web services resources.
+
+            Logs:
+                you can use amazon cloudwatch logs to monitor,store and acess your log files
+                from amazon ec2 instance(Elastic Compute Cloud) and other resources.
+
+Note:
+     1.alarms monitors cloudwatch metrics for instances.
+
+      SNS(Simple Notification Services) is a web service that co-ordinate and manage the
+      sending of messages to subscribing endpoints.
+
+ flow:
+       ec2 instance ----> amazon cloudwatch------> Alarms------------>SNS(email notifications).
+
+
+
+EFS(Amazon Elastic File System):
+                                 It is a shared file system for data storage.
+
+    1.It is similar to EBS(Elastic Block Store) the only difference is, in EBS we can store data
+      for single ec2 instance only.
+    2.But in EFS(Elastic File System) it shared file system i.e common storage for multiple
+      ec2 instances.
+
+      flow:
+           1.create the ec2 instance
+           2.in EFS,create the file sytem
+           3.create the acess points to acess that file system
+           4.we need to mount this in /etc/fstab file.
+
+
+
+Auto Scaling:
+              Auto scaling is a service that automatically monitors and adjust compute
+              resource to maintain the performance for applications hosted in the aws.
+
+
+       flow:
+            we need to create the auto scaling group which will provide in launch configuration
+            template to launch instances based on the load (cpu utilization) alarm will be triggered
+            if it cross the threshold and scaling policy will trigger the launch of new instances
+            in the auto scaling group or even reduce the instances based on the scaling policies.
+
+
+
+Amazon S3(Simple Storage Service):
+                                   Amazon S3 is a storage for the internet.you can use
+                                   S3 to store and retrieve any amount of data at any time
+                                   from anywhere on the web. i.e it is just like google drive.
+
+
+         S3 Storage Classes:
+                             1.S3 Standard: 
+                                            General purpose storage of frequently accessed data.
+                                            Fast acess and object replication in multi available zones.
+
+                             2.S3 Infrequent Acess:
+                                                    Long lived,but less frequently accessed data.
+                                                     Slow access,object replication in multi available zones.
+
+                            3.S3 One Zone-Infrequent Access:
+                                                             It is for data that is accessed less frequently,
+                                                             but requires rapid access when needed.slow access,
+                                                             no object replication.
+
+                           4.S3 Inteligent Tiering:
+                                                    Automatically moves data to most cost effective tier.
+
+                           5.S3 Glacier:
+                                        Low cost storage for data archiving.
+
+                           6. S3 Glacier Deep Archive:
+                                                       Lowest cost storage,retrival time of 12hrs.
+
+Note:
+      1.By default everything in S3 Bucket is private.
+      2.Bucket versioning: 
+                           1.If you disable bucket versioning, if you delete anything in the bucket, you can retrive it.
+                           2.If you enable the bucket versioning,you delete anything in bucket we can recover it but the size 
+                             of the bucket will grow(size).if you keep on recovering the objects, the size will increases.
+
+      3.while uploading the objects to S3 bucket,you can choose the storage classes.
+
+
+
+If you want to host static website in S3 Bucket:
+                                                  1.download the static website from tooplate.com
+                                                  2.upload the files to S3 Bucket.
+                                                  3.In permission,enable the public acess and make the files as public by selecting the files.
+                                                  4.enable the static website hosting in properties option.
+                                                  5.use the endpoint to display the content in browser(endpoint present static website hosting in properties).
+
+   
+    4.By mistakenly you override the obeject then follow these steps:
+                                                                      
+        select the file you want to recover and go to versioning there you can find the previous version of your object 
+        and download it and then upload the file.make it public then it will display in browser.This is how you can recover
+        the objects in S3 bucket.Just make sure to enable bucket versioning.
+
+
+    5.If you delete the objects in S3 Bucket you want to recover it follow these steps:
+
+       In the S3 Bucket,you will list of objects option,you just enable it.there you can see
+       the all versions of yours object.The delete files also shown here.select the delete file and click on the delete option
+       then it will come to S3 Bucket.
+
+
+Flow of project setup Vprofile in aws:
+
+                                       1.Login into aws account.
+                                       2.Create key pairs.
+                                       3.Create security groups.
+                                       4.Launch ec2 instances with user data(bash scripts).
+                                       5.Update IP to name mapping in route 53.
+                                       6.Bulid application from source code.
+                                       7.Upload to s3 bucket(refer point 1 to point 3 in note).
+                                       8.Download the artifact to tomcat ec2 instances(refer point 4 onwords for this).
+                                       9.Setup Elastic Load Balancer(ELB) with https(certificate from amazon certificate manager).
+                                       10.Map Elastic Load Balancer endpoint to website name in Godaddy DNS.
+                                       11.Verify the entire setup.
+                                       12.Bulid auto scaling group for tomcat instances.(1.AMI
+                                                                                         2.launch template 
+                                                                                         3.autoscaling group).
+
+Note:
+      To upload the artifact into amazon S3 bucket follow these steps:
+   
+       1.first we need to configure the IAM role in AWS CLI(commmand -> aws configure)
+       2.create the s3 bucket using command -> aws s3 mb s3://hkh-code-artis(Bucket name).
+       3.we copy the artifact to S3 bucket -> aws s3 cp target/vprofile-v2.war s3://hkh-code-artis/
+
+       4.create the role for the s3 bucket and attach that role to the tomcat instance.
+       5. aws s3 ls -> it will show all the s3 buckets.
+       6.copy the artifact to temp folder -> aws s3://hkh-code-artis/vprofile-v2.war /tmp/
+       7.delete the default tomcat page -> rm -rf /var/lib/tomcat9/webapps/ROOT
+       8.copy the artifact from temp folder to tomcat default page -> cp /tmp/vprofile-v2.war /var/lib/tomcat9/webapps/ROOT.war
+
+
+
+
+         
+
+
+                                                        
+
+
+
+
+   
+
+
 
 
 	
