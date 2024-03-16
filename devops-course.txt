@@ -1177,6 +1177,92 @@ Note:
 
 
 
+Refactoring the above project:
+                          
+
+                                 Comparision
+
+
+ 1.BeanStalk                                    1.Tomacat EC2 instance on vm
+ 2.ELB in beanstalk                             2.nginx LB/ELB
+ 3.autoscaling                                  3.autoscaling
+ 4.EFS/S3                                       4.EFS/S3
+ 5.RDS                                          5.mysql on ec2 instances.
+ 6.Elastic cache                                6.memcache on ec2 instance.
+ 7.Active MQ                                    7.Rabbit MQ on ec2 instance.
+ 8.Route 53                                     8.Godaddy,local DNS
+ 9.Cloud Front                                  9.Multi delivery content across world.
+
+
+
+Flow of execution:  
+
+                                                           monitors by amazon cloud watch
+                                                                               ^
+                                                                               |
+user ---> Route 53 ---> cloud front ---> application load balancer ---->  ec2 instances in bean stalk ----> stores artifact in s3 bucket.
+                                                                               |
+                                                                               |
+                                    RDS(mysql)<-----Elastic Cache<----- Active MQ
+                                                                         
+
+1.Login into aws account.
+2.create the key pair for beanstalk instances login.
+3.create the security group for Elastic cache,Active MQ and RDS.
+4.create
+         RDS,Amazon Elastic Cache,Amazon MQ.
+
+5.create Elastic Beanstalk environment.
+6.update security group for backend to allow traffic from beanstalk security group.
+7.update security group for backend to allow internal traffic.
+
+8.launch EC2 instances for DB initializing.
+9.login into the instance and initialize the RDS DB.
+10.change the health check on beanstalk to /login.
+11.add 443 https listener to ELB.
+
+12.build artifact from backend information.
+13.deploy artifact to beanstalk.
+14.create CDN(Content Delivery Network) with ssl certificate.	
+15.update entry in godaddy DNS Zones.
+16.test the url.
+
+
+Amazon CloudFront:
+                   Amazon CloudFront is a content delivery network operated by Amazon Web Services.
+                   The content delivery network was created to provide a globally-distributed network of proxy servers
+                   to cache content, such as web videos or other bulky media, more locally to consumers,
+                   to improve access speed for downloading the content.
+
+Note:
+      1.Generally whenver the user request some thing on the browser it will route to S3 since the data is present in S3.
+      2.When you use cloudfront,for the first time whenever the user request for data from s3, the data is cached to 
+        nearest edge location.so again whenever you request the same data then the data will come from the edge location 
+        instead of S3.So that we can able to acess the data very fast.
+
+
+GIT:
+     Git is distributed version control system.
+     
+    Two types of version control system
+                                         1.central control system:
+                                                                   In these,everybody needs to make changes from the centrol repository that means one repository.
+                                                                   due to some error occured and the entire data will be lost here.
+                                        
+                                         2.Distributed control system:
+                                                                       here,everyone has the one local copy of the repository.whenever the some issue occured still
+                                                                       data will not be lost.
+
+
+
+     
+
+
+
+
+
+
+
          
 
 
