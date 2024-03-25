@@ -41,12 +41,12 @@ live production need approval from developer).
 
 The main difference between Continuous Delivery and Continuous Deployment:
 
-         Continuous Delivery after bulid release,everything is automated expect final stage
+         Continuous Delivery after build release,everything is automated expect final stage
 i.e to move the software into live production(this is manual process.It need approval from
 the developer)
 
         Continuous Deployment after bulid release,everything is automated till the last stage
-i.e move the software into the live production.
+i.e move the software into the live production(It does not need approval from the developer).
 
 
 virtualization:
@@ -78,7 +78,7 @@ Vagrants commands :
                      4.vagrant status -> To see whether vm is running or not
                      5.vagrant global-status -> To see all the vms status 
                      6.vagrant ssh -> To login into linux
-                     7.vagrant box list -> To see all the downloaded files in the folder.
+                     7.vagrant box list -> To see all the downloaded vagrant box files in the local system.
                      8. vagrant init box-name -> It will create the Vagrant file.
                      9. cat Vagrantfile -> to print the Vagrantfile content.
                      10.vagrant reload -> to reboot the vm
@@ -139,7 +139,7 @@ Linux:
                     1.whoami -> to see what user your(root user or normal user)
                     2.pwd -> to see the present working directory(current path)
                     3.ls -> to see the files in current folder
-                    4. cat /etc/os-release -> to see which operating system we are using and its version. 
+                    4.cat /etc/os-release -> to see which operating system we are using and its version. 
                     5.cd / -> means root directory(in this directory all the directories(folders) are present)
                     5.cd /root -> root user directory
                     6.cd or cd ~ -> whenever you want to come to home directory.
@@ -154,13 +154,13 @@ Linux:
                     15.rm devopsfile2.txt -> it will remove that file(only files not folder)
                     16.rm -r dev -> this will remove the entire folder.
                     17.rm -rf * -> it will remove the all the files from the current working directory
-                    18. ip addr show -> to show the ip address 
+                    18.ip addr show -> to show the ip address 
                     
 
 Note:
      1.absolute path means complete path of that directory or folder.
      2.relative path means just that directory or folder name 
-     3.sudo yum install vim -y -> to install vim editor in linux.
+     3.sudo yum install vim -y -> to install vim editor in linux(centos machines).
 
 vim editor:
            It has three modes: 
@@ -171,7 +171,7 @@ vim editor:
 By default it will in command mode.
 if you are in insert mode you want to come back to command mode use esc key.
 
-vim devopsfile1.txt -> this command is used to enter into vim editor and make change in the file.
+vim devopsfile1.txt -> this command is used to enter into vim editor and make changes in the file.
 cat devopsfile1.txt -> this is used to print the content that is present in the file.
 :q! -> this is forcefully quitting from the vim editor without saving the changes.
 :wq -> this will save the content and quit from vim editor.
@@ -227,7 +227,7 @@ Note:
        it will search only files not directories (folder).
 
      4.If you want to search anything in the current directory irrespect of files and folders
-       use -> grep -iR firewall *.this -R indicate that you dont the exact file to search. 
+       use -> grep -iR firewall *.this -R indicate that search in both files and directories. 
 
      5.If you dont want to search for that particular word (show content except this word)
        use -> grep -vi firewall *.this -v indicates show content except this word.
@@ -258,31 +258,32 @@ Note:
                  1.using vm editor (in extended mode) -> %s/coronavirus/covid19
                    this will replace one time in single line. 
  
-                   if cornovirus word present in more one time in the same line then use -> %s/coronavirus/covid19/g 
+                   if cornovirus word present in more than one time in the same line then use -> %s/coronavirus/covid19/g 
                 
                 2.sed command -> sed -i 's/coronavirus/covid/g' samplefile.txt
 
 
 I/O Redirections:
-                  i/o redirection means output is redirect to some files rather than showing on the screen.
+                  i/o redirection means input/output is redirect to some files rather than showing on the screen.
 
                   1. > -> this is the symbol for output redirection.
                   2. < -> this is the symbol for input redirection. 
-                  3. If you dont want to override the content i.e just append(add) use -> >>
+                  3. If you don't want to override the content i.e just append(add) use -> >>
                   
-echo -> this command is used to print content what ever we give( echo "hello" it will print hello).
+echo -> this command is used to print content what ever we give( echo "hello" -> it will print hello).
 
 
 Piping:
-       1. wc -l /etc/passwd -> wc -l is used to count no.of files or lines in directory.
-       2. ls | wc -l -> here ls gives output and pipe takes that output as input to the wc -l command and print
+       1.You can use the wc command to count a file's word, line, character, or byte count.
+       2. wc -l /etc/passwd -> wc -l is used to count no.of lines in a file  or folders in directory.
+       3. ls | wc -l -> here ls gives output and pipe takes that output as input to the wc -l command and print
           the total no.of lines
-       3. head anaconda-ks.cfg | grep by -> here head anaconda-ks.cfg will print first 10 lines as output
+       4. head anaconda-ks.cfg | grep by -> here head anaconda-ks.cfg will print first 10 lines as output
           the pipe takes that output as input and grep is used for searching it will search for by and 
           it will print the output.
 
 find command -> This command is used to locate or search for the files i.e find /etc -name host*
-                here /etc is the path and -name is search by name and host* is that start with.
+                here /etc is the path and -name is search by name and host* is that starts with.
 
 
 
@@ -298,7 +299,7 @@ root:x:0:0:root:/root:/bin/bash -> here root is username,x is shadow encrypted p
 
 1.adduser username -> This command is used to add the user.
 2.groupadd groupname -> This command is used to add the group.
-3.passwd ansible(username) -> This command is used to reset or set the password for user.
+3.passwd ansible(here ansible is the username) -> This command is used to reset or set the password for user.
 4.su - ansible(username) -> This command is used to switch from one user to another user.
 5.userdel aws(username) -> This command is used to delete the user but still home directoy is present,
                            if you want to delete user with home directory use -> userdel -r aws.
@@ -328,14 +329,14 @@ rwx -> user                        r -> read, w -> write, x -> execute
 r-x -> group
 r-x -> other
 
-1.To change the ownership of the file use -> chown ansible(username):devops(group) redir(path)
+1.To change the ownership of the file use -> chown ansible(username):devops(group) redir(filename)
 
-2.To change the read,write and execute permissions for others use -> chmod o-x redir
-  (here o is others amd redir is path)
+2.To change the read,write and execute permissions for others use -> chmod o-x redir(filename)
+  (here o is others amd redir is filename)
 
                 drw-r--r-x. 2 jenkins devops 25 Feb 18 08:20 redir
 
-3.To change the read,write and execute permissions for group use -> chmod g+r redir
+3.To change the read,write and execute permissions for group use -> chmod g+r redir(filename)
   (here it will add read permissions)
 
                                     or
@@ -349,7 +350,7 @@ Change Permissions using numeric methods:
 
 drw-r--r-x. 2 jenkins devops 25 Feb 18 08:20 redir
 
-to change permissions,for user and group full acess and others no acess use -> chmod 770 redir.
+to change permissions,for user and group full acess and others no acess use -> chmod 770 redir(filename).
 (here 1st digit for user, 2nd digit for group and last digit for others).
 
 
@@ -362,6 +363,7 @@ Services:
          3.systemctl stop httpd -> To stop the service                                           
          4.systemctl restart httpd ->To restart the service
          5.systemctl reload httpd ->To reload the changes without even restarting it.
+         6.systemctl enable httpd -> modifies the service configuration to tell systemd that the service needs to start up automatically on boot.
 
 provising -> provising in vagrant means executing script or commands when vm is up.
 provising executes only one time.
@@ -379,11 +381,18 @@ Steps to deploy website automatically:
                                        1.In vagrantfile add the provising(scripts or commands)then everything get ready.
 
 
-Networking: 
-            OSI Model : 
-                       physical layer -> data link layer -> network layer -> transport layer -> session layer ->
 
-                       presentaion layer -> application layer. 
+
+
+
+
+
+
+Networking: 
+            OSI(Open Systems Interconnection) Model : 
+                       physical layer(0's & 1's) -> data link layer(frames) -> network layer(packets) -> transport layer -> session layer ->
+
+                       presentation layer -> application layer. 
 
 
 Whenever the Physical layer receives the signal it converts into bits (0's & 1's) and it sends to Data Link layer.
@@ -472,6 +481,10 @@ Containers:
             2.For virtualization we can use Virtual Machine.
             3.For understanding we can think containers as OS virtualization.
 
+Note:
+      Virtualization enables you to run multiple operating systems on the hardware of a single physical server,
+      while containerization enables you to deploy multiple applications using the same operating system on a single virtual machine or server.
+
 Docker:
        1.It is a container runtime environment for developing,shipping and running the applications.
        2.Docker registry is place where Docker Container Images are stored.
@@ -499,6 +512,10 @@ Note:
 
 
 
+
+
+
+
 Bash Scripting: 
                 In bash script file start with -> #!/bin/bash.
 
@@ -515,7 +532,7 @@ variables:
 command line arguments:  
                         means passing the data or value at the time of executing the file.
 
-For example,if you have created a file name with scripts.sh and inside the has the following data
+For example,if you have created a file name with scripts.sh and inside it has the following data
 
                     #!/bin/bash
                     echo "the value of 0 is :"
@@ -527,7 +544,7 @@ For example,if you have created a file name with scripts.sh and inside the has t
                     echo "the value of 2 is :"
                     echo $2
 
-when you excute this file it will print, value of 0 is scripts.sh(file name)
+when you execute this file it will print, value of 0 is scripts.sh(file name)
                                          value of 1 is empty line
                                          value of 2 is empty line.
 
@@ -539,7 +556,7 @@ output is :
             value of 2 is jenkins.
 
 Note:
-     1.$0 is the name of the bash script
+     1.$0 is always the name of the bash script
      2.$1 to $9 are the command line arguments
      3.echo $USER -> this will print the username
      4.echo $HOSTNAME -> it will print the hostname
@@ -568,7 +585,7 @@ Exporting Variables:
 If you want to store the variables permanently then,
   
                          Two ways:
-                                   1.export varibale available only for that user then edit .bashrc file(this is available in home directory ls -a)
+                                   1.export variable available only for that user then edit .bashrc file(this is available in home directory ls -a)
                                    2.export variable available globally(all users) then edit /etc/profile file.
 
 
@@ -685,7 +702,7 @@ While loop:
 
 
 
-Remote command execution:
+Remote command execution:   This means from one vm we can connect to other vm's.
 
                           1.first change the hostname of all the vm's
                           2.In one vm add the ip address and hostname (i.e 192.168.10.13 web01) in /etc/hosts
@@ -714,7 +731,11 @@ SSH Key Exchange:
 
 Note:
  
-         for host in `cat remhosts` ; do echo devops@$host date ; done
+         for host in `cat remhosts` 
+         do
+            echo devops@$host
+            date 
+         done
 
          here remhosts -> a file which contains hostnames(web01,web02,web03) and it will print the date
 
@@ -801,6 +822,11 @@ fi
 
 
 
+
+
+
+
+
 AWS:
 
 1.EC2:
@@ -859,11 +885,11 @@ Note:
 AWS CLI:
          if you want to connect aws through command line use follwing steps:
          
-         1.install aws cli
+         1.install aws cli in your machine.
          2.create user or existing user also fine, in user setting search for acess keys
            and create acess keys 
          3.open gitbash and type aws configure, it will ask for acesss key,secret acess key
-           output format and region. then configuration is done
+           output format is json and region. then configuration is done
 
 
   aws sts get-caller-identity -> this command shows the account ID and account number you are
@@ -900,7 +926,7 @@ If you want to store anything separately then follow the below steps:
  
  fdisk -l -> which will show all the disks.
 
- 3.volume we have created for this one partition is not present we need to create it.
+ 3.volume we have created for this one,partition is not present we need to create it.
 
              first step is to create the partitioning.
 
@@ -934,7 +960,7 @@ now lets see the permanent mount
     mv /tmp/img-backups/* /var/www/html/images/
 19.restart the service -> systemctl restart httpd
 20.check the status of the service if mounting is failed then the service will not run -> systemctl status httpd.
-21.check in the browser whether the it shows iamges or not.
+21.check in the browser whether it shows images or not.
 
 
 
@@ -1114,7 +1140,7 @@ Amazon S3(Simple Storage Service):
 Note:
       1.By default everything in S3 Bucket is private.
       2.Bucket versioning: 
-                           1.If you disable bucket versioning, if you delete anything in the bucket, you can retrive it.
+                           1.If you disable bucket versioning, if you delete anything in the bucket, you can not retrive it.
                            2.If you enable the bucket versioning,you delete anything in bucket we can recover it but the size 
                              of the bucket will grow(size).if you keep on recovering the objects, the size will increases.
 
@@ -1130,7 +1156,7 @@ If you want to host static website in S3 Bucket:
                                                   5.use the endpoint to display the content in browser(endpoint present static website hosting in properties).
 
    
-    4.By mistakenly you override the obeject then follow these steps:
+    4.By mistakenly you override the object then follow these steps:
                                                                       
         select the file you want to recover and go to versioning there you can find the previous version of your object 
         and download it and then upload the file.make it public then it will display in browser.This is how you can recover
@@ -1139,7 +1165,7 @@ If you want to host static website in S3 Bucket:
 
     5.If you delete the objects in S3 Bucket you want to recover it follow these steps:
 
-       In the S3 Bucket,you will list of objects option,you just enable it.there you can see
+       In the S3 Bucket,you will see the list of objects option,you just enable it.there you can see
        the all versions of yours object.The delete files also shown here.select the delete file and click on the delete option
        then it will come to S3 Bucket.
 
@@ -1241,6 +1267,11 @@ Note:
         instead of S3.So that we can able to acess the data very fast.
 
 
+
+
+
+
+
 GIT:
      Git is distributed version control system.
      
@@ -1288,6 +1319,7 @@ Note:
 
 
 
+
 Maven:
       maven is a build tool for java.
 
@@ -1314,6 +1346,92 @@ Maven life cycle:
 
                   7.deploy:
                             done in the build environment,copies the final package to the remote repository for sharing with other developers and projects.
+
+
+
+
+
+
+
+
+
+Jenkins:
+           
+
+flow of continuous integration pipeline:
+
+
+devloper ---> github----->jenkins(fetch code from github)------->Build(maven)------>unit test(maven)
+                                                                                          |
+                                                                                          |
+                                upload artifact(nexus sonatype)<--------  code analysis(sonar qube)
+
+
+
+Steps to setup CI:
+
+                    1.jenkins setup
+                    2.nexus setup
+                    3.sonarqube setup
+                    4.security group
+                    5.plugins(nexus artifact uploader,sonarqube scanner,build timestamp(for versioning artifact),pipeline maven integration,pipeline utility step).
+                    6.integrate
+                                 i)nexus
+                                 ii)sonarqube
+
+                    7.write pipeline script(if anything goes wrong it will not bulid it)
+                    8.set notifications.
+
+
+
+Declarative Pipeline:
+               
+
+pipeline {
+    agent any
+    tools {
+        maven "Maven3"
+        jdk "OracleJDK11"
+    }
+    stages {
+        stage('Fetch Code') {
+            steps {
+                git branch: 'main', url: 'https://github.com/devopshydclub/vprofile-repo.git'
+
+            }
+        }
+        stage('Build') {
+            steps {
+                sh 'mvn install -DskipTests'
+            }
+            post {
+                success {
+                    echo "Now Archiving it"
+                    archiveArtifacts artifacts: '**/target/*.war'
+                }
+            }
+        }
+        stage('UNIT TEST') {
+            steps {
+                sh 'mvn test'
+
+            }
+        }
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
