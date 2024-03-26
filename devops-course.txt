@@ -1421,6 +1421,354 @@ pipeline {
 }
 
 
+if you want to send the junit,jacoco,checkstyle reports to sonarqube using sonarscanner,
+
+
+
+pipeline {
+    agent any
+    tools {
+        maven 'Maven3'
+        jdk 'OracleJDK11'
+    }
+    stages {
+        stage('Fetch Code') {
+            steps {
+                git branch: 'main', url: 'https://github.com/devopshydclub/vprofile-repo.git'
+            }
+
+        }
+        stage('Build') {
+            steps {
+                sh 'mvn install -DskipTests'
+                
+            }
+            post {
+                success {
+                    echo "Now Archiving it"
+                    archiveArtifacts artifacts: '**/targets/*.war'
+
+                }
+            }
+        }
+        stage('UNIT TEST') {
+            steps {
+                sh 'mvn test'
+            }
+        }
+
+        stage('Checkstyle Analysis') {
+            steps {
+                sh 'mvn checkstyle:checkstyle'
+            }
+        }
+        stage('Sonar Analysis') {
+            environment {
+                scannerHome = tool 'sonar4.7'
+            }
+            steps {
+                withSonarQubeEnv('sonar') {
+                    sh '''${scannerHome}/bin/sonar-scanner  -Dsonar.projectKey=vprofile \
+                    -Dsonar.projectName=vprofile \
+                    -Dsonar.projectVersion=1.0 \
+                    -Dsonar.sources=src/ \
+                    -Dsonar.java.binaries=target/test-classes/com/visualpathit/account/controllerTest/ \
+                    -Dsonar.junit.reportsPath=target/surefire-reports/ \
+                    -Dsonar.jacoco.reportsPath=target/jacoco.exe \
+                    -Dsonar.java.checkstyle.reportsPath=target/checkstyle-result.xml'''
+                }
+
+            }
+        }
+    }
+}
+
+
+
+quality gate: based some metrics(bugs) we can bulid or failure the build.
+
+to create this in sonarqube:
+                             1.create the quality gate based on the bugs(mention total number of bugs to build failure).
+                             2.then go to project and attch the quality gate(project settings) to project.
+                             3.create the webhook, in that mention url of jenkins server.
+
+pipeline {
+    agent any
+    tools {
+        maven 'Maven3'
+        jdk 'OracleJDK11'
+    }
+    stages {
+        stage('Fetch Code') {
+            steps {
+                git branch: 'main', url: 'https://github.com/devopshydclub/vprofile-repo.git'
+            }
+
+        }
+        stage('Build') {
+            steps {
+                sh 'mvn install -DskipTests'
+                
+            }
+            post {
+                success {
+                    echo "Now Archiving it"
+                    archiveArtifacts artifacts: '**/targets/*.war'
+
+                }
+            }
+        }
+        stage('UNIT TEST') {
+            steps {
+                sh 'mvn test'
+            }
+        }
+
+        stage('Checkstyle Analysis') {
+            steps {
+                sh 'mvn checkstyle:checkstyle'
+            }
+        }
+        stage('Sonar Analysis') {
+            environment {
+                scannerHome = tool 'sonar4.7'
+            }
+            steps {
+                withSonarQubeEnv('sonar') {
+                    sh '''${scannerHome}/bin/sonar-scanner  -Dsonar.projectKey=vprofile \
+                    -Dsonar.projectName=vprofile \
+                    -Dsonar.projectVersion=1.0 \
+                    -Dsonar.sources=src/ \
+                    -Dsonar.java.binaries=target/test-classes/com/visualpathit/account/controllerTest/ \
+                    -Dsonar.junit.reportsPath=target/surefire-reports/ \
+                    -Dsonar.jacoco.reportsPath=target/jacoco.exe \
+                    -Dsonar.java.checkstyle.reportsPath=target/checkstyle-result.xml'''
+                }
+
+            }
+        }
+        stage('Quality Gates') {
+            steps {
+                timeout(time: 1, unit: 'HOURS') {
+                    waitForQualityGate abortPipeline: true
+                }
+            }
+        }
+    }
+}
+
+
+To store the artifact in nexus repository:
+                                           1.create the repository in nexus(choose maven hosted).
+                                           2.add the nexus credentials in jenkins.(manage jenkins --> manage credentials --> click on jenkins ---> global credentials --> add credentials)
+
+Note:
+      1.To attach the timestamp for the artifact, we need to first enable build timestamp(in that mention pattern)
+        ->path is manage jenkins ----> build timestamp.
+
+pipeline {
+    agent any
+    tools {
+        maven 'Maven3'
+        jdk 'OracleJDK11'
+    }
+    stages {
+        stage('Fetch Code') {
+            steps {
+                git branch: 'main', url: 'https://github.com/devopshydclub/vprofile-repo.git'
+            }
+
+        }
+        stage('Build') {
+            steps {
+                sh 'mvn install -DskipTests'
+                
+            }
+            post {
+                success {
+                    echo "Now Archiving it"
+                    archiveArtifacts artifacts: '**/targets/*.war'
+
+                }
+            }
+        }
+        stage('UNIT TEST') {
+            steps {
+                sh 'mvn test'
+            }
+        }
+
+        stage('Checkstyle Analysis') {
+            steps {
+                sh 'mvn checkstyle:checkstyle'
+            }
+        }
+        stage('Sonar Analysis') {
+            environment {
+                scannerHome = tool 'sonar4.7'
+            }
+            steps {
+                withSonarQubeEnv('sonar') {
+                    sh '''${scannerHome}/bin/sonar-scanner  -Dsonar.projectKey=vprofile \
+                    -Dsonar.projectName=vprofile \
+                    -Dsonar.projectVersion=1.0 \
+                    -Dsonar.sources=src/ \
+                    -Dsonar.java.binaries=target/test-classes/com/visualpathit/account/controllerTest/ \
+                    -Dsonar.junit.reportsPath=target/surefire-reports/ \
+                    -Dsonar.jacoco.reportsPath=target/jacoco.exe \
+                    -Dsonar.java.checkstyle.reportsPath=target/checkstyle-result.xml'''
+                }
+
+            }
+        }
+        stage('Quality Gates') {
+            steps {
+                timeout(time: 1, unit: 'HOURS') {
+                    waitForQualityGate abortPipeline: true
+                }
+            }
+        }
+
+        stage('Upload Artifact') {
+            steps {
+                nexusArtifactUploader {
+                    nexusVersion: 'nexus3',
+                    protocol: 'http',
+                    nexusUrl: '172.31.18.21:8081',
+                    groupId: 'QA',
+                    version: "${env.BUILD_ID}-${env.BUILD_TIMESTAMP}",
+                    repository: 'vprofile-repo',
+                    credentialsId: 'nexuslogin',
+                    artifacts: [
+                        [artifactId: 'vproapp',
+                        classifier: '',
+                        file: 'target/vprofile-v2.war',
+                        type: 'war']
+                    ]
+
+                }
+            }
+        }
+    }
+}
+
+
+last is send notification whether the build is passed or failure:
+
+For notifications, we are using tge slack notification:
+                                                         1.create the slack account and then login in.
+                                                         2.create the workspace and then create the channel(i.e group in watsup).
+                                                         3.integrate our channel with jenkins (for that search for add apps to slack in browser,
+                                                                                               search for jenkins and then click on add to slack,
+                                                                                               we need to choose the channel and copy the token).
+                                                         4.install slack notification in jenkins.
+                                                         5.configure the slack.
+                                                           (going through manage jenkins --> slack notifications-->secrete text -> paste the token and give id(name) and description)
+                                                         
+
+
+def COLOR_MAP = [
+    'SUCCESS': 'good',
+    'FAILURE': 'danger',
+]
+pipeline {
+    agent any
+    tools {
+        maven 'Maven3'
+        jdk 'OracleJDK11'
+    }
+    stages {
+        stage('Fetch Code') {
+            steps {
+                git branch: 'main', url: 'https://github.com/devopshydclub/vprofile-repo.git'
+            }
+
+        }
+        stage('Build') {
+            steps {
+                sh 'mvn install -DskipTests'
+                
+            }
+            post {
+                success {
+                    echo "Now Archiving it"
+                    archiveArtifacts artifacts: '**/targets/*.war'
+
+                }
+            }
+        }
+        stage('UNIT TEST') {
+            steps {
+                sh 'mvn test'
+            }
+        }
+
+        stage('Checkstyle Analysis') {
+            steps {
+                sh 'mvn checkstyle:checkstyle'
+            }
+        }
+        stage('Sonar Analysis') {
+            environment {
+                scannerHome = tool 'sonar4.7'
+            }
+            steps {
+                withSonarQubeEnv('sonar') {
+                    sh '''${scannerHome}/bin/sonar-scanner  -Dsonar.projectKey=vprofile \
+                    -Dsonar.projectName=vprofile \
+                    -Dsonar.projectVersion=1.0 \
+                    -Dsonar.sources=src/ \
+                    -Dsonar.java.binaries=target/test-classes/com/visualpathit/account/controllerTest/ \
+                    -Dsonar.junit.reportsPath=target/surefire-reports/ \
+                    -Dsonar.jacoco.reportsPath=target/jacoco.exe \
+                    -Dsonar.java.checkstyle.reportsPath=target/checkstyle-result.xml'''
+                }
+
+            }
+        }
+        stage('Quality Gates') {
+            steps {
+                timeout(time: 1, unit: 'HOURS') {
+                    waitForQualityGate abortPipeline: true
+                }
+            }
+        }
+
+        stage('Upload Artifact') {
+            steps {
+                nexusArtifactUploader {
+                    nexusVersion: 'nexus3',
+                    protocol: 'http',
+                    nexusUrl: '172.31.18.21:8081',
+                    groupId: 'QA',
+                    version: "${env.BUILD_ID}-${env.BUILD_TIMESTAMP}",
+                    repository: 'vprofile-repo',
+                    credentialsId: 'nexuslogin',
+                    artifacts: [
+                        [artifactId: 'vproapp',
+                        classifier: '',
+                        file: 'target/vprofile-v2.war',
+                        type: 'war']
+                    ]
+
+                }
+            }
+        }
+    }
+
+    post {
+        always {
+            echo 'slack notification.'
+            slackSend channel: '#jenkinscicd'.
+            color: COLOR_MAP[currentBuild.currentResult],
+            message: "*${currentBuild.currentResult}:* Job ${env.JOB_NAME} build ${env.BUILD_NUMBER} \n More info at: ${env.BUILD_URL}"
+
+        }
+    }
+}
+                                           
+
+
 
 
 
