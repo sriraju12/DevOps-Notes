@@ -2122,6 +2122,117 @@ pre requisites for nodes setup:
 
 
 
+Python scripting:
+                   The main difference between bash scripting and python scripting is, in python scripting indentation(i.e spaces)
+                   is very important where as in bash scripting it really doesn't care about indentation.
+
+
+Quotes And Comments:
+
+                      1.# -> this is a single line comment.
+                      2.""" multi line comment in double quote""".
+                             or
+                        ''' multi line comment in single quote'''.
+                      3.print("""this is a paragraph string 
+                                 you can use in multiple line using double quotes""").
+                                             
+                                             or
+
+                      4.print('''this is a paragraph string
+                                 you can use in multiple lines using single quotes''').
+
+
+Note:
+      In python, single quotes and double quotes both are same.
+
+
+Variables:
+            variable are like temporary storage of values.
+
+            1.x = "abc" -> single variable assignment.
+
+            2.a = b = c = 65 -> multi variable assignment to single value and values of all variables is same.
+
+            3.a, b, c = "alpha", 3, 3.5 -> multi variable assignment to multiple values and values of all variables follows the order.
+          
+            4.type -> this method is used to print the type of the variable(i.e print("the type of a is",type(q)) ).
+
+            
+Data types:
+
+             1.list:
+                      first_list = ["alpha", 123, 3.4].
+             
+             2.tuple:
+                      first_tuple = ("alpha", 123, 3.4).
+
+               * list and tuple both are same by visibility.The difference is list enclosed in sqaure brackets and
+               tuple is enclosed in rounded brackets.
+         
+               * The main difference is list is mutable(i.e we can modify its values) and tuple is immutable(i.e we can not modify its values). 
+
+             3.dictionary:
+                           first_dictionary = {"Name:"raju", "Weight":85, "Exercises":["Boxing", "Running", "Pushups"]}
+
+               * In dictionary data is store in key-value pair and enclosed in curly brackets.
+
+             4.boolean:
+                        x = True and y = False. 
+
+
+Print Format:
+               name = "raju"
+               weight = 85
+
+               1. print("name of the person is",name)
+                      
+                          or
+
+                  print("name of the person is {}".format(name))
+               
+                     *here {} will be replaced by value of name.
+                     *here you have an option to place the curly brackets({}) anywhere you want.
+
+                  print("{} is name of the person".format(name))
+
+
+               2.if you want to put multiple values then
+                         
+                     * print("name of the person is {} and his weight is {}".format(name,weight))
+
+                     *here first curly bracket replaced by name and second curly bracket is replaced by weight.
+
+               3.print(f"name of the person is {name} and his weight is {weight}") --> it will work only on python version above 3.6 
+
+               4.concatenation:
+                                print("name of the person is"+" "+name)
+  
+                   
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
   
 
