@@ -2191,6 +2191,7 @@ Print Format:
                   print("name of the person is {}".format(name))
                
                      *here {} will be replaced by value of name.
+
                      *here you have an option to place the curly brackets({}) anywhere you want.
 
                   print("{} is name of the person".format(name))
@@ -2206,6 +2207,187 @@ Print Format:
 
                4.concatenation:
                                 print("name of the person is"+" "+name)
+
+
+
+Slicing:
+         slicing means getting a substring from string.
+
+         galaxy = "we are in milkyway galaxy"
+         
+         1.print(galaxy[0]) -> it will give 'w' as output.
+       
+         2.print(galaxy[ : ] -> it will print entire string.this is range(start and end-1)
+         
+         3.print(galaxy[0:2] -> it will give 'we' as output.
+ 
+         4.print(galaxy[-1] -> it will give 'y' as output and this is called negative indexing(starts with -1,-2,-3 etc).
+
+
+  slicing in list and tuple:
+                              slicing in list and tuple both are same.
+
+
+                               devops = ["Linux, "Vagrant", "Bash scripting", "Aws", "python scripting", "Ansible"]
+
+                               1.print(devops[0]) -> it will print Linux
+ 
+                               2.print(devops[0:3]) -> it will print ['Linux', 'vagrant', 'Bash scripting']
+
+                               3.print(devops[0:3][2][5:11]) -> it will print script
+
+
+ slicing in dictionary:
+                         Skills = {"DevOps": ("Linux", "Vagrant", "Bash scripting"), "Development": ["Java", "NodeJS", "React"]}
+
+                         1.print(Skills[DevOps]) -> it will print ('Linux', 'Vagrant', 'Bash scripting')
+
+                         2.print(Skills[DevOps][2]) -> it will print Bash scripting
+
+                         3.print(Skills[DevOps][2][5:11] -> it will print script
+
+                         4.print(Skills[DevOps][2][-1] -> it will print g
+
+
+
+membership operator:
+
+                      Skills = ("DevOps","Linux",23,45.7)
+
+                       1.ans = "DevOps" in Skills
+                         print(ans) -> it will print True (because DevOps present in Skills tuple).
+
+                       2.ans = "Aws" in Skills
+                         print(ans) -> it will print False.
+
+                       3.ans = 20 not in Skills
+                         print(ans) -> it will print True.
+
+
+identity operator:
+                    Identity operator is same as == operator.
+                    a = 10 , b = 15
+                  
+                    1. ans = a is b
+                       print(ans) -> it will print False
+
+                    2.ans =  a is not b
+                       print(ans) -> it will print True.
+
+
+Conditions:
+
+             1. if/else:
+
+                            x = 10
+
+                            if x < 10:
+                               print("X is less than 10")
+                            else:
+                               print("X is equal to 10")
+
+              
+             2. if/elif/else:
+
+                              x = 20
+
+                              if x > 20:
+                                 print("x is greater than 20")
+                              elif x == 20:
+                                 print("x is equals to 20")
+                              else:
+                                 print("x is less than 20")
+
+
+
+sample program using above concepts:
+
+                                     DevOps = ["Linux", "Vagrant", "Bash scripting", "Aws", "Python"]
+                                     Developement = ("Java", ".net", "React", "NodeJS")
+                                     contract_emp1 = {"Name":"Raju", "Skill":"Full stack", "Code":1234}
+                                     contract_emp2 = {"Name":"sandy", "Skill":"Jenkins", "Code":5678}
+
+                                     user_skill = input("Enter the skills to be searched")
+
+                                     if user_skill in DevOps:
+                                        print(f"we have {user_skill} in devops team.")
+                                     elif user_skill in Development:
+                                        print(f"we have {user_skill} in developement team.")
+                                     elif (user_skill in contract_emp1.values()) or (user_skill in contract_emp2.values()):
+                                        print(f"we have contract employee with {user_skill} skills in  team.")
+                                      else:
+                                        print("No such skills found")
+
+
+Loops:
+
+        1. For Loop:
+                      PLANET = "EARTH"
+ 
+                     for i in PLANET:    // here i is variable name
+                         print(i)
+                     print("outside of for loop) //it will print E 
+                                                                 A
+                                                                 R
+                                                                 T
+                                                                 H  
+
+                   
+                     SKILLS = ["Linux", "Aws", "Vagrant"]
+
+                     for i in SKILLS:   // here i is variable name
+                         print(i) // it prints every word in new line
+
+             *Nested for loop:
+                               
+                                SKILLS = ["Linux", "Aws", "Vagrant"]
+
+                                for skill in SKILLS:
+                                    print("")
+                                    print("the skill is")
+                                    for i in skill:
+                                        print(i)
+                                print("outside of for loop") // output is
+                                                                            the skill is
+                                                                             L
+                                                                             i
+                                                                             n
+                                                                             u
+                                                                             x and follws with others values.
+
+                               
+
+
+         2. While Loop:
+
+                        x = 1
+
+                        while x <= 10:
+                             print("the value of x:",x)
+                             x+=1
+                        print("outside of while loop") // it will print 1 to 10
+
+
+              import time
+
+                 x = 2
+
+                 while True:
+                     print("the value of x is",x)
+                     x*=2
+                     time.sleep(1)
+                 print("outside of while loop) // it wil print 2, 4, 8, 16, etc while delay of 1 sec for infinite times.
+
+ 
+
+
+
+
+
+
+
+
+                   
   
                    
           
