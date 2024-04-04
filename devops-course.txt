@@ -2378,6 +2378,154 @@ Loops:
                      time.sleep(1)
                  print("outside of while loop) // it wil print 2, 4, 8, 16, etc while delay of 1 sec for infinite times.
 
+
+Break & Continue:
+                   Break:
+                         it will break the loop.
+
+                         for i in "DevOps":
+                             print(i)
+                             if i == 'O':
+                             break
+                         print("out of loop")
+
+
+                     import random
+
+                     VACCINE = ["Covacine", "Modona", "Pfizer", "CoronaVac"]
+                     random.shuffle(VACCINE)
+                     LUCKY = random.choice(VACCINE)
+
+                     for vac in VACCINE:
+                         if vac == LUCKY:
+                             print(f"{vac} Test was sucessfull")
+                             break
+                         print(f"{vac} Test was failed")
+
+
+                   Continue:
+                             it will skip the current iteration.
+
+                             for i in "DevOps":
+                                 if i == 'O':
+                                    continue
+                                    print(i)
+                             print("out of loop")
+
+
+                     import random
+
+                     VACCINE = ["Covacine", "Modona", "Pfizer", "CoronaVac"]
+                     random.shuffle(VACCINE)
+                     LUCKY = random.choice(VACCINE)
+
+                     for vac in VACCINE:
+                         if vac == LUCKY:
+                             print(f"{vac} Test was sucessfull")
+                             continue
+                         print(f"{vac} Test was failed")
+
+
+
+Built-in functions:
+                   message = "welcome to python scripting"
+
+                    1.dir([]) -> it will return all the built-in methods available for that.
+                    2.print(message.find("python") -> it will print 11 (because python starting index number is 11)
+                    3.in the above example the search word is not present then it will print -1.
+ 
+                    seq1 = ("192","168","90","40")
+                    4.print(".".join(seq1)) // 192.168.90.40
+                    5.print("-".join(seq1)) //192-168-90-40
+
+ combining two list:
+                     mountain = ["everest", "kilimanjaro", "sahara"]
+                     numbers = [1,2,3,4,5]
+                     mountain.extend(numbers)
+                     print(mountain)
+
+
+Note:
+       1.The main difference between append and insert is, in append the value is added at the last.
+         whereas in insert we can add the value at specific position.
+       2.pop() -> this will delete the value from the list at the end.
+       3.pop(3) -> this will delete the value that is present is 3 index number.
+    
+      4.print(contract_emp1.keys()) -> in dictionaries it will print will keys.
+      5.print(contract_emp1.values()) -> in dictionaries it will print will values.
+      6.print(contract_emp1.clear()) -> in dictionaries it will delete all entire dictionary and prints empty dictionary.
+
+
+Functions:
+           A function is block of orgnized, reusable code that is used to perform single,related action.
+
+           def add(arg1,arg2):
+                total = arg1 + arg2
+               return total
+           print(add(10,20)) // 30
+
+
+
+           def summ(args):
+                 x = 0
+                for i in args:
+                   x = x + i
+                return x
+           print(summ([1,2,3]) // 6
+
+
+default argument:
+                    def greeting(MSG="morning"):
+                        print(f"good {MSG}")
+                        print("welcome to functions")
+
+                    greeting() // good morning
+                    greeting("evening") // good evening
+
+
+
+ def vac_feedback(vac, effiency):
+    print(f"{vac} have the {effiency} % effiency")
+    if effiency > 50 and effiency <=75:
+        print("It is not effective, Need more trials")
+    elif effiency > 75 and effiency < 90:
+        print("we can consider it")
+    elif effiency >= 90:
+        print("Sure, we can take it")
+    else:
+        print("Need many more trials")
+        
+vac_feedback("covaxin", 70)
+
+Note:
+      in functions order of the argument does not matter,we can give any order just mention the argument name follwed by its value.
+  
+      i.e vac_feedback(effiency=74, vac="Pfizer")
+
+
+varibale length argument(non key argument(args)):
+                                             def order(min_order,*args):
+                                                 print(f"you have ordered: {min_order}")
+                                                 for item in args:
+                                                     print(f"you have ordered: {item}")
+                                                 print("it will be delivered in 30 mins")
+                                                 print("enjoy the party")
+                                             order("salad", "KFC", "biryani")
+
+
+variable length argument(key argument(kwargs)):
+                                         import random
+                                         def time_activity(*args,**kwargs):
+                                             min = sum(args) + random.randint(0, 60)
+                                             choice = random.choice(list(kwargs.keys()))
+                                             print(f"you have {min} minutes for {kwargs[choice]} activity")
+    
+                                          time_activity(10, 20, 30, sports="Cricket", hobby="Watching Tv", work="DevOps")
+
+
+
+             
+
  
 
 
