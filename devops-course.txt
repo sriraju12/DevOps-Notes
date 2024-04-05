@@ -2524,6 +2524,112 @@ variable length argument(key argument(kwargs)):
 
 
 
+sample script:
+                #!/usr/bin/python3
+
+                import os
+                path = "/tmp/testfile.txt"
+           
+                if os.path.isdir(path):
+                    print("it is a directory")
+                elif os.path.isfile(path):
+                    print("it is a file")
+                else:
+                    print("file or directory does not exist")
+
+
+adding user:
+               #!/usr/bin/python3
+
+               import os
+
+               userlist = ["raju", "sandy", "kitty"]
+               for user in userlist:
+                   exitcode = os.system("id {}".format(user))
+                   if exitcode != 0:
+                       print("user does not found, we are adding the user")
+                       os.system("useradd {}".format(user))
+                   else:
+                         print("user already exists)
+  
+
+adding group:
+
+                 #!/usr/bin/python3
+
+               import os
+               exitcode = os.system("grep science /etc/group")
+               if exitcode != 0:
+                  print("group does not exist, we are adding it")
+                  os.system("groupadd science")
+               else:
+                    print("group already exist")
+
+
+now we are adding user into the group:
+                                          #!/usr/bin/python3
+
+                                           import os
+
+                                           userlist = ["raju", "sandy", "kitty"]
+                                           for user in userlist:
+                                               exitcode = os.system("id {}".format(user))
+                                               if exitcode != 0:
+                                                   print("user does not found, we are adding the user")
+                                                   os.system("useradd {}".format(user))
+                                               else:
+                                                  print("user already exists)
+
+                                            exitcode = os.system("grep science /etc/group")
+                                            if exitcode != 0:
+                                                print("group does not exist, we are adding it")
+                                                os.system("groupadd science")
+                                            else:
+                                                 print("group already exist")
+
+                                            for user in userlist:
+                                                 print("adding user {} in the science group".format(user))
+                                                 os.system("usermod -G science {}".format(user))
+
+now giving ownership and file permissions:
+
+                                            #!/usr/bin/python3
+
+                                           import os
+
+                                           userlist = ["raju", "sandy", "kitty"]
+                                           for user in userlist:
+                                               exitcode = os.system("id {}".format(user))
+                                               if exitcode != 0:
+                                                   print("user does not found, we are adding the user")
+                                                   os.system("useradd {}".format(user))
+                                               else:
+                                                  print("user already exists)
+
+                                            exitcode = os.system("grep science /etc/group")
+                                            if exitcode != 0:
+                                                print("group does not exist, we are adding it")
+                                                os.system("groupadd science")
+                                            else:
+                                                 print("group already exist")
+
+                                            for user in userlist:
+                                                 print("adding user {} in the science group".format(user))
+                                                 os.system("usermod -G science {}".format(user))
+
+                                             if os.path.isdir("/opt/science dir"):
+                                                 print("directory already exist")
+                                             else:
+                                                   os.mkdir("/opt/science dir")
+
+                                             print("assigning ownership and permissions to group")
+                                             os.system("chown :science "/opt/science dir")
+                                             os.system("chmod 770 /opt/science dir")
+
+                                          
+  
+    
+
              
 
  
