@@ -2626,6 +2626,96 @@ now giving ownership and file permissions:
                                              os.system("chown :science "/opt/science dir")
                                              os.system("chmod 770 /opt/science dir")
 
+
+
+
+
+
+Ansible:
+         Ansible is a automation tool for configuration managament.
+
+inventory file -> which contains the information about target machines to login(ssh).
+                  i.e ip,username and private keys to login.
+
+ansible web01 -m ping -i inventory -> to connect with the target machines.
+                                      here web01 is hostname, -m means module, ping means ssh,
+                                      inventory means use this information to connect with target machines.
+
+whenever we try connect ssh to the machine,first time it will ask the fingerprint yes or no.
+but we dont want that to be interactive.so need to disable that host_key_checking to false.
+
+1.ansible configuration file available in this path -> cat /etc/ansible/ansible.cfg
+2.login into root user and cd to /etc/ansible
+3.for safer side we need to backup the ansible configuration file -> mv ansible.cfg ansible.cfg_backup
+4.run the command => ansible-config init --disabled -t all > ansible.cfg
+5.open the ansible.cfg file -> vim ansible.cfg
+6.set host_key_checking=False and remove the semicolon and save the file and exit from root user
+7.change the permission of clientkey.pem(private key) file -> chmod 400 clientkey.pem
+
+here the inventory file 
+
+all:
+  hosts:
+    web01:
+      ansible_hostname: 172.31.29.73  //private ip
+      ansible_user: ec2-user
+      ansible_ssh_private_key_file: clientkey.pem
+    web02:
+      ansible_host: 172.31.22.218
+      ansible_user: ec2-user
+      ansible_ssh_private_key_file: clientkey.pem
+    db01:
+      ansible_host: 172.31.19.81
+      ansible_user: ec2-user
+      ansible_ssh_private_key_file: clientkey.pem
+
+  children:   //This is grouping
+    webservers:
+      hosts:
+        web01:
+        web02:
+    dbservers:
+      hosts:
+        db01:
+    dc_oregon:
+      children:
+        webservers:
+        dbservers:
+
+now writing the same inventory file with variables,
+
+all:
+  hosts:
+    web01:
+      ansible_hostname: 172.31.29.73
+    web02:
+      ansible_host: 172.31.22.218
+    db01:
+      ansible_host: 172.31.19.81
+      
+  children:
+    webservers:
+      hosts:
+        web01:
+        web02:
+    dbservers:
+      hosts:
+        db01:
+    dc_oregon:
+      children:
+        webservers:
+        dbservers:
+      vars:
+        ansible_user: ec2-user
+        ansible_ssh_private_key_file: clientkey.pem
+
+Note:
+     1. host level variables has high priority and group level variables has low priority.
+     2. whenever the variables are not found in the host level then it will search in group level.
+
+
+
+
                                           
   
     
