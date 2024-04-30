@@ -2713,6 +2713,117 @@ Note:
      1. host level variables has high priority and group level variables has low priority.
      2. whenever the variables are not found in the host level then it will search in group level.
 
+     ** congiguration management tools maintains state.it compares the previous state to the present state.
+        if anything changes then it will return true orelse it will return false. 
+
+
+YAML:
+
+{"foods": ["Apple", "Orange", "strawberry", "Mango"], "names": ["raju", "sandy", "sri"], "languages": {"perl":"Elite", "python":"Elite", "pascal":"Lame"} }
+
+YAML SYNTAX:
+             foods:
+               - Apple
+               - Orange
+               - Strawberry
+               - Mango
+             names:
+               - raju
+               - sandy
+               - sri
+             languages:
+               perl: Elite
+               python: Elite
+               pascal: Lame
+
+
+
+Ad Hoc commands:
+                 ad hoc commands are great for tasks you repeat rarely. For example, 
+                 if you want to power off all the machines in your lab for Christmas vacation,
+                 you could execute a quick one-liner in Ansible without writing a playbook.
+
+
+ansible web01 -m ansible.builtin.yum -a "name=httpd state=present" -i inventory --become :
+
+        here target machine is web01 and in that machine download httpd service, and -a means argumements
+        --become means it will act as sudo and name is package name that you want to install.
+
+ansible webservers -m ansible.builtin.yum -a "name=httpd state=present" -i inventory --become :
+
+       here target machine is webservers(web01 & web02) and in that machine download httpd service,
+       -a means argumements and --become means it will act as sudo and name is package name that you want to install.
+
+
+
+ansible webservers -m ansible.builtin.service -a "name=httpd state=started enabled=yes" -i inventory --become :
+    
+       here target machine is webservers(web01 & web02) and in that machine,it will start httpd service and enabled httpd service,
+       -a means argumements and --become means it will act as sudo and name is package name that you want to install.
+
+        
+
+ansible webservers -m ansible.builtin.copy -a "src=index.html dest=/var/www/html/index.html" -i inventory --become :
+
+      here target machine is webservers(web01 & web02) and in that machine,it will copy the index.html file to /var/www/html/index.html this location ,
+      -a means argumements and --become means it will act as sudo and name is package name that you want to install.
+
+
+
+Playbooks and Modules:
+                       A playbook runs in order from top to bottom. Within each play, 
+                       tasks also run in order from top to bottom. Playbooks with multiple ‘plays’ can orchestrate multi-machine deployments,
+                       running one play on your webservers, then another play on your database servers,
+                       then a third play on your network infrastructure, and so on.
+
+                       Playbooks are written in YAML format.
+
+Playbook syntax:
+
+                   
+- name: webservers setup
+  hosts: webservers
+  become: yes
+  tasks: 
+    - name: Install httpd
+      ansible.builtin.yum:
+        name: httpd
+        state: present
+
+    - name: Start service
+      ansible.builtin.service:
+        name: httpd
+        state: started
+        enabled: yes
+
+- name: dbserver setup
+  hosts: dbservers
+  become: yes
+  tasks:
+    -name: Install mariadb-server
+     ansible.builtin.yum:
+       name: mariadb-server
+       state: start    
+
+to run playbook -> ansible-playbook -i inventory web-db.yaml   // here web-db.yaml is the playbook.
+
+ansible-playbook -i inventory web-db.yaml --syntax-check -> it will check whether the syntax is correct or not in the playbook.
+
+ansible-playbook -i inventory web-db.yaml -C -> it will execute the dry run 
+
+Executing this command will run the playbook normally, but instead of implementing any modifications,
+Ansible will simply provide a report on the changes it would have made.
+This report encompasses details such as file modifications, command execution, and module calls.
+
+Check mode offers a safe and practical approach to examine the functionality of your playbooks without risking unintended changes to your systems.
+Moreover, it is a valuable tool for troubleshooting playbooks that are not functioning as expected.
+
+ansible-playbook -i inventory web-db.yaml -v ->it will helps to troubleshooting playbooks.
+                                               we can pass upto 4v's to troubleshooting playbooks indetail.
+                       
+
+
+
 
 
 
