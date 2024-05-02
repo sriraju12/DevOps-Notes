@@ -2800,10 +2800,10 @@ Playbook syntax:
   hosts: dbservers
   become: yes
   tasks:
-    -name: Install mariadb-server
-     ansible.builtin.yum:
-       name: mariadb-server
-       state: start    
+    - name: Install mariadb-server
+      ansible.builtin.yum:
+        name: mariadb-server
+        state: present    
 
 to run playbook -> ansible-playbook -i inventory web-db.yaml   // here web-db.yaml is the playbook.
 
@@ -2820,6 +2820,204 @@ Moreover, it is a valuable tool for troubleshooting playbooks that are not funct
 
 ansible-playbook -i inventory web-db.yaml -v ->it will helps to troubleshooting playbooks.
                                                we can pass upto 4v's to troubleshooting playbooks indetail.
+
+
+modules:
+
+        lets see how we can do copy a file to remote location using playbook modules.
+
+        - name: Webservers setup
+          hosts: webservers 
+          become: yes
+          tasks:
+            - name: Install httpd
+              ansible.builtin.yum:
+                name: httpd
+                state: present
+      
+        - name: Start service
+          ansible.builtin.service:
+            name: httpd
+            state: started
+            enabled: yes
+
+       - name: copy a index file
+         copy:
+           src: files/index.html
+           dest: /var/www/html/index.html
+           backup: yes
+
+now lets see how we can create a database table with accounts and add users to the table using playbook modules.
+
+
+steps:
+ 
+    1.need to know the exact package name of pymysql.so login into target machine 
+      and check the exact package name of pymysql
+    3.you need to download the package ansible-galaxy collection install community.mysql  in host machine.
+    2.you need to mention the socket where it is located(path) for interaction.
+
+- name: dbservers setup
+  hosts: dbservers
+  become: yes
+  tasks:
+    - name: Install mariadb-server
+      ansible.builtin.yum:
+        name: mariadb-server
+        state: present
+
+    - name: Install pymysql
+      ansible.builtin.yum:
+        name: python3-PyMySQL
+        state: present
+
+    - name: start the service
+      ansible.builtin.service:
+        name: mariadb
+        state: started
+        enabled: yes
+
+    - name: Create a new database with name 'accounts'
+      community.mysql.mysql_db:
+        name: accounts
+        state: present
+        login_unix_socket: /var/lib/mysql/mysql.sock
+
+    - name: Create database user with name 'vprofile'
+      community.mysql.mysql_user:
+        name: vprofile
+        password: 'admin123'
+        priv: '*.*:ALL'
+        state: present
+        login_unix_socket: /var/lib/mysql/mysql.sock
+
+
+we can change the default ansible configuration settings:
+                                              
+                                                     order of ansible configuration file:
+                                                                                           1.ANSIBLE_CONFIG(environment variable if set)
+2.ansible.cfg(in the current directory)
+3.~/.ansible.cfg(in the home directory)
+4./etc/ansible/ansible.cfg
+
+now we can write our own ansible configuration settings:
+                                                         place this file ansible.cfg in your repository or current working directory.
+
+[defaults]
+host_key_checking=False
+inventory=./inventory   //if you mention inventory file in the configuration settings, you don't need to -i inventory while executing the file.
+forks=5
+log_path=/var/log/ansible.log
+
+[privilege_escalation]
+become=True
+become_method=sudo
+become_ask_pass=False
+
+while setting up above configuration,we will get warning about the log_path to solve this,
+
+1.first create this path -> sudo touch /var/log/ansible.log
+2.change the ownership of the file -> sudo chown ubuntu.ubuntu /var/log/ansible.log 
+
+
+Decision making:
+
+here we are doing baseb on the operating system we are installing the service and starting the service in target machines.
+
+
+---
+- name: provisioning servers
+  hosts: all
+  become: yes
+  tasks: 
+    - name: install ntp agent on centos
+      yum:
+        name: chrony
+        state: present
+      when ansible_distribution == "CentOS"
+
+    - name: install ntp agent on ubuntu
+      apt:
+        name: ntp
+        state: present
+        update_cache: yes
+      when ansible_distribution == "Ubuntu"
+
+    - name: start the ntp service on centos
+      service:
+        name: chronyd
+        state: started
+        enabled: yes
+      when ansible_distribution == "CentOS"
+
+    - name: start the ntp service on ubuntu
+      service:
+        name: ntp
+        state: started
+        enabled: yes
+      when ansible_distribution == "Ubuntu" 
+
+
+Loops:
+
+here we are doing base on the operating system we are installing the multiple services without writting same again using loops
+and starting the service in target machines.
+
+---
+- name: provisioning servers
+  hosts: all
+  become: yes
+  tasks: 
+    - name: install ntp agent on centos
+      yum:
+        name: "{{item}}"
+        state: present
+      when ansible_distribution == "CentOS"
+      loop:                        // here loop return the item thats why we are using that item as variable in the above.
+        - chrony
+        - wget
+        - zip
+        - unzip
+        - git
+
+    - name: install ntp agent on ubuntu
+      apt:
+        name: "{{item}}"
+        state: present
+        update_cache: yes
+      when ansible_distribution == "Ubuntu"
+      loop:                // here loop return the item thats why we are using that item as variable in the above.
+        - ntp
+        - wget
+        - zip
+        - unzip
+        - git
+
+    - name: start the ntp service on centos
+      service:
+        name: chronyd
+        state: started
+        enabled: yes
+      when ansible_distribution == "CentOS"
+
+    - name: start the ntp service on ubuntu
+      service:
+        name: ntp
+        state: started
+        enabled: yes
+      when ansible_distribution == "Ubuntu" 
+
+
+
+
+        
+
+        
+
+
+
+
+
                        
 
 
