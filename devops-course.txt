@@ -3008,6 +3008,174 @@ and starting the service in target machines.
       when ansible_distribution == "Ubuntu" 
 
 
+lets say how we can create the folder in target machines and banner file(when the user login into the target machine it displays the message)
+
+
+---
+- name: provisioning servers
+  hosts: all
+  become: yes
+  tasks: 
+    - name: install ntp agent on centos
+      yum:
+        name: "{{item}}"
+        state: present
+      when ansible_distribution == "CentOS"
+      loop:
+        - chrony
+        - wget
+        - zip
+        - unzip
+        - git
+
+    - name: install ntp agent on ubuntu
+      apt:
+        name: "{{item}}"
+        state: present
+        update_cache: yes
+      when ansible_distribution == "Ubuntu"
+      loop:
+        - ntp
+        - wget
+        - zip
+        - unzip
+        - git
+
+    - name: create a folder
+      file:
+        path: /opt/test
+        state: directory
+
+    - name: Banner file
+      copy:
+        content: '# This server is managed by ansible and no manual changes please'
+        dest: /etc/motd  // this the default location of banner file.
+
+    - name: start the ntp service on centos
+      service:
+        name: chronyd
+        state: started
+        enabled: yes
+      when ansible_distribution == "CentOS"
+
+    - name: start the ntp service on ubuntu
+      service:
+        name: ntp
+        state: started
+        enabled: yes
+      when ansible_distribution == "Ubuntu" 
+
+
+
+Ansible-AWS:
+
+lets see how we can configure aws using ansible.
+
+1.we need provide authentication for ansible to connect with aws account.
+2.create a IAM user
+3.we need to export acess_key_id and secret_acess_key. if you export directly then these authentication values stores temporarly.
+4.for permanently stores authentication values use bashrc file -> vim .bashrc
+   add export AWS_ACCESS_KEY_ID='AK123'
+       export AWS_SECRET_ACCESS_KEY='abc123' replace values with original values.
+5.run source .bashrc -> to update the values.
+
+
+Now lets see how we can create key-pair using ansible-playbook.
+
+1.first we need to download this package -> ansible-galaxy collection install amazon.aws
+2.we need to download the boto to connect to aws.
+3. first install pip and then boto -> sudo apt install python3-pip -y
+                                      pip3.10 install boto3
+4.you need give the region while creating the tasks for key-pair.
+
+
+- hosts: localhost
+  gather_facts: False
+  tasks:
+    - name: create key-pair
+      amazon.aws.ec2_key:
+        name: sample-key
+        region: us-east-1
+      register: keyout   
+
+    - name: print key
+      debug:
+        var: keyout
+        
+    - name: save key
+      copy:
+        content: "{{keyout.key.private_key}}"
+        dest: ./sample.pem
+      when keyout.changed == True
+
+
+Now lets see how we can launch aws ec2 instance using ansible-playbook.
+
+1.first we need to download this package -> ansible-galaxy collection install amazon.aws
+2.we need to download the boto to connect to aws.
+3. first install pip and then boto -> sudo apt install python3-pip -y
+                                      pip3.10 install boto3
+
+
+
+
+- hosts: localhost
+  gather_facts: False
+  tasks:
+    - name: create key-pair
+      amazon.aws.ec2_key:
+        name: sample-key
+        region: us-east-1
+      register: keyout   
+
+    - name: print key
+      debug:
+        var: keyout
+
+    - name: save key
+      copy:
+        content: "{{keyout.key.private_key}}"
+        dest: ./sample.pem
+      when keyout.changed == True
+
+    - name: start an instance 
+      amazon.aws.ec2_instance:
+        name: "public-compute-instance"
+        key_name: "sample-key"
+       #vpc_subnet_id: subnet-5ca1ab1e
+        instance_type: t2.micro
+        security_group: default
+       #network:
+         #assign_public_ip: true
+       image_id: ami-123456
+       exact_count: 1
+       region: us-east-1
+       tags:
+         Environment: Testing
+
+Note:
+       for cloud automation terraform is better when compare to ansible.
+
+
+
+
+
+
+
+
+
+
+    
+
+    
+
+        
+
+
+
+
+
+
 
 
         
