@@ -1271,6 +1271,82 @@ Note:
 
 
 
+AWS-part-2:
+
+         VPC(Virtual Private Cloud):
+                                     1.vpc is a logical data center within a region.
+                                     2.vpc is an on-demand configurable pool of shared computing resources allocated within a public cloud environment.
+                                     3.control over network environment,select ip address range,subnets and configure route tables and gateways.
+
+         Subnet Masks:
+                       A subnet mask is used to divide an IP address into two parts.
+                       One part identifies the host (computer), 
+                       the other part identifies the network to which it belongs.
+                       To better understand how IP addresses and subnet masks work, look at an IP address and see how it's organized.
+
+                        ex: our ip is 192.168.0.172
+                            and subnet mask is 255.255.255.0
+                            here 192.168.0.0 is network ip(class c) and last ip is 192.168.0.255 is for broadcast.
+
+                         based on the subnet masks only we can avaiable ips.
+                         like start with 192.168.0.1 to 192.168.0.255.here first three octet are fixed because of subnets(255.255.255.0)
+
+         CIDR(Classless Inter-Domain Routing):
+                                              Classless Inter-Domain Routing (CIDR) notation is a way to represent an IP address and its network mask.
+
+                                               ex: 192.168.0.172 is network ip                  
+                                                   255.255.255.0 is subnet masks
+
+                                          This can be represent as 192.168.0.0/24 which is 255.255.255.0 as subnet
+
+                                                 255.0.0.0
+                                                 /8
+
+             this can be represented as          11111111.00000000.00000000.00000000
+                                           
+                                                 255.255.0.0
+                                                 /16
+
+                                                 11111111.11111111.00000000.00000000
+
+                                                 255.255.255.0
+                                                 /24
+                         
+                                                 11111111.11111111.11111111.00000000
+
+
+         VPC design and components:
+                                     vpc is divide into two parts.one is public subnet and another is private subnet.
+
+                                     public subnet is connected to internet gateway and private subnet is connected to NAT gateway present inside public subnet.
+
+         NAT gateway:
+                      Network Address Translation(NAT) gateway to enable instances in a private subnet to connect to the internet or other aws resources. 
+
+         Internet Gateway:
+                           An internet gateway is horizontally scaled,redudant and 
+                           highly available VPC components that allows communication between instances in your vpc and the internet.
+
+        Note:
+              we can not create a default VPC in aws.
+
+
+      flow for creating VPC:
+                              1.create VPC
+                              2.create subnets(public subnets & private subnets)
+                              3.create internet gateway.
+                              4.create NAT gateway and before that create Elastic Ip and attach that to NAT gateway.
+                              5.create Route Tables and Add the subnet association and Route(public subnet attach to internet gateway)
+                                                                                             & private subnet attach to NAT gateway
+                              6.Go to subnets and click on action, click on edit subnet settings and Enable auto-assign public IPv4 address.
+                                do this for all public subnets.
+
+                              7.Go to your VPC and click on action,click on edit VPC settings and Enable DNS hostnames. 
+
+
+
+
+
 
 GIT:
      Git is distributed version control system.
@@ -2998,14 +3074,14 @@ and starting the service in target machines.
         name: chronyd
         state: started
         enabled: yes
-      when ansible_distribution == "CentOS"
+      when: ansible_distribution == "CentOS"
 
     - name: start the ntp service on ubuntu
       service:
         name: ntp
         state: started
         enabled: yes
-      when ansible_distribution == "Ubuntu" 
+      when: ansible_distribution == "Ubuntu" 
 
 
 lets say how we can create the folder in target machines and banner file(when the user login into the target machine it displays the message)
@@ -3056,14 +3132,14 @@ lets say how we can create the folder in target machines and banner file(when th
         name: chronyd
         state: started
         enabled: yes
-      when ansible_distribution == "CentOS"
+      when: ansible_distribution == "CentOS"
 
     - name: start the ntp service on ubuntu
       service:
         name: ntp
         state: started
         enabled: yes
-      when ansible_distribution == "Ubuntu" 
+      when: ansible_distribution == "Ubuntu" 
 
 
 
@@ -3106,7 +3182,7 @@ Now lets see how we can create key-pair using ansible-playbook.
       copy:
         content: "{{keyout.key.private_key}}"
         dest: ./sample.pem
-      when keyout.changed == True
+      when: keyout.changed == True
 
 
 Now lets see how we can launch aws ec2 instance using ansible-playbook.
@@ -3136,7 +3212,7 @@ Now lets see how we can launch aws ec2 instance using ansible-playbook.
       copy:
         content: "{{keyout.key.private_key}}"
         dest: ./sample.pem
-      when keyout.changed == True
+      when: keyout.changed 
 
     - name: start an instance 
       amazon.aws.ec2_instance:
