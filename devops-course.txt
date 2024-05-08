@@ -1327,9 +1327,19 @@ AWS-part-2:
                            An internet gateway is horizontally scaled,redudant and 
                            highly available VPC components that allows communication between instances in your vpc and the internet.
 
-        Note:
-              we can not create a default VPC in aws.
+        Bastion Host:
+                      Bastion host is the single point entry to access your resources in the private subnet.
 
+        VPC Peering:
+                     A VPC peering connection is a networking connection between two VPCs that enables you to route traffic between them using private IPv4 addresses or IPv6 addresses.
+                     Instances in either VPC can communicate with each other as if they are within the same network.
+
+        Note:
+              1.we can not create a default VPC in aws.
+              2.to copy key from one instance to another instance through terminal
+                        
+                      -> scp -i Downloads/bostion-key.pem Downloads/web-key.pem ubuntu@52.53.153.72:/home/ubuntu/
+                         here web-key.pem file is copied into the bostion host instance in /home/ubuntu/ directory.
 
       flow for creating VPC:
                               1.create VPC
@@ -1342,6 +1352,19 @@ AWS-part-2:
                                 do this for all public subnets.
 
                               7.Go to your VPC and click on action,click on edit VPC settings and Enable DNS hostnames. 
+                             
+                              8.create one ec2 instance(Bostion host) and while creating ec2 instance select the created vpc and choose any public subnet in subnet.
+
+                              9.now we will create one ec2 instance and deploy one website in ec2 instance in private subnet and that can be access through bastion host.
+
+                              10.to copy key from  instance(website instance) to another instance(bastion host) through terminal
+                        
+                                   -> scp -i Downloads/bostion-key.pem Downloads/web-key.pem ubuntu@52.53.153.72:/home/ubuntu/
+                                      here web-key.pem file is copied into the bostion host instance in /home/ubuntu/ directory.
+
+                                        chmod 400 web-key.pem (file permission).
+
+                              11.create the elastic load balancer and before that first create the target groups then you can access the website using load balancer DNS name.
 
 
 
