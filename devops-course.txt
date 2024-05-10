@@ -3374,6 +3374,99 @@ artifacts:
        8.create pipeline.
 
 
+
+
+DOCKER:
+
+       docker manages containers so it is called container runtime environment.
+
+
+
+VM's Vs Container:
+
+1.Containers offer isolation not virtualization.
+2.containers are OS virtualization
+3.VM's are hardware virtualization
+4.VM needs OS
+5.containers dont need os
+6.containers uses Host OS for compute resources.
+
+Containers:
+            1.Containers offer Isolation and not virtualization.
+            2.For virtualization we can use Virtual Machine.
+            3.For understanding we can think containers as OS virtualization.
+
+Note:
+      Virtualization enables you to run multiple operating systems on the hardware of a single physical server,
+      while containerization enables you to deploy multiple applications using the same operating system on a single virtual machine or server.
+
+Docker:
+       1.It is a container runtime environment for developing,shipping and running the applications.
+       2.Docker registry(hub) is place where Docker Container Images are stored.
+       3.Docker containers are created from Docker Images.
+
+Note:
+      1.docker run hello-world -> here docker run means create a container.
+      2.docker images -> this will show you available images on your computer.
+      3.docker ps -> this will show you running containers.
+      4.docker ps -a -> this will show you all the containers(both running and stopped containers).
+      5.docker run --name web01 -d -p 9080:80 nginx -> here web01 is the container name
+                                                            -d means run in background
+                                                            -p means port
+                                                             9080 means hostport(your system) and 80 means container port.
+        here instead -p(small p),if you give -P(captial P) then portnumbers automatically created.
+
+      6.docker inspect web01(container name) -> it will show the ip address.
+      7.docker stop web01(container name) -> it will stop the container.
+      8. docker rm web01(container names) -> this will delete the containers.
+      9. docker rmi image-id -> it will remove the docker images.
+      10.if you want to run multiple containers together their is a concept called docker-compose.
+      11.docker compose up -d -> this will start the docker all containers
+      12.docker compose down -> to stop all the containers
+      13.docker system prune -a -> to remove all the stopped containers.
+      14.docker pull nginx(image-name) -> it will download the image to local.
+      15.docker pull nginx(image-name):mainline-alpine-perl(tags) -> it will download the image to local.
+      16.docker exec myweb(image-name) ls / -> it will execute the command in myweb container and list the item.(just like we ssh to vm and do ls,in containers we can not ssh to the containers)
+      17.docker logs nginx(image-name or image-id) -> it will show of the logs(container output) of that container.
+
+
+* whenever you install docker in os, root user only have privilege to the docker command.
+* if you execute that commands to normal user, you will get permission denied.
+* if you want to execute commands the to normal user, then you need to change the permission to normal user
+   
+                -> sudo usermod -aG docker ubuntu(user)
+
+
+Container Volumes:
+                    Docker has two options for containers to store the files in the host machine.
+                     
+                             1.Volumes:
+                                        Managed by Docker(/var/lib/docker/volume/) on linux
+                             2.Bind Mounts:
+                                        Stored anywhere in the host machine.
+
+Bind Mount:
+             1.pull mysql image from the dockerhub -> docker pull mysql:5.7
+             2.create the directory in the current -> /home/ubuntu/vprofiledata
+             3.bind this(host machine) directory with mysql directory.
+
+                  -> docker run --name vprofiledb -d -e MYSQL_ROOT_PASSWORD=raju12 -p 5000:3306 -v /home/ubuntu/vprofiledata:/var/lib/mysql mysql:5.7 
+                    check the mysql directory by running the inspect command(docker inspect imagename) and in volumes the path is present.
+
+             4.then the data from /var/lib/mysql present in the vprofiledata.
+
+   * Bind Mount is mostly used to inject data from host machine to container.
+   * To store data better option is docker volumes.
+
+Docker Volumes:
+                 1.pull mysql image from the dockerhub -> docker pull mysql:5.7
+                 2.create the volume -> docker volume create mydbdata
+                 3.bind this(host machine) volume with mysql directory.
+
+                    -> docker run --name vprofiledb -d -e MYSQL_ROOT_PASSWORD=raju12 -p 5000:3306 -v mydbdata:/var/lib/mysql mysql:5.7 
+                       check the mysql directory by running the inspect command(docker inspect imagename) and in volumes the path is present.
+
+                4.then the data from /var/lib/mysql present in the mydbdata(/var/lib/docker/volumes/).
          
 
 
