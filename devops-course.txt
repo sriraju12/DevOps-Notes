@@ -1367,6 +1367,49 @@ AWS-part-2:
                               11.create the elastic load balancer and before that first create the target groups then you can access the website using load balancer DNS name.
 
 
+EC2 Logs:
+         1. common way is achieve the logs and send it to somewhere out of the system and then clean the logs.
+
+steps:
+       1.create ec2 instance and deploy website on it.So that logs will generate.
+       2.ssh to instance and go to logs path and tar the logs files.
+       3.clear the logs by cat /dev/null > acess_log(log filename)
+       4.create the s3 bucket and we can move the tar file into s3 bucket.
+       5.for that first, create IAM user and create access key and secret key.
+       6.ssh to instance and install awscli
+       7.configure aws, provide access key and secret key,region and output format as json->aws configure
+       8.copy the tar file into s3 bucket -> aws s3 cp fullpath(including filename) s3://bucketname/
+
+                                or
+
+            aws s3 sync sourcepath s3://bucketname/
+
+        NOTE: instead point 5,6 simply you can use -> 1.create a role and select the policy you want,in our case it is AmazonS3fullAccess
+                                                      2.attach this role to ec2 instance.click action -> security -> modify IAM role.
+
+ 
+       2.To stream logs live:
+
+
+            steps:
+                    1.create ec2 instance and deploy website on it.So that logs will generate.
+                    2.create a role and select the policy you want,in our case it is Amazoncloudwatchlogfullaccess
+                    3.attach this role to ec2 instance.click action -> security -> modify IAM role.
+                    4.ssh to instance and install awscli and aws logs(this cloudwatch agent takes logs from our log file that we specify 
+                      and stream it to cloudwatch
+                    5.edit the file, at the end add the file our log file path(/var/log/httpd/access_log) -> vim /etc/awslogs/awslogs.conf
+                    6.restart the awslogs service -> systemctl restart awslogsd and  systemctl enabled awslogsd
+                    7.check in the cloudwatch, logs will generate over here.
+
+                     if you want to more specifically send this log file to cloudwatch then
+                           1.copy the log path -> /var/log/httpd/access_log
+                           2.edit the file, at the end add the file our log file path(/var/log/httpd/access_log) -> vi /var/awslogs/etc/awslogs.conf
+
+                   8.from cloudwatch, you can export logs to s3 bucket.
+                    
+
+
+
 
 
 
@@ -3467,9 +3510,65 @@ Docker Volumes:
                        check the mysql directory by running the inspect command(docker inspect imagename) and in volumes the path is present.
 
                 4.then the data from /var/lib/mysql present in the mydbdata(/var/lib/docker/volumes/).
-         
 
 
+Docker Images:
+               lets see how we can build images and host application in container
+
+Dockerfile instructions:
+
+1.FROM -> Base Image
+2.LABELS -> adds metadata to an image(i.e tags)
+3.RUN -> execute commands in a new layer and commit the results.
+4.ADD/COPY ->adds files and folder into image
+
+difference between ADD and COPY is COPY just dump the file and ADD is we can provide link and it will download the file and exact it and dump the file.
+
+5.CMD -> runs binaries/commands on docker run
+6.ENTRYPOINT -> allow you to configure a container that will run as an executable
+7.VOLUME -> create a mount point and marks it as holding externally mounted volumes.
+8.EXPOSE -> container listens on the specified network ports at runtime
+9.ENV -> sets the environment variables
+10.USER -> sets the user name(or UID)
+11.WORKDIR -> sets the working directory
+12.ARG -> defines a variable that users can pass at build time
+13.ONBUILD -> adds to the images a trigger instruction to be executed at a later time.
+
+now let's create a images and run it.
+
+Dockerfile:
+
+
+FROM ubuntu:latest
+LABEL "Author"="sriraju"
+LABEL "Project"="nano"
+ENV DEBIAN_FRONTEND=noninteractive
+RUN apt update && apt install git apache2 -y
+CMD ["/usr/sbin/apache2ctl","-D","FOREGROUND"]
+EXPOSE 80
+WORKDIR /var/www/html
+VOLUME /var/log/apache2
+ADD nano.tar.gz /var/www/html
+
+docker build -t sriraju12/nanoimg:v2(imagename:tag) -> command to build image
+
+to push the image into dockerhub:
+                                  1.run docker login and give username and password then you will get sucessfull
+                                  2.docker push imagename (imagename should be like dockerhub-username/imagename:tag) 
+
+Docker Compose:
+
+                 Docker Compose allows you to define and manage multi-container applications in a single YAML file.
+
+
+let's see how we can containerization of application:
+
+   steps:
+           1.steps to setup our stack services.
+           2.find the right base image from dockerhub.
+           3.write Dockerfile to customize the images.
+           4.write docker-compose.yaml file to run multiple containers.
+           5.test it and host images on dockerhub.
 
 
 
