@@ -3572,6 +3572,119 @@ let's see how we can containerization of application:
 
 
 
+Kubernetes:
+            Kubernetes automates operational tasks of container management and includes built-in commands for deploying applications,
+            rolling out changes to your applications, scaling your applications up and down to fit changing needs, monitoring your applications,
+            and more—making it easier to manage applications.
+
+            * While Docker is a container runtime, Kubernetes is a platform for running and managing containers from many container runtimes.
+
+
+    Master:kube API server:
+                             * main hero, handles all the requests and enables communications across stack services.
+                             * component in the master that exposes the kubernetes API.
+                             * it is the front-end for the kubernetes control plane.
+                             * admin connects to it using kubectl CLI
+                             * web dashboard can be integrated with this API.
+
+
+   Master:ETCD server:
+                        * stores all the information.
+                        * consistent and high available key value store used as kubernetes backing store for all the cluster data
+                        * kube API stores retrieves info from it.
+                        * should be backup regularly.
+                        * stores current state of everything in the cluster.
+
+
+   Master:kube scheduler:
+                           * watches newly created prods that have no node assigned and select a node from them to run on.
+
+
+  Master : controller manager:
+                                * logically, each controller is a separate process.
+                                * to reduce complexity,they are all compiled into a single binary and run in a single process.
+                                * these controllers include:
+                                                              1.Node controller:
+                                                                                 responsible for noticing and responding when nodes go down.
+                                                              2.Replication controller:
+                                                                                       responsible for maintaining the correct number of pods for 
+                                                                                       every replication controller object in the system.
+                                                              3.Endpoints controller:
+                                                                                       populates the endpoints object(i.e joins services and pods)
+                                                              4.Service Account and Token controller:
+                                                                                                      create default accounts and api access tokens
+                                                                                                      for new namespace. 
+
+
+    worker: kublet:
+                    an agent that runs on each node in the cluster.it makes sure that containers are running in a pod.
+
+    worker: kube proxy:
+                        * network proxy that runs on each node in your cluster.
+                        * network rule:
+                                      rules allow network communication to your pods inside or outside of your cluster.
+
+    worker: container runtime: kubernetes supports several container runtime,
+                                                                                * Docker
+                                                                                * containerd
+                                                                                * kubernetes CRI(container runtime interface)
+
+minikube setup:
+                1.open powershell as admin
+                2.setup chocolaty
+                3.install minikube with chocolaty( choco install minikube kubernetes-cli)
+                4.open powershell and run(minikube start)
+                5.minikube configuration is present in the current working directory(.kube/config)
+
+
+kops setup:
+            1.domain for Kubernetes DNS records(i.e GoDaddy.com)
+            2.create a Linux vm and setup(kops,kubectl,ssh keys,awscli)
+            3.login to aws account and setup(s3 bucket,IAM user for awscli,route53 hosted zone)
+            4.login to domain registry(GoDaddy.com) and create NS records for subdomain pointing to route53 hosted zone NS servers.
+
+note:
+      kubectl -> Kubernetes.io/docs/tasks/install-kubectl
+      kops -> GitHub.com/Kubernetes/kops/releases
+
+
+nslookup -type=ns domainname(here kopskubevpro.hkhpro.life) -> it will list all the nameservers.
+               
+
+
+* command for storing the configuration for creating the cluster in s3 bucket:
+
+kops create cluster --name=kopskubevpro.hkhpro.life(domain-name) \        here backward slash means continue command in nextline
+--state=s3://kopsbucket1237(s3 bucket-name) --zone=us-east-1a,us-east-1b \
+--node-count=2 --node-size=t3.small --master-size=t3.medium --dns-zone=kopskubevpro.hkhpro.life(domain-name) \
+--node-volume-size=8 --master-volume-size=8
+
+* if you make any changes to kops configuration then you update the changes by running the command:
+
+     kops update cluster --name kopskubevpro.hkhpro.life(domain-name) --state=s3://kopsbucket1237(s3 bucket-name) --yes --admin
+
+* kops validate cluster --state=s3://kopsbucket1237(s3 bucket-name) -> it will show that your cluster is ready 
+
+* kubectl get nodes -> it will show all the nodes.
+
+* kops delete cluster --name=kopskubevpro.hkhpro.life --state=s3://kopsbucket1237(s3 bucket-name) --yes -> it will delete the cluster
+
+
+
+kubernates objects:
+                     1.pod -> containers are present inside the pod
+                     2.service -> to have an static endpoint to the pod like load balancer.
+                     3.replica set -> to create the cluster of pods.
+                     4.deployment -> which work similar to replica set and you can deploy new image tag by using deployment(most used)
+                     5.config map -> to store our variables and configuration
+                     6.secret -> variable and some information to store that are not in clear text.
+                     7.volumes -> we can attach different types volumes to pod.
+
+                           
+                        
+
+
+
 
 
 
