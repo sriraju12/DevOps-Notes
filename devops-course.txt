@@ -1022,7 +1022,7 @@ Note:
 21.create a snapshot from volume(in volume section).
 22.go to /var/lib/mysql directory delete the mysql data from it  -> rm -rf *
 23.stop the service -> systemctl stop mariadb.
-24.unmount the partition -> umount /var/lib/mysql/
+24.unmount the partition -> unmount /var/lib/mysql/
 25.deattch the volume(in volume section).
 26.go to snapshot section and select the snapshot and click on create volume.
 27.now attach the recovered volume to ec2 instance.
@@ -3680,6 +3680,168 @@ kubernates objects:
                      6.secret -> variable and some information to store that are not in clear text.
                      7.volumes -> we can attach different types volumes to pod.
 
+
+
+KubeConfig file:
+                  use kubeconfig file to organize information about
+                                                                     1.clusters
+                                                                     2.users
+                                                                     3.Namespaces
+                                                                     4.Authencation mechanisms 
+
+Namespaces:
+            In Kubernetes, namespaces provide a mechanism for isolating groups of resources within a single cluster.
+            Names of resources need to be unique within a namespace, but not across namespaces 
+
+            * kubectl get ns -> it will display all the namespaces    
+            * kubectl get all -> it will display all the objects that are present in the default namespaces.
+            * kubectl get all --all-namespaces -> it will display all the objects of all namespaces. 
+            * kubectl create ns kubekart(namespace-name) -> it will create the namespace with the name kubekart.
+            * kubectl run ngnix --image=nginx --namespace=kubekart -> it will run the nginx in the namespace.
+
+
+
+Pods:
+       pod is the basic execution unit of a kubenetes application the smallest and simplest unit in the Kubernetes object model that you 
+       create or deploy.A pod represents processes running on your cluster. 
+
+       * Pods that run a single container:
+                                           1.The one-container-per-pod model is the most common Kubernetes use case.
+                                           2.Pod as a wrapper around a single container.
+                                           3.Kubernetes manages the pods rather than containers directly.
+
+      * Multi container pod:
+                             1.Tightly coupled and need to share resources.
+                             2.One main container and other as sidecar(supporting containers) or init container.
+                             3.Each pod is meant to run a single instance of a given application(for example run only tomcat server).
+                             4.Should use multiple pods to scale horizontally.
+
+     * kubectl create -f pod-setup.yml -> to create the pod using yaml file
+   
+                the yaml file looks like this,      apiVersion: v1
+                                                    kind: Pod
+                                                    metadata:
+                                                      name: webapp-pod(pod-name)
+                                                      labels:                      //labels are like tags
+                                                        app: frontend
+                                                        project: vprofile
+                                                    spec:
+                                                      containers:
+                                                        - name: httpd-container(container-name)
+                                                          image: httpd
+                                                          ports:
+                                                            - name: http-port(port-name)
+                                                              containerPort: 80
+
+     * kubectl get pod -> it will display the pod details(i.e name of the pod,status,age)
+
+     * kubectl describe pod webapp-pod -> it will display entire details of the pod
+  
+     * kubectl get pod webapp-pod -o yaml -> it will display the details of pod in yaml format.
+
+     * kubectl edit pod webapp-pod -> to edit the pod but most of the things in pod is non-editable.
+
+     * kubectl apply -f web.yaml -> it will apply the changes to the pod.
+  
+     * kubectl logs webapp-pod -> it will display logs of that pod.
+
+
+Service:
+         way to expose an application running on a set of pods as a network service(similar to load balancer).
+
+         1.nodeport:
+                     exposing(mapping the ports) the pods to outside network(not for production).
+        2.clusterIp:
+                     you dont want to expose to external world but for the internal communication.
+        3.load balancer:
+                         expose the pod to external network for the prodution.
+
+        * kubectl create -f service-defs.yaml -> it is used to create the service using yaml file.
+
+        * kubectl get svc -> it will display all the services.
+
+        * kubectl describe svc webapp-service(service-name) -> it will display the details of the service.
+      
+        * kubectl delete svc webapp-service(service-name) -> it is used to delete the service.
+
+         Note:
+                * while creating the service two things are important 1.selector should be match with pod label name
+                  and target port should be match with pod ports name or pod ports name.
+
+
+        let's create a service using nodeport:
+                                                1.first create the pod
+
+                                                      apiVersion: v1
+                                                      kind: Pod
+                                                      metadata:
+                                                        name: webapp-pod(pod-name)
+                                                        labels:                      //labels are like tags
+                                                          app: vproapp
+                                                      spec:
+                                                        containers:
+                                                          - name: vpro-container(container-name)
+                                                            image: sriraju12/vprofileapp
+                                                            ports:
+                                                              - name: vpro-port(port-name)
+                                                                containerPort: 8080
+
+    
+                                                           
+                                                2.create the service
+ 
+                                                     apiVersion: v1
+                                                     kind: Service
+                                                     metadata:
+                                                       name: helloworld-service
+                                                     spec: 
+                                                       ports:
+                                                       - port: 8090 (internal port)
+                                                         nodePort: 30001(external port to access and nodeport start from 30000)
+                                                         targetPort: vpro-port or 8080 (you can give portnumber or portname of the pod)
+                                                         protocol: TCP
+                                                       selector:
+                                                         app: vproapp
+                                                       type: NodePort
+
+
+
+      
+          let's create a service using loadbalancer:
+                                                    1.first create the pod
+
+                                                      apiVersion: v1
+                                                      kind: Pod
+                                                      metadata:
+                                                        name: webapp-pod(pod-name)
+                                                        labels:                      //labels are like tags
+                                                          app: vproapp
+                                                      spec:
+                                                        containers:
+                                                          - name: vpro-container(container-name)
+                                                            image: sriraju12/vprofileapp
+                                                            ports:
+                                                              - name: vpro-port(port-name)
+                                                                containerPort: 8080
+
+    
+                                                           
+                                                   2.create the service
+ 
+                                                     apiVersion: v1
+                                                     kind: Service
+                                                     metadata:
+                                                       name: helloworld-service
+                                                     spec: 
+                                                       ports:
+                                                       - port: 80 (loadbalancer port to access)
+                                                         targetPort: vpro-port or 8080 (you can give portnumber or portname of the pod)
+                                                         protocol: TCP
+                                                       selector:
+                                                         app: vproapp
+                                                       type: LoadBalancer
+
+                 	 
                            
                         
 
