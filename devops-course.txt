@@ -3841,6 +3841,249 @@ Service:
                                                          app: vproapp
                                                        type: LoadBalancer
 
+
+
+Replica set:
+             in simple words replica set means autoscaling.If the pod is goes down then replica will automatically creates new one for us.
+            
+              
+* kubectl get rs -> it will get all the replica sets.
+
+* to scale down two ways -> 1.directly edit the replica yaml file.
+                            2.kubectl scale  --replicas=1 rs/frontend(replica-name that is mention in yaml file) => not recommended in production
+
+
+* to scale up two ways -> 1.directly edit the replica yaml file.
+                          2.kubectl edit rs frontend or kubectl edit rs/frontend => not recommended in production.
+
+
+let's see how we can write replica set yaml file,
+
+apiVersion: apps/v1
+kind: ReplicaSet
+metadata:
+  name: frontend
+  labels:
+    app: guestbook
+    tier: frontend
+spec:
+  # modify replicas according to your case
+  replicas: 3
+  selector:
+    matchLabels:
+      tier: frontend
+  template:          // this template information is about pod
+    metadata:
+      labels:
+        tier: frontend
+    spec:
+      containers:
+      - name: php-redis
+        image: us-docker.pkg.dev/google-samples/containers/gke/gb-frontend:v5
+
+
+
+
+Deployment:
+             1. A deployment controller provides declarative updates for pods and replicasets.
+             2. define desired state in a deployment, and the deployment controller changes
+                 the actual state of the desired state at a controlled rate.
+             3. deployment creates replicaset to manage number of pods.
+
+
+* kubectl set image deployment/nginx-deployment(deployment-name mention in yaml file) nginx(image-name)=nginx:1.16.1(mention different version of nginx).
+  this is not recommended for production.Best way is directly edit the yaml file and apply the changes.
+
+* kubectl get deploy -> it will display all the deployments.
+
+* whenever you make deployments,then the all the pods will delete one by one and create a new pods one by one by replica set.
+
+* kubectl rollout undo deployment/nginx-deployment(deployment-name mention in yaml file) -> it will rollback to previous version on the image.
+
+* kubectl rollout history deployment/nginx-deployment(deployment-name mention in yaml file) -> it will display the revision numbers of rollout.
+
+* kubectl rollout undo deployment/nginx-deployment(deployment-name mention in yaml file) --to-revision=2 -> it will rollback to revision 2 of the image.
+
+* kubectl scale deployment/nginx-deployment(deployment-name mention in yaml file) --replicas=6 -> it will scale up the pods.
+
+* kubectl delete deploy nginx-deployment(deployment-name mention in yaml file) -> it will delete the deployment.
+
+
+let's see how we can create the deployment yaml file,
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-deployment
+  labels:
+    app: nginx
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: nginx
+  template:
+    metadata:
+      labels:
+        app: nginx
+    spec:
+      containers:
+      - name: nginx
+        image: nginx:1.14.2
+        ports:
+        - containerPort: 80
+
+
+
+
+Commands and Arguments:
+                        how to pass commands and arguments to pods.
+
+
+let's see how we create the pod using Commands and Arguments in yaml file
+
+apiVersion: v1
+kind: Pod
+metadata:
+  name: command-demo
+  labels:
+    purpose: demonstrate-command
+spec:
+  containers:
+  - name: command-demo-container
+    image: debian
+    command: ["printenv"]
+    args: ["HOSTNAME", "KUBERNETES_PORT"]
+  restartPolicy: OnFailure
+
+
+
+Config Map:
+             set and inject variables in the pod. A ConfigMap is an API object used to store non-confidential data in key-value pairs
+
+
+* kubectl create configmap db-config --from-literal=MYSQL_DATABASE=accounts \
+  --from-literal=MYSQL_ROOT_PASSWORD=raju12 (not recommended for production).  -> it will create db-config file of configmap
+                                                                                  and inject these variable in the pod
+* kubectl get cm -> it will display all the configmaps.
+
+* kubectl get cm db-config(configmap-name mention in yaml file) -o yaml -> it will display the details of the file in yaml format.
+
+* kubectl describe cm db-config(configmap-name mention in yaml file) -> it will show indetails of the file.
+
+let's see how we can create the configmap in yaml,
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: db-config 
+data:
+  MYSQL_ROOT_PASSWORD=raju12
+  MYSQL_DATABASE=accounts
+
+lets see how we can inject these configmap file to pod,
+
+  * this will inject the entire configmap variables to the pod.
+
+
+apiVersion: v1
+kind: pod
+metadata:
+  name:db-pod
+  labels:
+    app: db
+    project: vprofile
+spec:
+  containers:
+    - name: mysql-container
+      image: mysql:5.7
+      envFrom:
+        - configMapRef:
+            name: db-config
+      ports:
+        - name: db-port(port-name)
+          containerPort: 3306
+
+
+  * if you want to inject specific variables from configmap file to the pod.
+
+
+apiVersion: v1
+kind: pod
+metadata:
+  name:db-pod
+  labels:
+    app: db
+    project: vprofile
+spec:
+  containers:
+    - name: mysql-container
+      image: mysql:5.7
+      env:
+        - name: MYSQL_ROOT_PASSWORD(variable name this will store in the container.it will take value from the key and store in this variable)
+          valueFrom:
+            configMapKeyRef:
+              name: db-config
+              key: MYSQL_ROOT_PASSWORD
+      ports:
+        - name: db-port(port-name)
+          containerPort: 3306
+
+this will inject only MYSQL_ROOT_PASSWORD variable to the pod.
+
+
+  * if you want to inject specific variables from configmap file through volumes to the pod.
+
+apiVersion: v1
+kind: pod
+metadata:
+  name:db-pod
+  labels:
+    app: db
+    project: vprofile
+spec:
+  containers:
+    - name: mysql-container
+      image: mysql:5.7
+      env:
+        - name: MYSQL_ROOT_PASSWORD(variable name this will store in the container.it will take value from the key and store in this variable)
+          valueFrom:
+            configMapKeyRef:
+              name: db-config
+              key: MYSQL_ROOT_PASSWORD
+      volumeMounts:
+      - name: config(volume name)
+        mountPath: "/config" (below mention path file will be stored in the location)
+        readonly: true
+  volumes:
+  - name: config(name of the volume)
+    configMap:
+      name: db-config(name of the configmap)
+      items:
+      - key: "MySQL_ROOT_PASSWORD"
+        path: "MySQL_ROOT_PASSWORD" (the value of the key will be stored in this file)
+ 
+      ports:
+        - name: db-port(port-name)
+          containerPort: 3306
+
+NOTE:****
+
+* kubectl exec --stdin --tty db-pod(pod-name) --bin/sh -> to login into the pod
+      
+
+
+
+
+
+
+  
+
+
+ 
+
+ 
+            
                  	 
                            
                         
