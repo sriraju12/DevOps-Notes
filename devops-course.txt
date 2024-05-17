@@ -4070,7 +4070,70 @@ spec:
 NOTE:****
 
 * kubectl exec --stdin --tty db-pod(pod-name) --bin/sh -> to login into the pod
+
+
+Secrets:
+         store and manage sensitive information such as password.
+
+
+* kubectl create secret generic db-secret(secret-name) --from-literal=MYSQL_ROOT_PASSWORD=raju12 -> it will create the secret in imperative which bad way
+  and password will be stored as encrypted password.
+
+* let's see how we can create secret using declarative way in yaml file
+
+ first you need to encode the password for that use -> echo -n "raju12" | base64  => it will encode the password
+
+
+apiVersion: v1
+kind: Secret
+metadata:
+  name: dbpass_secret
+data:
+  username: eghegaehipofugbjda24(by using this echo -n "raju12" | base64 => you will get encoded password)
+  password: uwfgoisehoifvbseise24
+type: Opaque
+
+kubectl create -f yamlfilename -> it will create the secret.
+  
+
+lets create the pod for the secret.
       
+
+apiVersion: v1
+kind: Pod
+metadata:
+  name: secret-pod
+spec:
+  containers:
+  - name: secret-container
+    image: sriraju12/vprofiledb
+    env:
+      - name: SECRET_USERNAME
+        valueFrom:
+          secretKeyRef:
+            name: dbpass_secret(secret-name)
+            key: username
+            optional: false
+
+      - name: SECRET_PASSWORD
+        valueFrom:
+          secretKeyRef:
+            name: dbpass_secret
+            key: password
+            optional: false
+
+  restartPolicy: Never
+
+
+
+Ingress:
+          An API object that manages external access to the services in a cluster, typically HTTP.
+
+          Ingress may provide load balancing, SSL termination and name-based virtual hosting.
+
+          Ingress exposes HTTP and HTTPS routes from outside the cluster to services within the cluster.
+          Traffic routing is controlled by rules defined on the Ingress resource
+
 
 
 
