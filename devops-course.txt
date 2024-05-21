@@ -4138,6 +4138,671 @@ Ingress:
 
 
 
+TerraForm:
+            Terraform is an automatication tool for cloud.
+
+
+* terraform file should be saved with .tf format.
+
+* terraform init -> it will check for the provider and download the necessary plugins for it.
+
+* terraform validate -> to validate the terraform file by checking syntax and colons.
+
+* terraform fmt -> to format the terraform file i.e it will make the file in more readable way.
+
+* terraform plan -> it will show, what is the execution the file.
+
+* terraform apply -> it will start executing the script.
+
+* terraform maintains the state i.e it stores the current information in the state, if you make any changes and apply the changes 
+  then it will compare the current state with remote state and then apply the changes.
+
+* terraform destroy -> it will delete the resources.
+
+
+Let's see how we can launch ec2 instance from terraform script,
+
+
+steps:
+       1.create the IAM user with AdministratorAccess
+       2.configure aws by providing the access_key and secret_key of the IAM user.
+       3.write the terraform
+       4.run the terraform commands to execute the script.
+
+
+provider "aws" {
+   region = "us-east-1"
+  #access_key = ""
+  #secret_key = ""  // bad pratice to mention crendentials here.Better way is configure through awscli(aws configure command to configure aws).
+}
+
+resource "aws_instance(resource type to create ec2 instance)" "intro(name of resource)" {
+
+             ami = "ami-6489284094dsg1344"
+             instance_type = "t2.micro"
+             availability_zone = "us-east-1a"
+             key_name = "terra-key" (create the key in aws)
+             vpc_security_group_ids = ["sg-54263t728t348yg3"]
+             tags = {
+                Name = "terraform-demo"
+             }
+}
+
+
+variables:
+           variables help to move sensitive or critical information out of the script or moved to another file,
+           so that we can easily reuse or modify them. EX : Ami,tags and key-pair etc.
+
+  Let's see how we can write the terraform script for ec2 instance to launch using variables,
+
+steps:
+       1.write providers.tf file.
+       2.write vars.tf file.
+       3.write instance.tf file.
+       4.run the terraform commands to execute the script.
+
+
+provisers.tf file,
+
+                    provider "aws" {
+                     
+                          region = var.REGION
+                    }
+
+vars.tf file,
+
+             variable REGION {
+      
+               default = "us-east-1"
+           }
+
+            variable ZONE1 {
+              default = "us-east-1a"
+            }
+
+             variable INSTANCETYPE {
+               default = "t2.micro"
+              }
+
+              variable AMIS {
+        
+                 type = map
+                 default = {
+                    us-east-1 = "ami-5t2783490094bgc34"
+                    us-west-2 = "ami-234567iugufc45678"
+
+                  }
+            } 
+
+
+instance.tf file,
+
+                    resource "aws_instance" "ec2-launch" {
+
+                             ami = var.AMIS[var.REGION]
+                             instance_type = var.INSTANCETYPE
+                             availability_zone = var.ZONE1
+                             key_name = "terra-key" (create the key in aws)
+                             vpc_security_group_ids = ["sg-54263t728t348yg3"]
+                             tags = {
+                                Name = "terraform-demo"
+                            }
+                       }
+
+
+Provisioners:
+              provisioning means when the vm is up or when the instance is going to launch at the you want to perform
+              some tasks or operation in the vm.
+
+let's see how we can connect to Linux machine through terraform,
+
+SSH
+
+provisioner "file" {
+
+   source = "files/test.conf"
+   destination = "/etc/test.conf"
+
+   connection {
+
+     type = "ssh"
+     user = "root"
+     password = var.PASSWORD
+}
+}
+
+
+
+let's see how we can connect to windows machine through terraform,
+
+WinRM
+
+provisioner "file" {
+
+   source = "conf/myapp.conf"
+   destination = "c:/App/myapp.conf"
+
+   connection {
+
+     type = "winrm"
+     user = "administrator"
+     password = var.ADMIN_PASSWORD
+}
+}
+
+More Provisioners:
+                     1. file -> the file provisioner is used to copy files or directori es
+                     2. remote-exec -> invokes a command/script on remote resource.(it will execute in remote machine)
+                     3. local-exec -> provisioners invokes a local executable after a resource is created.(it will execute in local machine)
+
+
+
+Now let's see how we can create the ec2 instance and how to create a key-pair,how to push file/script from local to remote
+and how to connect with ec2 and execute some script on the instance.
+
+
+first let's see the script we want to execute on remote instance,
+
+#!/bin/bash
+yum install wget unzip httpd -y
+systemctl start httpd
+systemctl enabled httpd
+wget https://www.tooplate.com/zip-templates/2096_individual.zip
+unzip 2096_individual.zip
+cp -r 2096_individual/* /var/www/html/
+systemctl restart httpd
+
+
+let's see vars.tf file,
+
+variable USER {
+
+   default = "ec2-user"
+}
+
+variable REGION {
+
+ default = "us-east-1"
+}
+
+variable ZONE1 {
+
+default = "us-east-1a"
+
+}
+
+variable AMIS {
+
+type = map
+
+default = {
+
+us-east-1 = ami-4567890gjhe599
+us-west-2 = ami-436587vjkhiu47
+}
+}
+
+now let's see providers.tf file
+
+provider "aws" {
+
+   region = var.REGION
+
+}
+
+now let's see instance.tf file,
+
+resource "aws_key_pair" "terra-key" {
+
+  key_name = "terraform-key"   // this is key-pair that created in aws.
+  public_key = file("terra-key.pub")  // this terra-key will generated using ssh-keygen and save this with name terra-key.
+                                         it will create the public-key and private-key. file is used to read the content.
+}
+
+resource "aws-instance" "terra-instance" {
+
+             ami = "ami-6489284094dsg1344"
+             instance_type = "t2.micro"
+             availability_zone = var.ZONE1
+             key_name = aws_key_pair.terra-key.key_name(resourceType.resourceName.attributeName)
+             vpc_security_group_ids = ["sg-54263t728t348yg3"]
+             tags = {
+                Name = "terraform-demo"
+             }
+
+   provisioner "file" {
+
+    source = "web.sh"
+    destination = "/tmp/web.sh
+
+   }
+
+provisioner "remote_exec" {
+
+  inline = [
+  
+       "sudo chmod u+x /tmp/web.sh",
+       "sudo /tmp/web.sh"
+]
+}
+
+ connection {
+
+   user = var.USER
+   private_key = file("terra-key")
+   host = self.public_ip
+
+  }
+
+
+}
+
+
+Output:
+        * Terraform stores a retuned values of all resources created.
+        * use output block to print the attributes.
+        * use local-exec to save information into the file.
+
+ex:
+     output "instance_ip_addr"(output-name) {
+
+        value = aws_instance.server.public_ip  // resourceType.resourceName.attributeName
+}   // it will print the public ip address.
+
+let's see how we can print the public-ip anf private-ip of above terra-instance,
+
+above code is same but add this in instance.tf file at last,
+
+output "PUBLICIP" {
+
+   value = aws_instance.terra-instance.public_ip   // it will print public-key
+}
+
+output "PRIVATEIP {
+
+  value = aws_instance.terra-instance.private_ip  // it will print private-key
+}
+
+
+
+
+Backend:
+         Terraform maintains the state and if you want to maintain common state or sync the state with all the teams then
+         store in s3 bucket.
+
+let's take above code and we will create the backend file called backend.tf 
+
+terraform {
+
+  backend "s3" {
+    bucket = "terra-mybucket123" //bucket-name
+    key = "terraform/backend   // terraform is the folder-name inside the bucket and backend in this file state should be mentioned.
+    region = "us-east-1"
+}
+}
+
+
+Now let's see how we can use multiple resources together.
+
+first we will create an ec2 instance, create own key-pair and security-group,create volume and attach to the instance
+create vpc and 6 subnets in it( 3 public subnets & 3 private subnets), create internet-gateway and create route tables
+and route-table associations. and provisioning one website in the instance and backend state(for maintaining common state).
+
+
+first let's create the providers file using provisioners.tf file,
+
+provider "aws" {
+
+   region = var.REGION
+}
+
+let's create the vpc using vpc.tf file,
+
+resource "aws_vpc" "terra-vpc" {
+
+   cidr_block = "10.0.0.0/16"
+   instance_tenancy = "default"
+   enable_dns_support = "true"
+   enable_dns_hostnames = "true"
+ 
+    tags = {
+      Name = "vprofile"
+ }
+
+
+resource "aws_subnet" "terra-pub-1" {
+
+   vpc_id = aws_vpc.terra-vpc.id
+   cidr_block = 10.0.1.0/16
+   map_public_ip_on_launch = "true"
+   availability_zone = var.ZONE1
+   tags = {
+     Name = "terra-pub-1"
+}
+}
+
+resource "aws_subnet" "terra-pub-2" {
+
+   vpc_id = aws_vpc.terra-vpc.id
+   cidr_block = 10.0.2.0/24
+   map_public_ip_on_launch = "true"
+   availability_zone = var.ZONE2
+   tags = {
+     Name = "terra-pub-2"
+}
+}
+
+
+resource "aws_subnet" "terra-pub-3" {
+
+   vpc_id = aws_vpc.terra-vpc.id
+   cidr_block = 10.0.3.0/24
+   map_public_ip_on_launch = "true"
+   availability_zone = var.ZONE3
+   tags = {
+     Name = "terra-pub-3"
+}
+}
+
+resource "aws_subnet" "terra-priv-1" {
+
+   vpc_id = aws_vpc.terra-vpc.id
+   cidr_block = 10.0.4.0/24
+   map_public_ip_on_launch = "true"
+   availability_zone = var.ZONE1
+   tags = {
+     Name = "terra-priv-1"
+}
+}
+
+resource "aws_subnet" "terra-priv-2" {
+
+   vpc_id = aws_vpc.terra-vpc.id
+   cidr_block = 10.0.5.0/24
+   map_public_ip_on_launch = "true"
+   availability_zone = var.ZONE2
+   tags = {
+     Name = "terra-priv-2"
+}
+}
+
+resource "aws_subnet" "terra-priv-3" {
+
+   vpc_id = aws_vpc.terra-vpc.id
+   cidr_block = 10.0.4.0/24
+   map_public_ip_on_launch = "true"
+   availability_zone = var.ZONE3
+   tags = {
+     Name = "terra-priv-3"
+}
+}
+
+resource "aws_internet_gateway" "terra-IGW" {
+
+  vpc_id = aws_vpc.terra-vpc.id
+  tags = {
+    Name = "terra-IGW"
+ }
+
+}
+
+resource "aws_route_table" "terra-pub-RT" {
+
+    vpc_id = aws_vpc.terra-vpc.id
+
+   route {
+       cidr_block = "0.0.0.0/0"
+       gateway_id = aws_internet_gateway.terra-IGW.id
+   }
+     tags = {
+       Name = "terra-pub-RT"
+}
+
+resource "aws_route_table_association" "terra-pub-1-a" {
+    
+    subnet_id = aws_subnet.terra-pub-1.id
+    route_table_id = aws_route_table.terra-pub-RT.id
+}
+
+resource "aws_route_table_association" "terra-pub-2-a" {
+    
+    subnet_id = aws_subnet.terra-pub-2.id
+    route_table_id = aws_route_table.terra-pub-RT.id
+}
+
+resource "aws_route_table_association" "terra-pub-3-a" {
+    
+    subnet_id = aws_subnet.terra-pub-3.id
+    route_table_id = aws_route_table.terra-pub-RT.id
+}
+
+
+now let's create thge security_group for VPC using security-group.tf,
+
+  resource "aws_security_group" "terra-sg" {
+  
+    vpc_id = aws_vpc.terra-vpc.id
+    name = "terra-sg"
+    description = "security group for vpc and ec2 instance"
+
+    egress {  // outbound-rule
+
+      from_port = 0
+      to_port = 0
+      protocol = "-1"
+      cidr_block = ["0.0.0.0/0"]
+}
+
+    ingress {
+
+     from_port = 22
+     to_port = 22
+     protocol = "tcp"
+     cidr_block = [var.MYIP]
+    }
+
+  tags = {
+    Name = allow-ssh"
+}
+
+
+now let's write the script for provisioning website using web.sh file,
+
+#!/bin/bash
+yum install wget unzip httpd -y
+systemctl start httpd
+systemctl enabled httpd
+wget https://www.tooplate.com/zip-templates/2096_individual.zip
+unzip 2096_individual.zip
+cp -r 2096_individual/* /var/www/html/
+systemctl restart httpd
+
+let's write the backend file for storing the state using backend.tf file,
+
+terraform {
+
+  backend "s3" {
+    bucket = "terra-mybucket123" //bucket-name
+    key = "terraform/backend   // terraform is the folder-name inside the bucket and backend in this file state should be stored.
+    region = "us-east-1"
+}
+}
+
+let's create variables using vars.tf file,
+
+variable USER {
+
+   default = "ec2-user"
+}
+
+variable REGION {
+
+ default = "us-east-1"
+}
+
+variable ZONE1 {
+
+default = "us-east-1a"
+
+}
+
+variable ZONE2 {
+
+default = "us-east-1b"
+
+}
+
+variable ZONE3 {
+
+default = "us-east-1c"
+
+}
+
+varible MYIP {
+
+  default = "12.24.134.12/24"
+}
+
+
+variable AMIS {
+
+type = map
+
+default = {
+
+us-east-1 = ami-4567890gjhe599
+us-west-2 = ami-436587vjkhiu47
+}
+}
+
+variable PUBLICKEY {
+
+  default = "terrakey.pub"
+}
+
+variable PRIVATEKEY {
+
+  default = "terrakey"
+}
+
+now let's create the instance.tf file,
+
+
+resource "aws_key_pair" "terra-key" {
+
+     key_name = "terrakey"
+     public_key = file(var.PUBLICKEY)
+}
+
+
+resource "aws-instance" "terra-instance" {
+
+             ami = var.AMIS[var.REGION]
+             instance_type = "t2.micro"
+             subnet_id = aws_subnet.terra-pub-1.id
+             availability_zone = var.ZONE1
+             key_name = aws_key_pair.terra-key.key_name(resourceType.resourceName.attributeName)
+             vpc_security_group_ids = [aws_security_group.terra-sg.id]
+             tags = {
+                Name = "terraform-demo"
+             }
+
+      provisioner "file" {
+
+          source = "web.sh"
+          destination = "/tmp/web.sh
+
+        }
+
+provisioner "remote_exec" {
+
+  inline = [
+  
+       "sudo chmod u+x /tmp/web.sh",
+       "sudo /tmp/web.sh"
+]
+}
+
+ connection {
+
+   user = var.USER
+   private_key = file(var.PRIVATEKEY)
+   host = self.public_ip
+
+  }
+
+   }
+
+  resource "aws_ebs_volume" "terra-volume" {
+
+      availability_zone = var.ZONE1
+      size = 3
+      tags = {
+        Name= "terra-volume"
+}
+}
+
+resource "aws_volume_attachment" "terra-vol-attach" {
+
+   device_name = "/dev/xvdh"
+   volume_id = aws_ebs_volume.terra-volume.id
+   instance_id = aws_instance.terra-instance.id
+}
+
+output "PUBLICIP" {
+
+    value = "aws_instance.terra-instance.public_ip"
+}
+
+   
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+   
+     
+
+
+      
+
+
+   
+                                         
+
+
+
+
+
+               
+                        
+  
+
+
+
+
+
 
 
   
