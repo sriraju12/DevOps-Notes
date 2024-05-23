@@ -4754,6 +4754,15 @@ output "PUBLICIP" {
     value = "aws_instance.terra-instance.public_ip"
 }
 
+
+
+
+CloudFormation:
+                  CloudFormation is a cloud automation tool just like Terraform.Only difference is t
+
+                 coludformation is specific to aws and where as Terraform supports various types.
+
+
    
 
 
