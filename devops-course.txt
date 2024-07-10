@@ -136,7 +136,7 @@ Some important directories in linux:
 Linux:
 
      Basic Commands:
-                    1.whoami -> to see what user your(root user or normal user)
+                    1.whoami -> to see what type of user you are(root user or normal user)
                     2.pwd -> to see the present working directory(current path)
                     3.ls -> to see the files in current folder
                     4.cat /etc/os-release -> to see which operating system we are using and its version. 
@@ -171,7 +171,7 @@ vim editor:
 By default it will in command mode.
 if you are in insert mode you want to come back to command mode use esc key.
 
-vim devopsfile1.txt -> this command is used to enter into vim editor and make changes in the file.
+vim devopsfile1.txt -> this command is used to enter into vim editor and we can make changes in the file.
 cat devopsfile1.txt -> this is used to print the content that is present in the file.
 :q! -> this is forcefully quitting from the vim editor without saving the changes.
 :wq -> this will save the content and quit from vim editor.
@@ -269,9 +269,24 @@ I/O Redirections:
                   1. > -> this is the symbol for output redirection.
                   2. < -> this is the symbol for input redirection. 
                   3. If you don't want to override the content i.e just append(add) use -> >>
+                  4. if you want to redirect the error messages to a file(you don't want to display error messages on screen) -> rcho hi 2> errorfile 
                   
 echo -> this command is used to print content what ever we give( echo "hello" -> it will print hello).
 
+
+   standard input(1)   
+           ------> |---------------------- ---------->standard output(1)
+                   |       command       |
+                   |---------------------- ---------->standard error(2)
+
+* command > output.txt 2> error.txt -> if you execute the command and we want to redirect to the file and if the command throws a error message then
+                                       we want to redirect to a file.
+
+* command < input.txt > output.txt -> here we are taking the input from the input.txt file and redirecting the output to a output.txt file.
+  cat < input.txt > output.txt
+
+* command < input.txt > output.txt 2> errorfile.txt ->  here we are taking the input from the input.txt file and redirecting the output to a 
+                                                        output.txt file and if any error will occur then it will redirect to a errorfile.txt file.
 
 Piping:
        1.You can use the wc command to count a file's word, line, character, or byte count.
@@ -310,7 +325,7 @@ If you want to add users to the group they are two ways:
                                                          1.usermod -aG devops ansible
                         (here -aG is the supplementory group , devops is groupname and ansible user).
 
-                                                         2.vim editor(just edit the file add name in the group).
+                                                         2.vim editor(just edit the file and add name in the group).
 
 
 File Permissions:
@@ -329,7 +344,9 @@ rwx -> user                        r -> read, w -> write, x -> execute
 r-x -> group
 r-x -> other
 
-1.To change the ownership of the file use -> chown ansible(username):devops(group) redir(filename)
+1.To change the ownership and group of the file use -> chown ansible(username):devops(group) redir(filename)
+
+   if you want to change only ownership of a file -> chown ansible(username) redir(filename)
 
 2.To change the read,write and execute permissions for others use -> chmod o-x redir(filename)
   (here o is others amd redir is filename)
@@ -375,7 +392,7 @@ Steps to deploy website manually:
                                  4.deploy the website(download the website and unzip it and restart the server)
 
 Note:
-     tooplate.com -> ready-made websites are available.
+     tooplate.com -> ready-made static websites are available.
 
 Steps to deploy website automatically:
                                        1.In vagrantfile add the provising(scripts or commands)then everything get ready.
@@ -585,7 +602,7 @@ Exporting Variables:
 If you want to store the variables permanently then,
   
                          Two ways:
-                                   1.export variable available only for that user then edit .bashrc file(this is available in home directory ls -a)
+                                   1.export variable are available only for that user then edit .bashrc file(this is available in home directory ls -a)
                                    2.export variable available globally(all users) then edit /etc/profile file.
 
 
@@ -704,7 +721,7 @@ While loop:
 
 Remote command execution:   This means from one vm we can connect to other vm's.
 
-                          1.first change the hostname of all the vm's
+                          1.first change the hostname of all the vm's(not mandatory,its for easy identification of hostnames)
                           2.In one vm add the ip address and hostname (i.e 192.168.10.13 web01) in /etc/hosts
                           3.check whether the ip is connected or not( ping web01(hostname).
                           4. ssh vagrant@web01 then it will ask for password(password is username)
@@ -725,7 +742,7 @@ SSH Key Exchange:
                   It is another way to login remotely without password(it is key based login)
 
                   1.ssh-keygen -> it will generate the key-pair(/root/.ssh/id_rsa it will store here).
-                  2.ssh-copy-id devops@we01 -> it will ask for the password and it will copy the lock to this vm.
+                  2.ssh-copy-id devops@web01 -> it will ask for the password and it will copy the lock to this vm.
                   3.ssh devops@web01 uptime -> now it will not ask for password to login, it will directly execute
                                                the command
 
@@ -3450,7 +3467,7 @@ Docker:
 
 Note:
       1.docker run hello-world -> here docker run means create a container.
-      2.docker images -> this will show you available images on your computer.
+      2.docker images -> this will show you available images on your local computer.
       3.docker ps -> this will show you running containers.
       4.docker ps -a -> this will show you all the containers(both running and stopped containers).
       5.docker run --name web01 -d -p 9080:80 nginx -> here web01 is the container name
@@ -3468,16 +3485,30 @@ Note:
       12.docker compose down -> to stop all the containers
       13.docker system prune -a -> to remove all the stopped containers.
       14.docker pull nginx(image-name) -> it will download the image to local.
-      15.docker pull nginx(image-name):mainline-alpine-perl(tags) -> it will download the image to local.
+      15.docker pull nginx(image-name):mainline-alpine-perl(tags) -> it will download the image to local with these tag.
       16.docker exec myweb(image-name) ls / -> it will execute the command in myweb container and list the item.(just like we ssh to vm and do ls,in containers we can not ssh to the containers)
       17.docker logs nginx(image-name or image-id) -> it will show of the logs(container output) of that container.
 
 
-* whenever you install docker in os, root user only have privilege to the docker command.
-* if you execute that commands to normal user, you will get permission denied.
+* whenever you install docker in os, root user only have privilege to run the docker commands.
+* if you execute the commands using normal user then you will get permission denied.
 * if you want to execute commands the to normal user, then you need to change the permission to normal user
    
                 -> sudo usermod -aG docker ubuntu(user)
+
+
+problems with the containers are:
+
+1.if you are hosting the nginx application in the container and the information about who logged and who accessed the application those things are stored 
+  in a log file.Due to some problem the container goes down then the entire log file will be deleted.
+
+2.if there is a frontend and backend application that shares information, due to some reason the backend goes down then the information that backend have 
+  will be deleted.
+
+3.if the container wants to read something from the host machine and it does not know how to do this.
+
+
+To solve this problem docker come up with these persistent storage called docker volumes and bind mount.
 
 
 Container Volumes:
@@ -3489,6 +3520,11 @@ Container Volumes:
                                         Stored anywhere in the host machine.
 
 Bind Mount:
+            bind mount are used to bind the folder or directory in host machine to container or vice versa.
+
+            * if the container goes down then the information is available on the host machine and we can access those information even if the container 
+              goes down because we binded to folder from container to host machine.
+
              1.pull mysql image from the dockerhub -> docker pull mysql:5.7
              2.create the directory in the current -> /home/ubuntu/vprofiledata
              3.bind this(host machine) directory with mysql directory.
@@ -3509,7 +3545,112 @@ Docker Volumes:
                     -> docker run --name vprofiledb -d -e MYSQL_ROOT_PASSWORD=raju12 -p 5000:3306 -v mydbdata:/var/lib/mysql mysql:5.7 
                        check the mysql directory by running the inspect command(docker inspect imagename) and in volumes the path is present.
 
-                4.then the data from /var/lib/mysql present in the mydbdata(/var/lib/docker/volumes/).
+                 4.then the data from /var/lib/mysql present in the mydbdata(/var/lib/docker/volumes/).
+
+* docker volume ls -> it will show the available volumes.
+
+* docker volume inspect demo(volume-name) -> it will show the all the details of the volume.
+
+* docker volume rm demo(volume-name) -> it will delete the volume.
+
+Note:
+
+     1.Docker volumes may be interacted with using CLIs and APIs. Bind mounts cannot be accessed by CLI commands.
+
+     2.All you need is the volume name to mount it.
+
+     3.When using bind mounts for mounting, a route to the host computer must be supplied.
+
+     4.container are light weight because they dont have the complete OS and they are using the resources from the host OS they are running onS.
+ 
+     5.why we are moving from physical server to virtualization and virtualization to container because they are not using the maximum capacity of the
+       resources.
+
+     6. virtualization solves upto some extend from physical servers and containers solves upto some extend from virtualization.
+
+     7.container is like package which consists of application,libraries(dependencies) and system libraries.
+
+
+LifeCycle of Docker:
+
+                    1.write the Dockerfile and execute it.
+                    2.From that it will create the Image.
+                    3.execute the image to create the container.
+
+                              build                   run
+               Dockerfile------------------>image---------------->container
+
+  * Whenever you want to create the image use build command to create the image then from that image execute the run command to create the container.
+
+Drawbacks of docker:
+                     1.docker is fully dependented on DockerEngine.
+                     2.whenever the the DockerEngine is down the entire docker containers will stop working.
+                     3.buildah will solve the above problem and it also supports the docker images.
+                     4.in buildah, you don't need to write the Dockerfile instead we write the shell script(commands) and create the images.
+
+docker github link for notes: https://github.com/iam-veeramalla/Docker-Zero-to-Hero
+
+* Docker daemon is the heart of the docker and if the docker doeman goes down then the docker will goes down.
+* whenever you run commmand through CLI in docker, these commands will goes to doemon and it will execute those commands.
+
+what is the problem that docker is solving is
+          
+* when you want to host application normal way is to setup the ec2 instance and setup the application and so on. they are many steps are involved.
+
+* while using docker these problems will be solved easily, you just build the image then run it and that's it.you can share the image to public repository 
+  like docker hub and any one can download and run it.there is no need to setup the entire process for it.just download it and run it that simple it is.
+
+* Docker solves is it reduces the work flow(so many manual steps).
+
+* docker doemon is used to listen to our requests and acts upon that request. and docker doemon run with root user.
+
+* difference between Docker hub ang github is github is version control system is to store the source code and docker hub is also a version control system
+  is used to store docker images.
+
+* the difference betweeen CMD and ENTRYPOINT is, both commands are used to execute start command.so whenever someone run the docker run both CMD and 
+  ENTRYPOINT serve as start command.
+
+* the only difference is ENTRYPOINT is something that you cannot change or modify and CMD can be modified.
+
+* whenever we have expose the port in the Dockerfile, while running the container we must map that expose port to the host port then only we can access it
+  in the host machine.
+
+
+while containerizing the application follow these steps:
+1.select the base image
+2.select the working directory, where your application data stores.
+3.copy the requirements.txt and source code to the working directory.
+4.if you have any start commands then write it in CMD or ENTRYPOINT or use both. 
+
+
+* Docker images are heavy(in size) because everything we need to place in the same Dockerfile and we have to select the base image like Ubuntu or centos 
+  based on the requirment then we need to install the package(dependencies) that the application needs by using run command and finally we write the CMD 
+  and Entrypoint.due to these download of dependencies and the base image the size of the image will become big.these problem we can solve using
+  multi stage docker builds and distroless images.
+
+multi stage docker builds:
+                           in multi stage docker builds everything we will write in one Dockerfile only but in differnt stages.
+
+* there is no limit in stages, we can build the image in any number of stages.
+
+* in first stage, we will select the base image and then install the package or dependencies that the application needs. and then in next stage we will 
+  select the runtime environment for the application that is used to run the application i.e jdk or python based on the application and then we will copy 
+  the above base image using copy --from build(above base image name) and then we will mention  CMD OR ENTRYPOINT command from the above to here to execute 
+  the application.so when the image is created it will remove the base image from the created image and the size of the image is less.
+
+
+Distroless docker image:
+                        distroless images is very minimalistic image that will have only runtime environment and the basic commands like ls will not execute
+                        because the main idea is to have only runtime environment and the main purpose of this to execute the application.
+
+                        * distroless images typically contain only essential software required to run an application or service.
+
+                        * the biggest advantage that you can get from the distroless images is security.
+
+for example python distroless image can have only python runtime environment
+
+link for Distroless images : https://github.com/GoogleContainerTools/distroless
+
 
 
 Docker Images:
@@ -3522,7 +3663,7 @@ Dockerfile instructions:
 3.RUN -> execute commands in a new layer and commit the results.
 4.ADD/COPY ->adds files and folder into image
 
-difference between ADD and COPY is COPY just dump the file and ADD is we can provide link and it will download the file and exact it and dump the file.
+difference between ADD and COPY is COPY just dump the file and ADD is we can provide link and it will download the file and extract it and dump the file.
 
 5.CMD -> runs binaries/commands on docker run
 6.ENTRYPOINT -> allow you to configure a container that will run as an executable
@@ -3533,6 +3674,13 @@ difference between ADD and COPY is COPY just dump the file and ADD is we can pro
 11.WORKDIR -> sets the working directory
 12.ARG -> defines a variable that users can pass at build time
 13.ONBUILD -> adds to the images a trigger instruction to be executed at a later time.
+
+NOTE:
+
+       1.RUN is used to execute commands during the build process of a Docker image, while CMD is used to specify the default command to run when a Docker 
+         container is started from the image
+
+       2.
 
 now let's create a images and run it.
 
@@ -3556,12 +3704,101 @@ to push the image into dockerhub:
                                   1.run docker login and give username and password then you will get sucessfull
                                   2.docker push imagename (imagename should be like dockerhub-username/imagename:tag) 
 
+
+Docker Network:
+                networking is used to allow communicate with the containers and host machines.
+
+scenarios:
+
+1.let's see how container communicates with the host machine.
+
+   * whenever the container is created, it automatically creates the virtualEthernet which is dockerzero(0).which is used to connect with host machine.
+
+   * without dockerzero we can not connect with the host and this process is called bridge networking.
+
+   * the default netwroking in docker is bridge networking. 
+
+   * if you delete the dockerzero then the container will never connect or communicate with the host machine and the application inside the container
+     will never reach with the internet and the users and their is no point to use the application inside the container. 
+
+
+The other networking concept is Host Networking,
+
+   * Host networking means the containers directly use the Eth0 of the host machine.
+
+   * in this case whenever the container is created, the docker directly bind the Eth0 of the host machine to the container.so the container and host 
+     machine are in the same CIDR range.So when you ping from container to host machine it will connect to it.
+
+   * this is a very problematic approach. primary reason that we will go for container because they are very secure.
+
+   * if the user has the access to the host machine then he can access the container also which is very bad.this is the very insecure way of creating the
+     networking. 
+
+
+* if we have the container that are running in the host machine i.e login container and finance(payment) container.If you use the default networking then  
+  login container and the finance container uses the same DockerZero to connect or communicate with container.it is very easy for the hacker to provide 
+  a single way to connect with the container which is bad.we need to provide the logical isolation so that they do not use common way(DockerZero) to connect
+  to host i.e container should be independent.This is the bridge networking which is also not secure.In order to secure this we can achieve through 
+  Bridge networking ifself using custom bridge networking.
+
+* the solution is the login container(not contain any sensitive information) will use the DockerZero to communicate with the host machine and the
+  finance container(payment) will use the custom bridge network that we have created so that their is no common way both containers use same DockerZero
+  to connect.This is the way to achieve logical isolation to containers using networking. 
+
+* docker network ls -> to see all the networks.
+
+* docker network rm login(network-name) -> to delete the network.
+
+Let's see how we can create the custom bridge network and attach it to the container,
+
+1.create the custom bridge network. it will create the custom bridge network-> docker network create secure-network(name of the network)
+
+2.while executing the container pass --network=secure-network .it will assign this network to the container.you check this by inspecting the container.
+  
+
+* if you want to create the host network then while executing the container pass --network=host that's it.
+
+* while executing the container if you don't pass any network arguments then it will take as bridge network.
+
+
 Docker Compose:
 
                  Docker Compose allows you to define and manage multi-container applications in a single YAML file.
 
+* The problem with the normal docker container is, if you have multiple containers for example take e-commerce application where it has many services like
+  login service, payment service , cart service, menu service, mysql service etc.
 
-let's see how we can containerization of application:
+* by using docker container we have to write the docker file for each service and then we have to run the containers one after another individual which is 
+  like difficult to do.
+
+* instead we will use the docker-compose tool which also developed by docker INC. here we will write docker-compose YAML file and use the single command
+  to run the services using docker-compose up
+
+* we can easily up and down the containers using single command instead of running containers one by one.
+
+* the another problem is with normal docker process is like we have to maintain the order while coming up the containers using the parameter "depends_on".
+  for example before the payment service the mysql service should come up because if your making a payment you need mysql data without that payment service   
+  is of no use.this problem also solve by docker-compose.
+
+* docker-compose is not replacement for docker.
+
+* docker-compose YAML file contains build & run which uses the Dockerfile.
+
+* https://github.com/docker/awesome-compose -> which contains the docker-compose examples.
+
+* the main important steps that you should remember while write the docker-compose is services, inside the services mention the service names and inside 
+  the service name mention build(path where our dockerfile located) and mention hostname, ports mappings(internal container port to host port).these are
+  all you should remember.
+
+* the usecases of docker-compose is 1.local development - if you write the docker-compose file and share it with the developers for their testing in thier
+                                                          local system.it is very simple to use the commands just docker-compose up and down to start and  
+                                                          stop the containers.Developers does not need to know the all the docker commands to run the 
+                                                          containers.
+                                    2.testing - if you want to quickly test the application for the changes.
+
+
+
+let's see how we can containerize the application using docker-compose:
 
    steps:
            1.steps to setup our stack services.
