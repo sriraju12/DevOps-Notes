@@ -3680,7 +3680,15 @@ NOTE:
        1.RUN is used to execute commands during the build process of a Docker image, while CMD is used to specify the default command to run when a Docker 
          container is started from the image
 
-       2.
+       2.if you pass commands in CMD it will be overridden when you executing the container when you pass commands to it.
+
+       3.ENTRYPOINT commands can not be overridden.
+
+       4.in Dockerfile, if you have two ENTRYPOINTS then while executing the container it will take the latest ENTRYPOINT and the old one will be ignored.
+
+       5.in Dockerfile, if you have two CMD then while executing the container it will take the latest CMD and the old one will be ignored.
+
+       6.if you have CMD and ENTRYPOINT then it will execute the ENTRYPOINT and CMD will be append to the ENTRTPOINT.
 
 now let's create a images and run it.
 
@@ -3806,6 +3814,102 @@ let's see how we can containerize the application using docker-compose:
            3.write Dockerfile to customize the images.
            4.write docker-compose.yaml file to run multiple containers.
            5.test it and host images on dockerhub.
+
+
+Docker init:
+             docker init is a command-line utility that aids in the initialization of Docker resources within a project. It automatically generates 
+             Dockerfiles, Compose files, and . dockerignore files based on the nature of the project, significantly reducing the setup time and complexity 
+             associated with Docker configurations.
+
+
+Docker interview Questions:
+
+1.what is docker :
+                   docker is a open source containerization plateform.it is used to manage the lifecycle of a containers.i use the docker to write the
+                   dockerfile and build the images and then push those images into the docker hub or registry.
+
+2.how containers are different from virtual machines:
+                                                      containers are very light weight because they don't have complete operating system.where as virtual
+                                                      machines have complete operating system which are heavy in size.
+
+                                                      for example, if iam running a java application, what i need is i need a applications and the runtime
+                                                      dependency to run the application and some system libraries that are need to run the application.
+
+3.what is docker lifecycle :
+                             here we need to explain from writing the dockerfile using commands like Base image, what dependencies shold be installed for
+                             the application to run, copy the source code etc. and then building the image from the dockerfile and then running the 
+                             container from the image and then pushing the image to the docker registry or hub.
+
+4.what are the different docker components:
+                                            whenever you install the docker in your local or in ec2 .it comes with a docker Cli and the docker daemon
+                                            docker daeman is responsible for executing the your tasks.let's say as a user you execute a build command
+                                            this request is received by the daemon and it will build the image.docker daemon is the heart of the docker.
+                                            if the docker daemon goes down then then docker containers will not run.
+
+5.what is the difference between docker COPY and docker ADD:
+                                                             docker ADD can copy the files from the url. wehere as docker COPY which can only copy files
+                                                             from the host system into the container.
+
+                                                             docker ADD download the files from the url and then it will extract and dump the filein the
+                                                             location. where as docker COPY does not do that just it will dump the file in the location.
+
+6.what is the difference between CMD and ENTRYPOINT:
+                                                        CMD parameter can be overridden and ENTRYPOINT parameters cannot be overridden.you can use either of 
+                                                        them or combination of both.
+
+7.what are the networking types in docker and what is the default :
+                                                                    the default networking in docker is bridge networking. however you can change the 
+                                                                    default type and configure one of them 1.custom Bridge
+                                                                                                           2.host
+                                                                                                           3.overlay
+                                                                                                           4.macVlan
+
+8.can you explain how to isolate networking between the containers :
+                                                                     bydefault every container use the bridge networking and inside it uses the   
+                                                                     virtualEthernet which also dockerzero to communicate with the host machine.
+
+                                                                     if you want to isolate the networking then create the custom bridge networking and 
+                                                                     while executing the containers pass argument as --network=secure-network which the
+                                                                     custom network that we have created.this way we can achieve isolation between 
+                                                                     containers.
+
+9.what is multi stage build in container :
+                                           multi stage build allows you to build your docker container in multiple stages allowing you to copy artifacts
+                                           from one stage to other.The major advantage of this is to build light weight containers. explain with example. 
+
+10.what are distroless images in docker :
+                                          distroless images contain only your application and its runtime dependencies with a very minimum operating system
+                                          libraries.They do not contain package managers, shells or any other programs you would expect to find in a 
+                                          standard linux distribution.they are very small and light weighted images.
+
+11.Real time challenges with docker :
+
+    * Docker is a single daemon process.which can cause a single point of failure, if the docker daemon goes down for some reason all the applications are 
+      down.
+
+    * Docker daemon runs as a root user.which is a security threat.any process running as a root can have adverse effects.when it is comprised for security
+      reasons,it can impact other applications or containers on the host. 
+
+    * Resource constraints : if you are runnning too many containers on a single host, you may experience issues with resource constraints.this can result
+                             in slow performance or crashes.
+
+                             let's say you are running 10 containers in a single host and one containers is using more memory or leaking the memory the 
+                             other containers don't get what they want.so it will effect the other containers as well.
+
+12.what steps would you take to secure containers :
+
+  some steps are
+
+                 1.use distroless images with not too many packages as your final image in multi stage build, so that there is less chance of security               
+                   issues.
+
+                 2.ensure that the networking is configured properly.this is one of the most common reason for securtiy issues.if required configure
+                   custom bridge networks and assign them to isolate containers.
+
+                 3.use utilities like sync to scan your container images.	
+                                          
+                            
+                                            
 
 
 
