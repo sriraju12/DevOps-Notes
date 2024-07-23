@@ -2793,6 +2793,81 @@ now giving ownership and file permissions:
 Ansible:
          Ansible is a automation tool for configuration managament.
 
+system admins or administrators:
+                                 the main aim of system admins is to do configuration management.
+
+let's see what they will do :
+                              * they should maintain all the virtual machines or on-premises servers are upto date.
+ 
+                              * they have to install the packages and libraries and keep upto date.
+
+                              * for suppose, if your hosting java based web application then you need to install the jdk,webserver and application server
+                                and have to keep upto date.
+
+                              * they will maintain the server whether they are running and maintain cpu and memory etc. and all these tasks have to be done 
+                                in manual steps and which is like hell lot of work.
+
+if the system admins decide to do automation of tasks using scripts then :
+
+ * consider if the company uses 5 virtual machines and the system system decide to automate the tasks using scripts.
+
+ * let's just say 4 virtual machines are linux based and one is windows based machine.
+
+ * if the system admins wants to download package in all the machines then he will use yum to install the packages then in this case the script will fail
+   because the 4 virtual machines are linux it will work and 1 is windows based in this case it will fail.
+
+* consider all the virtual machines are linux then also the script will fail because some virtual machines are centos based machines and some virtual 
+  machines ubuntu or debian based machines.To solve this problem here comes the puppet, chef and ansible comes in.
+
+* the main disadvantages of puppet and chef are 
+                                                 1.learning curve.we have to undestand ruby and learn it and we have to write the complex puppet and chef 
+                                                   style code to automate.which is very difficult.
+
+                                                 2.puppet and chef are agent based. for example if you want to work with puppet or chef, first you need to
+                                                   install the agent in the targeted machine i.e you need to login to each machine and install the agent.
+                                                   which is bad and these problems will be solved by the ansible.
+
+* the main advantage of using ansible is
+                                          1.learning is very easy, you just need to understand the YAML
+
+                                          2.it is a agent less i.e you don't need to install any agent in the targeted machines.
+
+                                          3.ansible uses concept called  control node and manage nodes. control node is where you need to install the 
+                                            ansible and manage node is the target machines and by using control node you can connect to target machines
+                                            and install anything in it.
+
+                                          4.manage nodes can be of anything it is linux or debian or ubuntu or windows.by using ansible we can do  
+                                            automation of tasks irrespect of the type of the machines.
+
+* Ansible is a automation tool that is used for configuration management(to reduce the work of system admins) , it is also used for provisioning i.e
+  create the reasource like creating ec2 instance, creating s3 bucket etc.it is also used in deployement in ci/cd i.e to deploy the artifact in target 
+  machine and it is also used to do network automation.
+
+* shell script vs python script vs ansible :
+                                              for example, if you want to install java in all the virtual machines.
+
+   * using shell script:
+                         the shell script will fail if the virtual machines are of different types i.e linux , debain, centos or windows.this is the
+                         problem with the shell script.
+
+   * using python script:
+                          using python script we can solve the above problem because python is independent it will run on any plateform.
+
+                          * disadvantages are :
+                                                 * we must konw the python and how to write the script.
+                                                 * and we need to update the python script because new updates will come and old versions will not support.
+                                                 * to execute this script we need to login to each and every virtual machine.which is lot of work.
+
+  * ansible:
+             using ansible, the above problems will be solved. we don't need to login to each and every machine to do the task.
+
+             * learning ansible is very easy.you just need to understand the YAML.by using the control node we can install anything in target machines.
+
+* ansible uses python, we will the YAML file and while executing this YAML file it will convert into python code and excute the task in target machines.
+  the only thing is that in all the target machines python should be installed that's it.
+
+               
+  
 inventory file -> which contains the information about target machines to login(ssh).
                   i.e ip,username and private keys to login.
 
@@ -2804,12 +2879,44 @@ whenever we try connect ssh to the machine,first time it will ask the fingerprin
 but we dont want that to be interactive.so need to disable that host_key_checking to false.
 
 1.ansible configuration file available in this path -> cat /etc/ansible/ansible.cfg
-2.login into root user and cd to /etc/ansible
+2.login with root user and cd to /etc/ansible
 3.for safer side we need to backup the ansible configuration file -> mv ansible.cfg ansible.cfg_backup
 4.run the command => ansible-config init --disabled -t all > ansible.cfg
 5.open the ansible.cfg file -> vim ansible.cfg
 6.set host_key_checking=False and remove the semicolon and save the file and exit from root user
 7.change the permission of clientkey.pem(private key) file -> chmod 400 clientkey.pem
+
+
+passwordless authentication:
+                             passwordless authentication means whenever one vm tries to connect with another vm it will ask for password and connect
+                             without using password is passwordless authentication.
+
+                             * passwordless authentication is of two types 1.using password
+                                                                           2.using ssh-keys(pem file)
+
+                             * whenever passwordless authentication is setup at first time it will ask for the password and next time onwords it will not
+                               ask for password.
+
+        1.using ssh-keys:
+                           ssh-copy-id -f "mention full path of pem file" hostname@public_ip and then test it by ssh hostname@public_ip.
+
+        2.using password:
+                          go to location in target machine vim /etc/ssh/sshd_config and edit password authentication to yes and then restart the ssh
+                          by using systemctl restart ssh.
+
+                          * create the password for the user -> sudo passwd username
+   
+                          * ssh-copy-id hostname@public_ip and it will ask for the password.
+
+* inventory is the heart of the ansible where we mention the username and ip address of the target machines.
+
+* we can write the inventory file in two ways 1.inventory.ini file
+                                              2.using YAML format.
+
+* while executing the ansible provide the path of the inventory file.
+
+* if you don't want to pass the path of the inventory file then place the inventory file in /etc/ansible/hosts. and better way is write inventory file and 
+  pass the path of it.
 
 here the inventory file 
 
@@ -2872,7 +2979,7 @@ Note:
      1. host level variables has high priority and group level variables has low priority.
      2. whenever the variables are not found in the host level then it will search in group level.
 
-     ** congiguration management tools maintains state.it compares the previous state to the present state.
+     ** configuration management tools maintains state.it compares the previous state to the present state.
         if anything changes then it will return true orelse it will return false. 
 
 
@@ -2902,22 +3009,30 @@ Ad Hoc commands:
                  if you want to power off all the machines in your lab for Christmas vacation,
                  you could execute a quick one-liner in Ansible without writing a playbook.
 
+                 * they are two ways to give instructions to the ansible 1.playbook(YAML)
+                                                                         2.Ad Hoc commands
+
+                 * ad hoc commands are used for simple tasks like installing apache server or creating the files on target machines or restarting servers
+                   etc. these are just one step activities.
+
+                 * playbooks are used for complex task like install oracle(let's say it has 20 steps) .
+
 
 ansible web01 -m ansible.builtin.yum -a "name=httpd state=present" -i inventory --become :
 
         here target machine is web01 and in that machine download httpd service, and -a means argumements
-        --become means it will act as sudo and name is package name that you want to install.
+        --become means it will act as sudo and name is package name that you want to install. -m is module
 
 ansible webservers -m ansible.builtin.yum -a "name=httpd state=present" -i inventory --become :
 
-       here target machine is webservers(web01 & web02) and in that machine download httpd service,
+       here target machine is webservers(web01 & web02) and in that machine download httpd service, -m is module
        -a means argumements and --become means it will act as sudo and name is package name that you want to install.
 
 
 
 ansible webservers -m ansible.builtin.service -a "name=httpd state=started enabled=yes" -i inventory --become :
     
-       here target machine is webservers(web01 & web02) and in that machine,it will start httpd service and enabled httpd service,
+       here target machine is webservers(web01 & web02) and in that machine,it will start httpd service and enabled httpd service, -m module
        -a means argumements and --become means it will act as sudo and name is package name that you want to install.
 
         
@@ -2925,7 +3040,7 @@ ansible webservers -m ansible.builtin.service -a "name=httpd state=started enabl
 ansible webservers -m ansible.builtin.copy -a "src=index.html dest=/var/www/html/index.html" -i inventory --become :
 
       here target machine is webservers(web01 & web02) and in that machine,it will copy the index.html file to /var/www/html/index.html this location ,
-      -a means argumements and --become means it will act as sudo and name is package name that you want to install.
+      -a means argumements and --become means it will act as sudo and name is package name that you want to install. -m is module
 
 
 
@@ -2935,7 +3050,9 @@ Playbooks and Modules:
                        running one play on your webservers, then another play on your database servers,
                        then a third play on your network infrastructure, and so on.
 
-                       Playbooks are written in YAML format.
+                       Playbooks are written in YAML format. and it starts with ---
+
+                       playbook is a combination or collection of plays or tasks.
 
 Playbook syntax:
 
@@ -2947,7 +3064,7 @@ Playbook syntax:
     - name: Install httpd
       ansible.builtin.yum:
         name: httpd
-        state: present
+        state: present  here present means install and absent means uninstall.
 
     - name: Start service
       ansible.builtin.service:
@@ -3051,6 +3168,83 @@ steps:
         login_unix_socket: /var/lib/mysql/mysql.sock
 
 
+Ansible ROLES:
+                 In playbook YAML file we write everything in the one playbook only i.e vars, tasks, handlers and meta data. if the playbook is huge
+                 let's say 20 vars , 70 tasks etc. which is not much readable and the person who open this file lost his interest after seeing this
+                 many lines of code and maintainance is also difficult.
+
+                 * to solve this problem, ansible roles come into play where we separate the vars in one file, tasks in one file and handlers in one file
+                   and metadata in one file. which is more readable and maintainance is also simple.
+
+                 * the other advantage with the ansible role is we can share roles across organization.
+
+                 * the command to create roles is -> ansible-galaxy role init test   i.e here test means name of the role.it will automatically creates
+                   the entire folder structure.
+
+                 * if the tasks are simple then go for playbook and if the tasks are complex then go for ansible roles.
+
+                 * let's see what are all the folder that are present inside the roles -> 1.vars -> to store all the variables
+
+                                                                                          2.tasks -> to store all the tasks
+
+                                                                                          3.meta -> to store the metadata like author or about the tasks etc
+
+                                                                                          4.files -> these are the static files that you can copy to the 
+                                                                                                     remote location using the 'copy' module. use files when 
+                                                                                                     you need to deploy a static files exactly as it is, 
+                                                                                                     without any need for customization. 
+
+                                                                                          5.templates -> these are files that use the jinja2 templating
+                                                                                                         language to enable dynamic content.use 'templates' 
+                                                                                                         when you need to customize the content of the files   
+                                                                                                         based on variables or conditions at runtime.
+
+                                                                                          6.defaults -> these are also variables the only thing is it 
+                                                                                                        provides the default values to the variable that are 
+                                                                                                        present in vars when you not provide the values to 
+                                                                                                        the variables that are present in the vars.
+
+                                                                                          7.handlers -> handlers are ansible tasks which you want to execute
+                                                                                                        upon particular action.for example if you copy a 
+                                                                                                        file to target machine and you want to restart the 
+                                                                                                        service then in handler you place the restart 
+                                                                                                        service task and in copy task you mention notify and 
+                                                                                                        inside notify mention the name of the handler.so 
+                                                                                                        whenever this copy task is executed then it will 
+                                                                                                        trigger the restart service task that is present in 
+                                                                                                        the handler.
+
+Note:
+      Ansible is idempotent in nature. let's say, if you take shell script there you create file and execute the script and again execute the script.
+      the script will failed because the file is already present. where as in ansible it will not fail, this is called idempotent.
+
+
+
+
+Ansible Galaxy:
+                using ansible galaxy we can create the roles.the main advantages of the roles are modularity, readability and we can share the roles
+                across different teams in ansible galaxy.
+
+                * ansible galaxy is just like docker hub . we can share our role in ansible galaxy and anyone can access this roles.
+
+                * ansible galaxy reduces the writing the ansible playbook because in ansible galaxy there are some common roles will present and you can
+                  go and search then you can modify according to your requirments.
+
+                * login to ansible galaxy using github account. in roles you can find namespaces there you can find your roles that are published by you.
+
+
+Let's see how we can push our roles to the ansible galaxy
+                                                           1.create a new repository in github.
+                                                           2.go inside the role and push these files to the github.
+                                                           3.go inside role,run ansible-galaxy import github-username repository-name.
+                                                           4.then it will throw the authentication error.
+                                                           5.go to ansible galaxy and then go to collection and then click api token and click on load and
+                                                             it will display token and copy the token.
+                                                           6.run ansible-galaxy import github-username repository-name --token paste-the-token.
+                                                           
+
+
+
 we can change the default ansible configuration settings:
                                               
                                                      order of ansible configuration file:
@@ -3081,7 +3275,7 @@ while setting up above configuration,we will get warning about the log_path to s
 
 Decision making:
 
-here we are doing baseb on the operating system we are installing the service and starting the service in target machines.
+here we are doing based on the operating system we are installing the service and starting the service in target machines.
 
 
 ---
@@ -3228,6 +3422,8 @@ lets say how we can create the folder in target machines and banner file(when th
 
 Ansible-AWS:
 
+Anisble collections are used to connect with the 3rd party api's like aws or azure etc.
+
 lets see how we can configure aws using ansible.
 
 1.we need provide authentication for ansible to connect with aws account.
@@ -3238,8 +3434,35 @@ lets see how we can configure aws using ansible.
        export AWS_SECRET_ACCESS_KEY='abc123' replace values with original values.
 5.run source .bashrc -> to update the values.
 
+                 or
 
-Now lets see how we can create key-pair using ansible-playbook.
+we can secure the authentication details(like passwords) in ansible vaults.
+
+  1.openssl rand -base64 2048 > vault.pass -> here we are generating the random password and storing in a vault.pass
+
+  2.ansible-vault create group_vars/all/pass.yml --vault-password-file vault.pass and after runnning this command it will ask you to insert passwords.
+   then AWS_ACCESS_KEY_ID='AK123' and AWS_SECRET_ACCESS_KEY='abc123'. place these keys here.(you can create IAM user and then you can create these keys).
+
+  3.to access the variables in ansible you don't need anything just use "{{variable-name}}" that's it.
+
+  4.if you secure your passwords in vaults and you try to execute the playbook it will fail because you have created a password for vault with base64.
+    ansible try to fetch passwords from vault and the vault has the password so it fails to fetch the passwords from vault.
+
+  5.while executing the playbook pass --vault-password-file vault.pass this at end.
+
+
+NOTE:
+      * ansible built-in modules are used to automate the tasks. these are executed on the manage nodes.
+
+      * ansible collections are used to create the infrastructure such as creating the resources in aws or azure.these are executed on the control nodes.
+
+      * extra vars has more precedence than ansible vars has more precedence than the ansible defaults.
+
+      * extra vars usually pass while executing the playbook and pass -e variable-name=value.
+
+
+Now lets see how we can create key-pair using ansible-playbook. and below are the pre-requisites for aws.
+
 
 1.first we need to download this package -> ansible-galaxy collection install amazon.aws
 2.we need to download the boto to connect to aws.
@@ -3268,7 +3491,7 @@ Now lets see how we can create key-pair using ansible-playbook.
       when: keyout.changed == True
 
 
-Now lets see how we can launch aws ec2 instance using ansible-playbook.
+Now lets see how we can launch aws ec2 instance using ansible-playbook. and below are the pre-requisites for aws.
 
 1.first we need to download this package -> ansible-galaxy collection install amazon.aws
 2.we need to download the boto to connect to aws.
@@ -3316,6 +3539,167 @@ Note:
        for cloud automation terraform is better when compare to ansible.
 
 
+Error Handling in ansible playbooks:
+                                      first let's how the order of execution of tasks in ansible playbook.
+
+   * Let's say you write playbook with three tasks and the inventory file containes information about 3 manage nodes.you start executing the playbook then
+     it will take the task-1 and execute in all the manage nodes and it should be successful(complete and successful) then only it will moves to the next 
+     task.now it will take task-2 and execute in all the manage nodes and then it should be successful and so on.
+
+   * while executing the task-1, if the playbook is failed then it will stop there only and it will not execute the rest the tasks. 
+
+   * this is the default behaviour of the ansible while executing the tasks. i.e if the 1st tasks is complete and successful then only it will move to 
+     another task.
+
+   * if the one task get failed then remaining task won't execute this is the problem with the default behaviour of ansible.
+
+   * To handle this type of errors, in every task at the last use "ignore_errors: yes" then if that task has some errors then it will not fail the playbook
+     instead it will move to the next task.
+
+   * if you want to ignore particular type of error in ansible playbook use "failed_when".
+
+   * to use "failed_when", you have to register the output in a variable and inside failed_when on that output check the error that you want to ignore.
+
+   * the difference between "ignore_errors: yes" and "failed_when" is ignore_errors will ignore all the errors and failed_when ignore particular type of 
+     error only.
+
+   example real-time scenario:
+                                Let's say you have to install docker in 3 manage node and before installing docker on the manage nodes, you need to check 
+                                some requirements,if the requirements matches then only you need to install do docker.
+
+                                * the requirements are 1.openssh and openssl need to install and has the latest version
+                                                       2.check whether the docker is installed or not.
+                                                       3.if the above requirments matches then you need to install the docker.
+
+                                * in these scenario, if one manage node doesnot have openssh latest version then ansible default behaviour will fail and
+                                  it won't execute remaining tasks.
+
+                                * if there are error in the task and you need to proceed further then use "ignore_errors: yes" at every task.if the error
+                                  is present then it won't stop the execution of the tasks.
+
+                                * this is how you can handle errors in ansible playbooks.
+
+NOTE:
+      * if you want to store a output to a variable  -> register: output(here output is variable-name you can give any name).
+
+      * to print it -> - ansible.builtin.debug:
+                           var: output(variable-name)
+
+
+Securing ansible playbooks using Ansible Vault:
+                                                 Ansible Vault is used to secure the sensitive information like passwords,api's and files.
+
+  * Let's say your are creating the EC2 instance using ansible book there you need to mention the ACCESS_KEY and SECRET_KEY of aws iam user.if you execute 
+    the playbook it will execute the task but if you want to share these playbook to others in github.your sensitive information is visible to everyone 
+    which not secure.
+
+  * using Vault we can solve this problem.
+
+  * let' see how Vault works, take the file that contains sensitive information using ansible-vault we will provide the password for that file and it is 
+    encrypted. 
+   
+  * if you want to change or added the content in that file, first you need to provide password for it and if its successful then you can change the content 
+    in the file.
+
+  * command to create Vault or encrypt file -> ansible-vault create group_vars/all/pass.yml --vault-password-file vault.pass
+
+     here group_vars/all/pass.yml is location of the new file where it contains the encrpted data.
+          --vault-password-file vault.pass is password for the file.
+
+  * command to decrypt the file -> ansible-vault decrypt group_vars/all/pass.yml --vault-password-file vault.pass 
+
+  * openssl rand -base64 2048 > vault.pass -> this commands is used to generate the password and store it in a vault.pass file.
+
+  * command to edit the content in vault -> ansible-vault edit group_vars/all/pass.yml --vault-password-file vault.pass
+
+  * if you want to encrypt the existing file -> ansible-vault encrypt group_vars/all/pass.yml --vault-password-file vault.pass
+
+
+ NOTE:
+       * the difference between create and encrypt in Vault is create commands create the new encrypted file where as encrypt is used to encrypt the 
+         existing file.
+
+       * regarding password what is the best practice to have for ansible playbooks,
+
+               1.let's say you have 10 playbooks.each playbook has separate password which also bad practice because if the playbooks increases then it will
+                 become difficult to manage password i.e 1000
+                   
+               2.if you provide the common password for all the ansible palybook which is also bad practice because if someone knows that passwords he can 
+                 able to access all the playbooks.
+
+               3.the best practice is keep one password for one environment i.e for dev one password, for staging one password and for prod another 
+                 password.
+
+
+
+Ansibel interview Questions:
+
+1.what is configuration management :
+                                     configuration management is method or process to managing your software or system hardware.Let's say in your 
+                                     organisation you want to install software or packages or you wnat to manage upgradation of couple of packages etc.
+                                     if you do this process manually it will take long time through this we can simplify the task and time.
+
+2.do you think ansible is better than other configuration management tool? if yes, why :
+                                                                                          Ansible is different from another configuration management tools and it is better in achieving the specific task or usecase.ansible is agentless that means if you want to configure 100 servers, to configure this 100 server you don't need to install any agent in the servers.the other configuration management tools have this agent and you need to install the agent in all the server which is bad like puppet, chef tools.in ansible only prereqisites is that you need to have passwordless authentication to connect with the server
+or target machines.if you want to connect with linux it uses ssh and if you want to connect with windows it uses winrm.ansible uses YAML to write the script
+which is very easy to read and understand. 
+
+
+3. can you write an ansible playbook to install httpd services and get it running :
+
+  two tasks you need to write 1.install httpd and 2.start httpd.
+
+4.how ansible helped your organization :
+                                          explain this with one example and say using script and using ansible to simplify the process. like install packages or upgrading the patches etc. and say using ansible how much time you saved.
+
+5.what is ansible dynamic inventory :
+                                      Let's just say your are using aws ec2 instance like 50 and your are tasked to install any package on that instances
+and after later point of time you just wanted add more istances.so you go and search for the instances and add in the inventory which is not good.
+so to solve this problem ansible comes with dynamic inventory.it will keeping for the instances if any need instances will create then ansible will auto
+configure instances using dynamic inventory.
+
+6.what is ansible galaxy command and why it is used for :
+                                                           ansible galaxy command is used to bootstrap whole structure of the ansible playbooks.it will creates the files and folder required for it. instead of creating the whole structure by yourself use ansible galaxy.
+
+7.can you explain me structure of ansible playbook using roles :
+                                                                  the folder that comes in ansible playbook using roles are vars, defaults, files, templates, tasks, handlers and meta. ansible galaxy command is used to create this structure. describe the each folder.
+
+8.what are handlers in ansible and why are they used :
+                                                       handler are similar to the task and the only difference is it will only run when they notify.
+let's say you have install the httpd and you wan to start the service. and in some cases you want to start on conditional basis then use handlers for it.
+
+9.I would like to run a specific set of tasks only on windows vms and not on linux vms is it possible :
+                                                                                                        yes it is possible.you can find the environment variable(for this take os) and use conditional basis(use when condition like when os is windows then run this task) for running of tasks in ansible.
+
+10.does ansible support parallel execution of tasks :
+                                                       yes, let's say you have 5 tasks and these 5 tasks should be executed in 5 vms then ansible takes
+task-1 and parallel execute the task-1 in all the 5 vms if it's completed then it will move to the another tasks.if you want to execute the tasks parallelly then you need to multiple instances of ansible.
+
+11.what is the protocol that ansible use to connect to windows vms :
+                                                                     ansible use winrm to connect with the windows vms. and ssh to connect with linux.
+
+12.can you place then in the order of precedence, palybook group_vars, role vars and extra vars :
+                                                                                                   
+                                                                                                   palybook group_vars, role vars and extra vars.
+
+13.how do you handle secrets in ansible :
+                                          you can store the secrets in ansible vaults. 
+
+14.can we use ansible for IAAC(Infrastucture as a code) ? if yes, can you compare it with any other IAAC tools like terraform :
+                                                                                                                               yes ansible supports the IAAC. the main use of ansible is configuration management and it also supports IAAC.
+
+
+15.can you talk about a ansible playbook that you wrote and how it hepled your company :
+                                                                                         let's say you want to install oracle databse and it will takes nearly 40-45 minutes and you want to install it on  50 vms and imagine how much time its take to install .using ansible playbok can save a lot of time.
+if you are doing it manually there is a chance of errors.
+
+16.what do you think that ansible can improve :
+                                                 the window support for ansible should be improve. and ansible does not support such IDE's.
+                                                 
+ 
+
+
+                                                                              
 
 AWS CI/CD project:
 
