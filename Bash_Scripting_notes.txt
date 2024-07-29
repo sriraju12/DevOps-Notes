@@ -1,0 +1,305 @@
+Bash Scripting: 
+                In bash script file start with -> #!/bin/bash.
+
+variables:
+          These are temporary storing of data in the memory.
+
+          1.Skill="Devops":
+                        if you want to acess the values use -> $ (echo $Skill it will print Devops).
+        
+          2.PACKAGE= "wget unzip httpd":
+                                         we can use like -> sudo yum install $PACKAGE -y.
+                                         it will download the dependencies.
+
+command line arguments:  
+                        means passing the data or value at the time of executing the file.
+
+For example,if you have created a file name with scripts.sh and inside it has the following data
+
+                    #!/bin/bash
+                    echo "the value of 0 is :"
+                    echo $0
+
+                    echo "the value of 1 is :"
+                    echo $1
+
+                    echo "the value of 2 is :"
+                    echo $2
+
+when you execute this file it will print, value of 0 is scripts.sh(file name)
+                                         value of 1 is empty line
+                                         value of 2 is empty line.
+
+if you give argument while executing like ./scripts.sh aws jenkins
+
+output is : 
+            value of 0 is ./scripts.sh(file name)
+            value of 1 is aws
+            value of 2 is jenkins.
+
+Note:
+     1.$0 is always the name of the bash script
+     2.$1 to $9 are the command line arguments
+     3.echo $USER -> this will print the username
+     4.echo $HOSTNAME -> it will print the hostname
+     5.echo $RANDOM -> it will print the random number.
+     6.echo $? -> this is the exit status of last command(0 means sucessful and other than 0 means unsucessfull).
+
+
+
+command substitution:
+                      Command substitution is method of storing OUTPUT of a command into variable.
+                       
+                       Two ways to do command substitution:
+                                                           1.``
+                                                           2.$()
+                     1. If you want to store any output to a variable use ->` `
+                        UPTIME_1=`uptime`
+                        echo $UPTIME_1 ->this will gives the uptime status
+
+                    2.CURRENT_USER=$(who)
+                      echo $CURRENT_USER ->This will print the username.
+
+
+Exporting Variables:
+                     variables are temporary stored,if you exit from the shell the data will be gone.
+
+If you want to store the variables permanently then,
+  
+                         Two ways:
+                                   1.export variable are available only for that user then edit .bashrc file(this is available in home directory ls -a)
+                                   2.export variable available globally(all users) then edit /etc/profile file.
+
+
+User Input:
+           If you want to take input from the user while executing script use -> read name(any variable).
+       
+    In user-script.sh file,
+                          
+                            #!/bin/bash
+                      
+                            read skill
+                            echo "your skill is : $skill"
+
+                            read -p user:usr          -> here -p means prompt
+                            read -sp password:pwd     -> here -s means suppress(hide)
+
+                            echo "welcome $usr".
+
+
+Conditional statements:(if and if-else)
+                      
+                        #!/bin/bash
+
+                       read -p "Enter the number:" NUM
+                       echo
+
+                       if [ $NUM -gt 100 ]   => here gt means greater than
+                       then
+                           echo "you have entered if block"
+                           sleep 3
+                           echo "number is greater than 100"
+                       else
+                           echo "number is less than 100"
+
+                       fi  => here fi means end of condition.
+
+
+                     (if-elseif)
+
+                     #!/bin/bash
+
+                     value=$(ip addr show | grep -v LOOPBACK | grep -ic mtu)
+
+                     if [ $value -eq 1 ]
+                     then
+                         echo "one active network interface"
+
+                     elif [ $value -gt 1 ]
+                     then
+                         echo "found more than one network interface"
+
+                     else
+                         echo "no active network interface"
+
+                     fi
+
+
+Looping:
+         for loop:
+                   #!/bin/bash
+                   for VAR1 in java devops react linux   => here VAR1 is variable name
+                   do
+                     echo "loop starting"
+                     sleep1
+                     date
+                     echo
+                   done     => here done means end of for loop.
+
+
+
+                  #!/bin/bash
+                  MYUSER="alpha beta gamma"
+                  for usr in $MYUSER
+                  do
+                    echo "adding user $usr"
+                    adduser $usr
+                    id $usr
+                  done
+
+
+While loop:
+           It will run the loop as long as condition is true.
+        
+        
+             #!/bin/bash
+
+            counter=0
+            while [ $counter -lt 5 ]
+            do
+              echo "loop starting"
+              echo "the value of counter is $counter"
+              counter=$(( counter + 1 ))
+              sleep 1
+           done
+
+          echo "out of loop"
+
+
+
+        Infinite loop:
+  
+                       #!/bin/bash
+
+                       counter=3
+                       while true
+                       do
+                         echo"starting loop"
+                         echo "the value of counter is $counter"
+                         counter=$(( counter * 3 ))
+                         sleep 1
+                       done
+
+                       echo "out of loop"
+
+
+
+Remote command execution:   This means from one vm we can connect to other vm's.
+
+                          1.first change the hostname of all the vm's(not mandatory,its for easy identification of hostnames)
+                          2.In one vm add the ip address and hostname (i.e 192.168.10.13 web01) in /etc/hosts
+                          3.check whether the ip is connected or not( ping web01(hostname).
+                          4. ssh vagrant@web01 then it will ask for password(password is username)
+                          5.add the user using adduser devops and passwd devops
+                          6. add permission to user in visudo file.(devops ALL=(ALL)  NOPASSWD: ALL)
+                          7.ubuntu by default doesnot allow to login through password.we need login into web03(ubuntu)
+                            and change the permissions i.e enable password login (/etc/ssh/sshd_config ) and
+                            then restart ssh(systemctl restart ssh).
+                          8. again login into one vm , do ssh vagrant@web03 now it will ask for password 
+                             login and add user devops,password devops and edit permission in visudo file
+                             (export EDITOR=vim and then visudo)
+                          9.now try ssh devops@web01 uptime -> it will ask for password and then displays uptime.
+                            without even login into web01 vm we are executing the commands.
+
+
+SSH Key Exchange:
+                
+                  It is another way to login remotely without password(it is key based login)
+
+                  1.ssh-keygen -> it will generate the key-pair(/root/.ssh/id_rsa it will store here).
+                  2.ssh-copy-id devops@web01 -> it will ask for the password and it will copy the lock to this vm.
+                  3.ssh devops@web01 uptime -> now it will not ask for password to login, it will directly execute
+                                               the command
+
+Note:
+ 
+         for host in `cat remhosts` 
+         do
+            echo devops@$host
+            date 
+         done
+
+         here remhosts -> a file which contains hostnames(web01,web02,web03) and it will print the date
+
+
+
+         #!/bin/bash
+
+#PACKAGE="wget unzip httpd"
+TEMPDIR="/tmp/webfiles"
+URL=" https://www.tooplate.com/zip-templates/2108_dashboard.zip"
+ART_NAME="2108_dashboard"
+#SVC="httpd"
+
+yum --help &> /dev/null
+
+if [ $? -eq 0 ]
+then
+    PACKAGE="wget unzip httpd"
+    SVC="httpd"
+
+    echo "running on centos"
+
+
+    sudo yum install $PACKAGE -y > /dev/null
+
+    sudo systemctl start $SVC
+    sudo systemctl enable $SVC
+
+    mkdir -p $TEMPDIR
+    cd $TEMPDIR
+    wget $URL > /dev/null
+    unzip $ART_NAME.zip
+    sudo cp -r $ART_NAME/* /var/www/html/
+
+    systemctl restart $SVC
+
+    rm -rf $TEMPDIR
+
+    systemctl status $SVC
+
+else
+    PACKAGE="wget unzip apache2"
+    SVC="apache2"
+
+    echo "running on ubuntu"
+
+    apt update
+    sudo apt install $PACKAGE -y > /dev/null
+
+    sudo systemctl start $SVC
+    sudo systemctl enable $SVC
+
+    mkdir -p $TEMPDIR
+    cd $TEMPDIR
+    wget $URL > /dev/null
+    unzip $ART_NAME.zip
+    sudo cp -r $ART_NAME/* /var/www/html/
+
+    systemctl restart $SVC
+
+    rm -rf $TEMPDIR
+
+    systemctl status $SVC
+
+fi 
+
+
+
+               #!/bin/bash
+
+               USR="devops"
+
+               for host in `cat remhosts`
+               do
+                  echo "connecting to $host"
+                  echo "pushing the script to $host"
+                  scp mulos_setup.sh $USR@$host:/tmp/    => here scp is used to push the file into others vm's.
+                  echo "executing script on $host"
+                  ssh $USR@$host /tmp/mulos_setup.sh
+                  ssh $USR@$host rm /tmp/mulos_setup.sh
+                  echo
+              done
+
+
+

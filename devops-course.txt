@@ -1436,12 +1436,16 @@ GIT:
      
     Two types of version control system
                                          1.central control system:
-                                                                   In these,everybody needs to make changes from the centrol repository that means one repository.
-                                                                   due to some error occured and the entire data will be lost here.
+                                                                   In these,everybody needs to make changes from the centrol repository that means one 
+                                                                   repository.due to some error occured and the entire data will be lost here.
                                         
                                          2.Distributed control system:
-                                                                       here,everyone has the one local copy of the repository.whenever the some issue occured still
-                                                                       data will not be lost.
+                                                                       here,everyone has the one local copy of the repository.whenever the some issue 
+                                                                       occured still data will not be lost.
+ * github is used to share the code and git is used for versioning.
+
+ * the problems that will solve is versioning (making or keeping the multiple copies of changes to the files) and sharing of code.
+
 
 Note:
       1.git log -> This command is used to show the logs(previous executed commites).

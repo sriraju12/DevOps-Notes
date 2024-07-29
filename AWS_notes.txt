@@ -1,0 +1,580 @@
+AWS:
+
+1.EC2:
+       Elastic Compute Cloud provides web services api for provisioning,managing and deprovisioning virtual server
+       inside amazon clouds.
+
+Ec2 pricing:
+
+             1.On-Demand(pay per hour or even seconds)
+             2.Reserved(Reserve capacity for 2-3 years for discounts)
+             3.Spot(Bid your price for unused ec2 capacity)
+             4.Dedicated Hosts(physical servers dedicated for you)
+
+
+
+Components inside ec2 instance:
+                               
+                                1.AMI(Amazon Machine Image):
+                                                            AMI provides the information requried to launch an instance
+                                                            which is a virtual server in cloud(this like vagrant box list)
+
+                                2.Instance Type:
+                                                when you launch an instance,the instance type that you specify determines
+                                                the hardware of the host computer used for your instance.
+                                                (how much size and memory required)
+
+                                3.EBS(Amazon Elastic Block Store):
+                                                                   Amazon ec2 provides you with flexible,cost effective and
+                                                                   easy to use data storage options for your instances.
+
+                                                                   EBS is like virtual hard drive in which you can store 
+                                                                   your OS and your data.
+
+                               4.Tags:
+                                      Tag is simple label consisting of customer-defined keys and optional values that can
+                                      make it easier to manage,search for,and filter resources.
+
+                               5.Security Groups:
+                                                  A Security Group acts as a firewall that controlls the traffic for one
+                                                  or more instances.
+
+                               6.Amazon EC2 uses the public-pair cryptography to encrypt and decrypt the login information.
+
+
+Note:
+     1.In ec2,whenever the ec2 instance stopped,the public ip will be gone and private ip
+       will be there.
+     2.when you start the ec2 instance again,the new public ip will generate and private ip
+       remain same.
+
+     3.if you want static ip(fixed ip) then you can use elastic ip's.In right menu search for
+        elastic ip and select the region and click on create
+     4.it will create the elastic ip's and we can associate that ip to our ec2 instance.
+
+
+AWS CLI:
+         if you want to connect aws through command line use follwing steps:
+         
+         1.install aws cli in your machine.
+         2.create user or existing user also fine, in user setting search for acess keys
+           and create acess keys 
+         3.open gitbash and type aws configure, it will ask for acesss key,secret acess key
+           output format is json and region. then configuration is done
+
+
+  aws sts get-caller-identity -> this command shows the account ID and account number you are
+                                 using.
+
+
+
+EBS(Amazon Elastic Block Store):
+                                 Amazon ec2 provides you with flexible,cost effective and
+                                 easy to use data storage options for your instances.
+
+                                 EBS is like virtual hard drive in which you can store 
+                                 your OS and your data in the form of volumns.
+                                
+                                 snapshot is backup of a volumn.
+
+
+          EBS Types:
+                     1.General purpose(SSD-Solid State Drive) - most work loads
+
+                     2.Provisioned IOPS - Large Databases.
+
+                     3.Throughput Optimized HD - big data and data warehouse.
+
+                     4.Cold HDD(Hard Disk Drive) - file servers.
+
+                     5.Magnetic - backups and Archieves.
+
+
+If you want to store anything separately then follow the below steps:
+ 
+ 1.first you need to create a volume(choose the size based on your requirment).
+ 2.Attach that volume to the instance(just make sure that volume and instance is in same zone).
+ 
+ fdisk -l -> which will show all the disks.
+
+ 3.volume we have created for this one,partition is not present we need to create it.
+
+             first step is to create the partitioning.
+
+ 4.fdisk /dev/xvdf(hard disk path) -> it will open the hard disk utility.
+   click m -> for help
+ 5. n -> to create the partition.and then click enter upto last step.
+ 6. p -> to print the disk partition.
+ 7. w -> to write the partitions(partitions are created).
+
+            next step is to formatting it.
+
+8.mkfs and click the tab button 2 times -> it will show all the available utilities.
+9.choose any utility you want and mkfs.ext4 /dev/xvdf1(hard disk path) click enter.
+10.the partition is formatted with ext4 format.
+
+           next step is to mount it.
+
+11.create a directory  in temp directory and moves all images file to created directory.
+   here mkdir /tmp/img-backups
+        mv /var/www/html/images/* /tmp/img-backups/
+12.now the images directory is empty.
+13.This is a temporary mount -> mount /dev/xvdf1(hard disk path) /var/www/html/images/(where you want to mount i.e path).
+14. run df -h command to see the mounted.(how much is used and how much is available)
+15.if you want unmount it(delete it) -> umount /var/www/html/images/(path)
+
+now lets see the permanent mount
+
+16.open vim /etc/fstab -> add /dev/xvdf1	/var/www/html/images/	ext4	defaults	0 0
+17. mount -a -> this will mount all the entries from fstab file.
+18. next is to move the images from temp directory to mounted directory.
+    mv /tmp/img-backups/* /var/www/html/images/
+19.restart the service -> systemctl restart httpd
+20.check the status of the service if mounting is failed then the service will not run -> systemctl status httpd.
+21.check in the browser whether it shows images or not.
+
+
+
+EBS Snapshots:
+               Snapshots are usually to backup's and restores the data.
+
+ 
+              we will use the previous instance for the backup
+
+      for that first, change the name of the instance and deattach the volume from this instance.
+      unmount the previous partition -> umount /var/www/html/images/.
+	
+ create  a new volume and attach that volume to ec2 instance.
+
+
+ fdisk -l -> which will show all the disks.
+
+ 3.volume we have created for this one partition is not present we need to create it.
+
+             first step is to create the partitioning.
+
+ 4.fdisk /dev/xvdf(hard disk path) -> it will open the hard disk utility.
+   click m -> for help
+ 5. n -> to create the partition.and then click enter upto last step.
+ 6. p -> to print the disk partition.
+ 7. w -> to write the partitions(partitions are created).
+
+            next step is to formatting it.
+
+8.mkfs and click the tab button 2 times -> it will show all the available utilities.
+9.choose any utility you want and mkfs.ext4 /dev/xvdf1(hard disk path) click enter.
+10.the partition is formatted with ext4 format.
+11.mkdir -p /var/lib/mysql -> this is where mysql database is present.
+
+           now mount it.
+
+16.open vim /etc/fstab -> add /dev/xvdf1	/var/lib/mysql	ext4	defaults	0 0
+17. mount -a -> this will mount all the entries from fstab file.
+
+18 now lets install mysql -> yum install mariadb-server -y (since it is a centos).
+19.start the service -> systemctl start mariadb
+20. ls /var/lib/mysql/ -> here you can see the downloaded files.
+
+Note:
+      if you want to restore the existing partitioning then snapshot will not do that instead
+      of that snapshot will create a volume for it and store the data.
+
+
+     Snapshots backups and restores:
+
+     if you loose the data and already taken the snapshot then,
+
+                                     1.unmount partition.
+                                     2.deattach volume
+                                     3.create a new volume from snapshot
+                                     4.attach the created volume from snapshot
+                                     5.mount it back.
+
+21.create a snapshot from volume(in volume section).
+22.go to /var/lib/mysql directory delete the mysql data from it  -> rm -rf *
+23.stop the service -> systemctl stop mariadb.
+24.unmount the partition -> unmount /var/lib/mysql/
+25.deattch the volume(in volume section).
+26.go to snapshot section and select the snapshot and click on create volume.
+27.now attach the recovered volume to ec2 instance.
+28.mount -a -> this will mount all the entries.
+29.now check the data whether it came or not -> ls /var/lib/mysql/.
+
+
+
+
+ELB-Elastic Load Balancer:
+                          Elastic load balancing distributes incoming applications or network
+                          traffic across multiple targets such as ec2 instances or containers etc.
+
+      Elastic load balancer supports 3 types of load balancers:
+                     
+                                  1.Application load balancer - which supports only web traffic
+                                  2.network load balancer - which is very high performing load balancer and expensive too.
+                                  3.classic load balancer - which is simplest one.
+
+
+     Main flow of elastic load balancer is:
+                                            1.create a ec2 instance with website.
+                                            2.create AMI for that instance.
+                                            3.create launch template and launch it.
+                                            4.create target groups.
+                                            5.create load balancer.
+
+
+
+CloudWatch:
+            it monitors the performance of aws environment-standard infrastructure metrics.
+
+
+            Metrics:
+                    Aws cloud watch allows you to record metrics for services such as EBS,EC2
+                    Amazon RDS,ColudFront etc.
+
+            Events: 
+                  Aws events delivers a near real time stream of systems that describe change
+                  in amazon web services resources.
+
+            Logs:
+                you can use amazon cloudwatch logs to monitor,store and acess your log files
+                from amazon ec2 instance(Elastic Compute Cloud) and other resources.
+
+Note:
+     1.alarms monitors cloudwatch metrics for instances.
+
+      SNS(Simple Notification Services) is a web service that co-ordinate and manage the
+      sending of messages to subscribing endpoints.
+
+ flow:
+       ec2 instance ----> amazon cloudwatch------> Alarms------------>SNS(email notifications).
+
+
+
+EFS(Amazon Elastic File System):
+                                 It is a shared file system for data storage.
+
+    1.It is similar to EBS(Elastic Block Store) the only difference is, in EBS we can store data
+      for single ec2 instance only.
+    2.But in EFS(Elastic File System) it shared file system i.e common storage for multiple
+      ec2 instances.
+
+      flow:
+           1.create the ec2 instance
+           2.in EFS,create the file sytem
+           3.create the acess points to acess that file system
+           4.we need to mount this in /etc/fstab file.
+
+
+
+Auto Scaling:
+              Auto scaling is a service that automatically monitors and adjust compute
+              resource to maintain the performance for applications hosted in the aws.
+
+
+       flow:
+            we need to create the auto scaling group which will provide in launch configuration
+            template to launch instances based on the load (cpu utilization) alarm will be triggered
+            if it cross the threshold and scaling policy will trigger the launch of new instances
+            in the auto scaling group or even reduce the instances based on the scaling policies.
+
+
+
+Amazon S3(Simple Storage Service):
+                                   Amazon S3 is a storage for the internet.you can use
+                                   S3 to store and retrieve any amount of data at any time
+                                   from anywhere on the web. i.e it is just like google drive.
+
+
+         S3 Storage Classes:
+                             1.S3 Standard: 
+                                            General purpose storage of frequently accessed data.
+                                            Fast acess and object replication in multi available zones.
+
+                             2.S3 Infrequent Acess:
+                                                    Long lived,but less frequently accessed data.
+                                                     Slow access,object replication in multi available zones.
+
+                            3.S3 One Zone-Infrequent Access:
+                                                             It is for data that is accessed less frequently,
+                                                             but requires rapid access when needed.slow access,
+                                                             no object replication.
+
+                           4.S3 Inteligent Tiering:
+                                                    Automatically moves data to most cost effective tier.
+
+                           5.S3 Glacier:
+                                        Low cost storage for data archiving.
+
+                           6. S3 Glacier Deep Archive:
+                                                       Lowest cost storage,retrival time of 12hrs.
+
+Note:
+      1.By default everything in S3 Bucket is private.
+      2.Bucket versioning: 
+                           1.If you disable bucket versioning, if you delete anything in the bucket, you can not retrive it.
+                           2.If you enable the bucket versioning,you delete anything in bucket we can recover it but the size 
+                             of the bucket will grow(size).if you keep on recovering the objects, the size will increases.
+
+      3.while uploading the objects to S3 bucket,you can choose the storage classes.
+
+
+
+If you want to host static website in S3 Bucket:
+                                                  1.download the static website from tooplate.com
+                                                  2.upload the files to S3 Bucket.
+                                                  3.In permission,enable the public acess and make the files as public by selecting the files.
+                                                  4.enable the static website hosting in properties option.
+                                                  5.use the endpoint to display the content in browser(endpoint present static website hosting in properties).
+
+   
+    4.By mistakenly you override the object then follow these steps:
+                                                                      
+        select the file you want to recover and go to versioning there you can find the previous version of your object 
+        and download it and then upload the file.make it public then it will display in browser.This is how you can recover
+        the objects in S3 bucket.Just make sure to enable bucket versioning.
+
+
+    5.If you delete the objects in S3 Bucket you want to recover it follow these steps:
+
+       In the S3 Bucket,you will see the list of objects option,you just enable it.there you can see
+       the all versions of yours object.The delete files also shown here.select the delete file and click on the delete option
+       then it will come to S3 Bucket.
+
+
+Flow of project setup Vprofile in aws:
+
+                                       1.Login into aws account.
+                                       2.Create key pairs.
+                                       3.Create security groups.
+                                       4.Launch ec2 instances with user data(bash scripts).
+                                       5.Update IP to name mapping in route 53.
+                                       6.Bulid application from source code.
+                                       7.Upload to s3 bucket(refer point 1 to point 3 in note).
+                                       8.Download the artifact to tomcat ec2 instances(refer point 4 onwords for this).
+                                       9.Setup Elastic Load Balancer(ELB) with https(certificate from amazon certificate manager).
+                                       10.Map Elastic Load Balancer endpoint to website name in Godaddy DNS.
+                                       11.Verify the entire setup.
+                                       12.Bulid auto scaling group for tomcat instances.(1.AMI
+                                                                                         2.launch template 
+                                                                                         3.autoscaling group).
+
+Note:
+      To upload the artifact into amazon S3 bucket follow these steps:
+   
+       1.first we need to configure the IAM role in AWS CLI(commmand -> aws configure)
+       2.create the s3 bucket using command -> aws s3 mb s3://hkh-code-artis(Bucket name).
+       3.we copy the artifact to S3 bucket -> aws s3 cp target/vprofile-v2.war s3://hkh-code-artis/
+
+       4.create the role for the s3 bucket and attach that role to the tomcat instance.
+       5. aws s3 ls -> it will show all the s3 buckets.
+       6.copy the artifact to temp folder -> aws s3://hkh-code-artis/vprofile-v2.war /tmp/
+       7.delete the default tomcat page -> rm -rf /var/lib/tomcat9/webapps/ROOT
+       8.copy the artifact from temp folder to tomcat default page -> cp /tmp/vprofile-v2.war /var/lib/tomcat9/webapps/ROOT.war
+
+
+
+
+Refactoring the above project:
+                          
+
+                                 Comparision
+
+
+ 1.BeanStalk                                    1.Tomacat EC2 instance on vm
+ 2.ELB in beanstalk                             2.nginx LB/ELB
+ 3.autoscaling                                  3.autoscaling
+ 4.EFS/S3                                       4.EFS/S3
+ 5.RDS                                          5.mysql on ec2 instances.
+ 6.Elastic cache                                6.memcache on ec2 instance.
+ 7.Active MQ                                    7.Rabbit MQ on ec2 instance.
+ 8.Route 53                                     8.Godaddy,local DNS
+ 9.Cloud Front                                  9.Multi delivery content across world.
+
+
+
+Flow of execution:  
+
+                                                           monitors by amazon cloud watch
+                                                                               ^
+                                                                               |
+user ---> Route 53 ---> cloud front ---> application load balancer ---->  ec2 instances in bean stalk ----> stores artifact in s3 bucket.
+                                                                               |
+                                                                               |
+                                    RDS(mysql)<-----Elastic Cache<----- Active MQ
+                                                                         
+
+1.Login into aws account.
+2.create the key pair for beanstalk instances login.
+3.create the security group for Elastic cache,Active MQ and RDS.
+4.create
+         RDS,Amazon Elastic Cache,Amazon MQ.
+
+5.create Elastic Beanstalk environment.
+6.update security group for backend to allow traffic from beanstalk security group.
+7.update security group for backend to allow internal traffic.
+
+8.launch EC2 instances for DB initializing.
+9.login into the instance and initialize the RDS DB.
+10.change the health check on beanstalk to /login.
+11.add 443 https listener to ELB.
+
+12.build artifact from backend information.
+13.deploy artifact to beanstalk.
+14.create CDN(Content Delivery Network) with ssl certificate.	
+15.update entry in godaddy DNS Zones.
+16.test the url.
+
+
+Amazon CloudFront:
+                   Amazon CloudFront is a content delivery network operated by Amazon Web Services.
+                   The content delivery network was created to provide a globally-distributed network of proxy servers
+                   to cache content, such as web videos or other bulky media, more locally to consumers,
+                   to improve access speed for downloading the content.
+
+Note:
+      1.Generally whenver the user request some thing on the browser it will route to S3 since the data is present in S3.
+      2.When you use cloudfront,for the first time whenever the user request for data from s3, the data is cached to 
+        nearest edge location.so again whenever you request the same data then the data will come from the edge location 
+        instead of S3.So that we can able to acess the data very fast.
+
+
+
+
+
+
+AWS-part-2:
+
+         VPC(Virtual Private Cloud):
+                                     1.vpc is a logical data center within a region.
+                                     2.vpc is an on-demand configurable pool of shared computing resources allocated within a public cloud environment.
+                                     3.control over network environment,select ip address range,subnets and configure route tables and gateways.
+
+         Subnet Masks:
+                       A subnet mask is used to divide an IP address into two parts.
+                       One part identifies the host (computer), 
+                       the other part identifies the network to which it belongs.
+                       To better understand how IP addresses and subnet masks work, look at an IP address and see how it's organized.
+
+                        ex: our ip is 192.168.0.172
+                            and subnet mask is 255.255.255.0
+                            here 192.168.0.0 is network ip(class c) and last ip is 192.168.0.255 is for broadcast.
+
+                         based on the subnet masks only we can avaiable ips.
+                         like start with 192.168.0.1 to 192.168.0.255.here first three octet are fixed because of subnets(255.255.255.0)
+
+         CIDR(Classless Inter-Domain Routing):
+                                              Classless Inter-Domain Routing (CIDR) notation is a way to represent an IP address and its network mask.
+
+                                               ex: 192.168.0.172 is network ip                  
+                                                   255.255.255.0 is subnet masks
+
+                                          This can be represent as 192.168.0.0/24 which is 255.255.255.0 as subnet
+
+                                                 255.0.0.0
+                                                 /8
+
+             this can be represented as          11111111.00000000.00000000.00000000
+                                           
+                                                 255.255.0.0
+                                                 /16
+
+                                                 11111111.11111111.00000000.00000000
+
+                                                 255.255.255.0
+                                                 /24
+                         
+                                                 11111111.11111111.11111111.00000000
+
+
+         VPC design and components:
+                                     vpc is divide into two parts.one is public subnet and another is private subnet.
+
+                                     public subnet is connected to internet gateway and private subnet is connected to NAT gateway present inside public subnet.
+
+         NAT gateway:
+                      Network Address Translation(NAT) gateway to enable instances in a private subnet to connect to the internet or other aws resources. 
+
+         Internet Gateway:
+                           An internet gateway is horizontally scaled,redudant and 
+                           highly available VPC components that allows communication between instances in your vpc and the internet.
+
+        Bastion Host:
+                      Bastion host is the single point entry to access your resources in the private subnet.
+
+        VPC Peering:
+                     A VPC peering connection is a networking connection between two VPCs that enables you to route traffic between them using private IPv4 addresses or IPv6 addresses.
+                     Instances in either VPC can communicate with each other as if they are within the same network.
+
+        Note:
+              1.we can not create a default VPC in aws.
+              2.to copy key from one instance to another instance through terminal
+                        
+                      -> scp -i Downloads/bostion-key.pem Downloads/web-key.pem ubuntu@52.53.153.72:/home/ubuntu/
+                         here web-key.pem file is copied into the bostion host instance in /home/ubuntu/ directory.
+
+      flow for creating VPC:
+                              1.create VPC
+                              2.create subnets(public subnets & private subnets)
+                              3.create internet gateway.
+                              4.create NAT gateway and before that create Elastic Ip and attach that to NAT gateway.
+                              5.create Route Tables and Add the subnet association and Route(public subnet attach to internet gateway)
+                                                                                             & private subnet attach to NAT gateway
+                              6.Go to subnets and click on action, click on edit subnet settings and Enable auto-assign public IPv4 address.
+                                do this for all public subnets.
+
+                              7.Go to your VPC and click on action,click on edit VPC settings and Enable DNS hostnames. 
+                             
+                              8.create one ec2 instance(Bostion host) and while creating ec2 instance select the created vpc and choose any public subnet in subnet.
+
+                              9.now we will create one ec2 instance and deploy one website in ec2 instance in private subnet and that can be access through bastion host.
+
+                              10.to copy key from  instance(website instance) to another instance(bastion host) through terminal
+                        
+                                   -> scp -i Downloads/bostion-key.pem Downloads/web-key.pem ubuntu@52.53.153.72:/home/ubuntu/
+                                      here web-key.pem file is copied into the bostion host instance in /home/ubuntu/ directory.
+
+                                        chmod 400 web-key.pem (file permission).
+
+                              11.create the elastic load balancer and before that first create the target groups then you can access the website using load balancer DNS name.
+
+
+EC2 Logs:
+         1. common way is achieve the logs and send it to somewhere out of the system and then clean the logs.
+
+steps:
+       1.create ec2 instance and deploy website on it.So that logs will generate.
+       2.ssh to instance and go to logs path and tar the logs files.
+       3.clear the logs by cat /dev/null > acess_log(log filename)
+       4.create the s3 bucket and we can move the tar file into s3 bucket.
+       5.for that first, create IAM user and create access key and secret key.
+       6.ssh to instance and install awscli
+       7.configure aws, provide access key and secret key,region and output format as json->aws configure
+       8.copy the tar file into s3 bucket -> aws s3 cp fullpath(including filename) s3://bucketname/
+
+                                or
+
+            aws s3 sync sourcepath s3://bucketname/
+
+        NOTE: instead point 5,6 simply you can use -> 1.create a role and select the policy you want,in our case it is AmazonS3fullAccess
+                                                      2.attach this role to ec2 instance.click action -> security -> modify IAM role.
+
+ 
+       2.To stream logs live:
+
+
+            steps:
+                    1.create ec2 instance and deploy website on it.So that logs will generate.
+                    2.create a role and select the policy you want,in our case it is Amazoncloudwatchlogfullaccess
+                    3.attach this role to ec2 instance.click action -> security -> modify IAM role.
+                    4.ssh to instance and install awscli and aws logs(this cloudwatch agent takes logs from our log file that we specify 
+                      and stream it to cloudwatch
+                    5.edit the file, at the end add the file our log file path(/var/log/httpd/access_log) -> vim /etc/awslogs/awslogs.conf
+                    6.restart the awslogs service -> systemctl restart awslogsd and  systemctl enabled awslogsd
+                    7.check in the cloudwatch, logs will generate over here.
+
+                     if you want to more specifically send this log file to cloudwatch then
+                           1.copy the log path -> /var/log/httpd/access_log
+                           2.edit the file, at the end add the file our log file path(/var/log/httpd/access_log) -> vi /var/awslogs/etc/awslogs.conf
+
+                   8.from cloudwatch, you can export logs to s3 bucket.
+                    

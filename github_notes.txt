@@ -1,0 +1,46 @@
+GIT:
+     Git is distributed version control system.
+     
+    Two types of version control system
+                                         1.central control system:
+                                                                   In these,everybody needs to make changes from the centrol repository that means one 
+                                                                   repository.due to some error occured and the entire data will be lost here.
+                                        
+                                         2.Distributed control system:
+                                                                       here,everyone has the one local copy of the repository.whenever the some issue 
+                                                                       occured still data will not be lost.
+ * github is used to share the code and git is used for versioning.
+
+ * the problems that will solve is versioning (making or keeping the multiple copies of changes to the files) and sharing of code.
+
+
+Note:
+      1.git log -> This command is used to show the logs(previous executed commites).
+      2.git log --oneline -> This will display the one line commit id.
+      3.git show commit-id -> It will show the content of that file.
+      4.git branch -a -> This will show all the branches in the current repositories.
+      5.git branch -c sprint1 -> it will create the branch called sprint1 in the current repositories.
+      6.git rm filename -> To remove the file.
+      7.git mv existing_filename updated_filename -> to modify the filename.
+      8.git checkout branchname -> it will switch from one branch to another branch.
+               or
+        git switch branch
+      9.git clone https_link -> it will clone the repository to our local system.
+      10.git checkout filename -> it will rollback the changes how acutually it was, when the file is not staged.
+      11.git diff(it will work will when the file is not staged i.e that means not added) -> it will show the acutual file content and what's been modified.
+      12.git diff --cached -> it will work only when the file is staged.
+      13.git restore --staged filename -> if you want to rollback the changes when the file is staged.
+      14.git revert HEAD -> if you want to rollback the changes when the file is commited (for revert, the history will be saved i.e commit message will be shown).
+      15.git reset --hard commit_id -> it will same as above.Only difference is it will not store the history.
+
+  
+      Pushing the code from local repository to remote repository(github):
+
+                                                                            1.git init
+                                                                            2.git add filename(to add single file)
+                                                                                 or
+                                                                              git add .(to add all the files).
+                                                                            3.git commit -m "message for the commit"
+                                                                            4.git add origin https_repository url
+                                                                            5.git push origin branch name(i.e main or master)
+

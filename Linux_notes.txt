@@ -1,0 +1,314 @@
+Note:
+     To move into different file directories
+     1.pwd ->present working directory (current folder)
+     2.cd /c/vagrantvms -> this will move into the vagrantvms folder
+     3. cd .. -> this will come to the previous folder (i.e c folder)
+     4. mkdir centos -> this will create a folder called centos
+
+Some important directories in linux:
+                                     1.Home Directories -> /root for root user home directory
+                                                           /home/username for normal user home directory
+                  
+                                     2.User Executables -> /bin the commmand that we run
+                                                            like ls,pwd are present here (store here)
+                                                                    
+                                                                     or here 
+
+                                                           /usr/bin,/usr/local/bin.
+                                                           These commands are executed by normal user
+
+                                     3.System Executables -> /sbin,/usr/sbin,/usr/local/sbin
+                                                             These commands are executed by root user
+                                                              like installing software,adding user etc.
+
+                                     4.Other MountPoints -> /media,/mnt
+                                                           If you connect any external devices
+                                                           like pen drive,usb it will mounted here.
+
+                                     5.Configuration  -> /etc 
+                                                         Configuration data is store here like
+                                                         network configurations,server configurations etc.
+
+                                     6.Temporary Files -> /tmp
+                                                           To store any temporary data.it will delete
+                                                           data whenever its reboot.
+
+                                     7.Kernels and Bootloader -> /boot
+
+
+                                     8.Server Data -> /var,/srv
+                                                      If you are running web server,web site files
+                                                      are put here or sql data.
+
+                                     9.System Information -> /proc,/sys
+
+
+                                     10.Shared Libraries -> /lib,/usr/lib,/usr/local/lib
+                                                            popular libraries stored here. 
+
+
+Linux:
+
+     Basic Commands:
+                    1.whoami -> to see what type of user you are(root user or normal user)
+                    2.pwd -> to see the present working directory(current path)
+                    3.ls -> to see the files in current folder
+                    4.cat /etc/os-release -> to see which operating system we are using and its version. 
+                    5.cd / -> means root directory(in this directory all the directories(folders) are present)
+                    5.cd /root -> root user directory
+                    6.cd or cd ~ -> whenever you want to come to home directory.
+                    7.touch touchfile1.txt -> touch command is used to create the empty file
+                    8.touch devopsfile{1..10}.txt ->it will create the 10 devops file(like devops1,devops2..devops10)
+                    9.cp devopsfile1.txt dev/ -> it will copy the devopsfile1.txt file to dev folder(here source is devopsfile1 and destination is dev folder)
+                    10.cp -r dev backup/ -> This is used to copy the entire directory or folder to another directory(source is dev and destination is backup)
+                    11.mv devopsfile3.txt ops/ -> this is used to move the file or folder to another folder(source is devopsfile3.txt and destination is ops)
+                    12.mv ops dev/ ->here we are moving entire ops directory or folder into dev directory(source is ops and destination is dev).
+                    13.mv devopsfile2.txt devopsfile22.txt -> this rename the file name from devopsfile2.txt to devopsfile22.txt.
+                    14.mv *.txt dev/ -> this command is used to move the all files that ends with .txt will be moved into the dev directory
+                    15.rm devopsfile2.txt -> it will remove that file(only files not folder)
+                    16.rm -r dev -> this will remove the entire folder.
+                    17.rm -rf * -> it will remove the all the files from the current working directory
+                    18.ip addr show -> to show the ip address 
+                    
+
+Note:
+     1.absolute path means complete path of that directory or folder.
+     2.relative path means just that directory or folder name 
+     3.sudo yum install vim -y -> to install vim editor in linux(centos machines).
+
+vim editor:
+           It has three modes: 
+                               1.command mode
+                               2.insert mode(edit mode we can edit changes in this mode) i.e click i to enter into the edit mode
+                               3.extended mode(if you want to do more operations like save or quit from vim editor) i.e : is used to extended mode like :w to save and :q to quit
+
+By default it will in command mode.
+if you are in insert mode you want to come back to command mode use esc key.
+
+vim devopsfile1.txt -> this command is used to enter into vim editor and we can make changes in the file.
+cat devopsfile1.txt -> this is used to print the content that is present in the file.
+:q! -> this is forcefully quitting from the vim editor without saving the changes.
+:wq -> this will save the content and quit from vim editor.
+cat command is used to print the content.
+:se nu -> in vim editor to see the numbering for the lines. 
+
+Note:
+      while working with directories or folder(like move,copy, delete, cd, operations):
+
+      1.if you are in same directory then file name is enough.
+      2.if you are in different directory and trying to do operations in different directory
+        you need to give absolute path(complete path).
+
+
+vim editor shortcuts:
+                      1.gg -> to move from last line to first line
+                      2.G -> to move from first line to last line
+                      3.yy -> to copy single line
+                      4.p -> small p (p) paste the line below and captial p (P) paste the line above.
+                      5.4yy -> to copy multiple line(4 lines)
+                      6.dd -> to delete the single line
+                      7. u -> to undo
+                      8.5dd -> to delete 5 lines 
+                      9./anything -> to search the content 
+
+To do any operation you should be in command mode.
+
+Types of files in Linux:
+                         1.- is for regular files
+                         2.d is for directory
+                         3.l is for link
+                        
+1.ls -lt -> it will sort latest one to first according to the time stamp.
+2.ls -ltr -> it will sort the latest one to the bottom
+3.vim /etc/hostname -> By this we can change the hostname after that we need to run another command -> hostname typehostname
+4.file filename -> this command is used to check the type of file
+
+
+Filters:
+        1.grep -> This command is used to search the content in a file
+                   i.e grep firewall anaconda-ks.cfg
+
+                  In this firewall is word to be search in anaconda-ks.cfg file.
+
+
+Note:
+     1. In Linux,everything is case-sensitive.
+
+     2.If you want to search anything in a file without case-sensitive use -i in above
+       i.e grep -i firewall anaconda-ks.cfg.here i indicates without case-sensitive. 
+
+     3.If you want to search anything in the current directory use -> grep -i firewall *
+       it will search only files not directories (folder).
+
+     4.If you want to search anything in the current directory irrespect of files and folders
+       use -> grep -iR firewall *.this -R indicate that search in both files and directories. 
+
+     5.If you dont want to search for that particular word (show content except this word)
+       use -> grep -vi firewall *.this -v indicates show content except this word.
+
+
+2.less commmand -> This is used to print the content just like cat command but 
+                    only difference is it looks like vim editor.we can search content etc.
+                    use -> less anaconda-ks.cfg
+
+3.more command -> This is just like less command only difference is, in less command you can move
+                  the content using up and down arrow and in more you should use enter button.
+                  Content percentage also it will show. use -> more anaconda-ks.cfg
+
+4.head command -> if you want to see first 10 lines of the file use -> head anaconda-ks.cfg.
+                                          or
+                  if you want to use first 20 lines use -> head -20 anaconda-ks.cfg
+
+5.tail command -> if you want to see last 10 lines use -> tail anaconda-ks.cfg
+                                      or
+                  if you want to use last 20 lines use -> tail -20 anaconda-ks.cfg
+
+6.cut command -> if you want to filter username or anything based on delimiter
+                 use -> cut -d: -f1 /etc/passwd.here f1 is column one and : is delimiter.
+
+7.if you want any thing to search and replace the word:
+                                                         2 ways
+
+                 1.using vm editor (in extended mode) -> %s/coronavirus/covid19
+                   this will replace one time in single line. 
+ 
+                   if cornovirus word present in more than one time in the same line then use -> %s/coronavirus/covid19/g 
+                
+                2.sed command -> sed -i 's/coronavirus/covid/g' samplefile.txt
+
+
+I/O Redirections:
+                  i/o redirection means input/output is redirect to some files rather than showing on the screen.
+
+                  1. > -> this is the symbol for output redirection.
+                  2. < -> this is the symbol for input redirection. 
+                  3. If you don't want to override the content i.e just append(add) use -> >>
+                  4. if you want to redirect the error messages to a file(you don't want to display error messages on screen) -> rcho hi 2> errorfile 
+                  
+echo -> this command is used to print content what ever we give( echo "hello" -> it will print hello).
+
+
+   standard input(1)   
+           ------> |---------------------- ---------->standard output(1)
+                   |       command       |
+                   |---------------------- ---------->standard error(2)
+
+* command > output.txt 2> error.txt -> if you execute the command and we want to redirect to the file and if the command throws a error message then
+                                       we want to redirect to a file.
+
+* command < input.txt > output.txt -> here we are taking the input from the input.txt file and redirecting the output to a output.txt file.
+  cat < input.txt > output.txt
+
+* command < input.txt > output.txt 2> errorfile.txt ->  here we are taking the input from the input.txt file and redirecting the output to a 
+                                                        output.txt file and if any error will occur then it will redirect to a errorfile.txt file.
+
+Piping:
+       1.You can use the wc command to count a file's word, line, character, or byte count.
+       2. wc -l /etc/passwd -> wc -l is used to count no.of lines in a file  or folders in directory.
+       3. ls | wc -l -> here ls gives output and pipe takes that output as input to the wc -l command and print
+          the total no.of lines
+       4. head anaconda-ks.cfg | grep by -> here head anaconda-ks.cfg will print first 10 lines as output
+          the pipe takes that output as input and grep is used for searching it will search for by and 
+          it will print the output.
+
+find command -> This command is used to locate or search for the files i.e find /etc -name host*
+                here /etc is the path and -name is search by name and host* is that starts with.
+
+
+
+Users and Groups:
+                  users is of three types: 
+                                           1.root
+                                           2.regular
+                                           3.service(no login)
+
+         
+root:x:0:0:root:/root:/bin/bash -> here root is username,x is shadow encrypted password,0 is userid,0 is groupid
+                                   root is comment,/root is home directory,/bin/bash is login shell.
+
+1.adduser username -> This command is used to add the user.
+2.groupadd groupname -> This command is used to add the group.
+3.passwd ansible(here ansible is the username) -> This command is used to reset or set the password for user.
+4.su - ansible(username) -> This command is used to switch from one user to another user.
+5.userdel aws(username) -> This command is used to delete the user but still home directoy is present,
+                           if you want to delete user with home directory use -> userdel -r aws.
+6.groupdel devops(groupname) -> This command is used to delete the group..
+                           
+
+If you want to add users to the group they are two ways:
+                                                         1.usermod -aG devops ansible
+                        (here -aG is the supplementory group , devops is groupname and ansible user).
+
+                                                         2.vim editor(just edit the file and add name in the group).
+
+
+File Permissions:
+                 In this first character is file type,next three is for user,next three is for group,last three is
+                 for others.
+
+                 -rw-------. 1 root root 2026 Feb 16 07:21 anaconda-ks.cfg
+                 lrwxrwxrwx. 1 root root   37 Feb 16 07:35 cmds -> /opt/dev/ops/devops/test/commands.txt
+                 -rw-r--r--. 1 root root   94 Feb 18 05:55 example.txt
+                 -rw-------. 1 root root 1388 Feb  5 15:50 original-ks.cfg
+                 drwxr-xr-x. 2 root root    6 Feb 18 05:53 redir
+
+
+here d -> file type
+rwx -> user                        r -> read, w -> write, x -> execute
+r-x -> group
+r-x -> other
+
+1.To change the ownership and group of the file use -> chown ansible(username):devops(group) redir(filename)
+
+   if you want to change only ownership of a file -> chown ansible(username) redir(filename)
+
+2.To change the read,write and execute permissions for others use -> chmod o-x redir(filename)
+  (here o is others amd redir is filename)
+
+                drw-r--r-x. 2 jenkins devops 25 Feb 18 08:20 redir
+
+3.To change the read,write and execute permissions for group use -> chmod g+r redir(filename)
+  (here it will add read permissions)
+
+                                    or
+
+
+Change Permissions using numeric methods:
+                                         4(for read r)
+                                         2(for write w)
+                                         1(for execute x)
+
+
+drw-r--r-x. 2 jenkins devops 25 Feb 18 08:20 redir
+
+to change permissions,for user and group full acess and others no acess use -> chmod 770 redir(filename).
+(here 1st digit for user, 2nd digit for group and last digit for others).
+
+
+
+Services:
+         services that are running in our machine and know their status.
+
+         1.systemctl status httpd -> To see the status whether it is active or not.  i.e here httpd is the service
+         2.systemctl start httpd -> To start the service
+         3.systemctl stop httpd -> To stop the service                                           
+         4.systemctl restart httpd ->To restart the service
+         5.systemctl reload httpd ->To reload the changes without even restarting it.
+         6.systemctl enable httpd -> modifies the service configuration to tell systemd that the service needs to start up automatically on boot.
+
+provising -> provising in vagrant means executing script or commands when vm is up.
+provising executes only one time.
+
+Steps to deploy website manually:
+                                 1.first install the dependencies.
+                                 2.start the server(using systemctl)
+                                 3.manage the configurations if needed
+                                 4.deploy the website(download the website and unzip it and restart the server)
+
+Note:
+     tooplate.com -> ready-made static websites are available.
+
+Steps to deploy website automatically:
+                                       1.In vagrantfile add the provising(scripts or commands)then everything get ready.
+
+

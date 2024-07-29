@@ -1,0 +1,471 @@
+DOCKER:
+
+       docker manages containers so it is called container runtime environment.
+
+
+
+VM's Vs Container:
+
+1.Containers offer isolation not virtualization.
+2.containers are OS virtualization
+3.VM's are hardware virtualization
+4.VM needs OS
+5.containers dont need os
+6.containers uses Host OS for compute resources.
+
+Containers:
+            1.Containers offer Isolation and not virtualization.
+            2.For virtualization we can use Virtual Machine.
+            3.For understanding we can think containers as OS virtualization.
+
+Note:
+      Virtualization enables you to run multiple operating systems on the hardware of a single physical server,
+      while containerization enables you to deploy multiple applications using the same operating system on a single virtual machine or server.
+
+Docker:
+       1.It is a container runtime environment for developing,shipping and running the applications.
+       2.Docker registry(hub) is place where Docker Container Images are stored.
+       3.Docker containers are created from Docker Images.
+
+Note:
+      1.docker run hello-world -> here docker run means create a container.
+      2.docker images -> this will show you available images on your local computer.
+      3.docker ps -> this will show you running containers.
+      4.docker ps -a -> this will show you all the containers(both running and stopped containers).
+      5.docker run --name web01 -d -p 9080:80 nginx -> here web01 is the container name
+                                                            -d means run in background
+                                                            -p means port
+                                                             9080 means hostport(your system) and 80 means container port.
+        here instead -p(small p),if you give -P(captial P) then portnumbers automatically created.
+
+      6.docker inspect web01(container name) -> it will show the ip address.
+      7.docker stop web01(container name) -> it will stop the container.
+      8. docker rm web01(container names) -> this will delete the containers.
+      9. docker rmi image-id -> it will remove the docker images.
+      10.if you want to run multiple containers together their is a concept called docker-compose.
+      11.docker compose up -d -> this will start the docker all containers
+      12.docker compose down -> to stop all the containers
+      13.docker system prune -a -> to remove all the stopped containers.
+      14.docker pull nginx(image-name) -> it will download the image to local.
+      15.docker pull nginx(image-name):mainline-alpine-perl(tags) -> it will download the image to local with these tag.
+      16.docker exec myweb(image-name) ls / -> it will execute the command in myweb container and list the item.(just like we ssh to vm and do ls,in containers we can not ssh to the containers)
+      17.docker logs nginx(image-name or image-id) -> it will show of the logs(container output) of that container.
+
+
+* whenever you install docker in os, root user only have privilege to run the docker commands.
+* if you execute the commands using normal user then you will get permission denied.
+* if you want to execute commands the to normal user, then you need to change the permission to normal user
+   
+                -> sudo usermod -aG docker ubuntu(user)
+
+
+problems with the containers are:
+
+1.if you are hosting the nginx application in the container and the information about who logged and who accessed the application those things are stored 
+  in a log file.Due to some problem the container goes down then the entire log file will be deleted.
+
+2.if there is a frontend and backend application that shares information, due to some reason the backend goes down then the information that backend have 
+  will be deleted.
+
+3.if the container wants to read something from the host machine and it does not know how to do this.
+
+
+To solve this problem docker come up with these persistent storage called docker volumes and bind mount.
+
+
+Container Volumes:
+                    Docker has two options for containers to store the files in the host machine.
+                     
+                             1.Volumes:
+                                        Managed by Docker(/var/lib/docker/volume/) on linux
+                             2.Bind Mounts:
+                                        Stored anywhere in the host machine.
+
+Bind Mount:
+            bind mount are used to bind the folder or directory in host machine to container or vice versa.
+
+            * if the container goes down then the information is available on the host machine and we can access those information even if the container 
+              goes down because we binded to folder from container to host machine.
+
+             1.pull mysql image from the dockerhub -> docker pull mysql:5.7
+             2.create the directory in the current -> /home/ubuntu/vprofiledata
+             3.bind this(host machine) directory with mysql directory.
+
+                  -> docker run --name vprofiledb -d -e MYSQL_ROOT_PASSWORD=raju12 -p 5000:3306 -v /home/ubuntu/vprofiledata:/var/lib/mysql mysql:5.7 
+                    check the mysql directory by running the inspect command(docker inspect imagename) and in volumes the path is present.
+
+             4.then the data from /var/lib/mysql present in the vprofiledata.
+
+   * Bind Mount is mostly used to inject data from host machine to container.
+   * To store data better option is docker volumes.
+
+Docker Volumes:
+                 1.pull mysql image from the dockerhub -> docker pull mysql:5.7
+                 2.create the volume -> docker volume create mydbdata
+                 3.bind this(host machine) volume with mysql directory.
+
+                    -> docker run --name vprofiledb -d -e MYSQL_ROOT_PASSWORD=raju12 -p 5000:3306 -v mydbdata:/var/lib/mysql mysql:5.7 
+                       check the mysql directory by running the inspect command(docker inspect imagename) and in volumes the path is present.
+
+                 4.then the data from /var/lib/mysql present in the mydbdata(/var/lib/docker/volumes/).
+
+* docker volume ls -> it will show the available volumes.
+
+* docker volume inspect demo(volume-name) -> it will show the all the details of the volume.
+
+* docker volume rm demo(volume-name) -> it will delete the volume.
+
+Note:
+
+     1.Docker volumes may be interacted with using CLIs and APIs. Bind mounts cannot be accessed by CLI commands.
+
+     2.All you need is the volume name to mount it.
+
+     3.When using bind mounts for mounting, a route to the host computer must be supplied.
+
+     4.container are light weight because they dont have the complete OS and they are using the resources from the host OS they are running onS.
+ 
+     5.why we are moving from physical server to virtualization and virtualization to container because they are not using the maximum capacity of the
+       resources.
+
+     6. virtualization solves upto some extend from physical servers and containers solves upto some extend from virtualization.
+
+     7.container is like package which consists of application,libraries(dependencies) and system libraries.
+
+
+LifeCycle of Docker:
+
+                    1.write the Dockerfile and execute it.
+                    2.From that it will create the Image.
+                    3.execute the image to create the container.
+
+                              build                   run
+               Dockerfile------------------>image---------------->container
+
+  * Whenever you want to create the image use build command to create the image then from that image execute the run command to create the container.
+
+Drawbacks of docker:
+                     1.docker is fully dependented on DockerEngine.
+                     2.whenever the the DockerEngine is down the entire docker containers will stop working.
+                     3.buildah will solve the above problem and it also supports the docker images.
+                     4.in buildah, you don't need to write the Dockerfile instead we write the shell script(commands) and create the images.
+
+docker github link for notes: https://github.com/iam-veeramalla/Docker-Zero-to-Hero
+
+* Docker daemon is the heart of the docker and if the docker doeman goes down then the docker will goes down.
+* whenever you run commmand through CLI in docker, these commands will goes to doemon and it will execute those commands.
+
+what is the problem that docker is solving is
+          
+* when you want to host application normal way is to setup the ec2 instance and setup the application and so on. they are many steps are involved.
+
+* while using docker these problems will be solved easily, you just build the image then run it and that's it.you can share the image to public repository 
+  like docker hub and any one can download and run it.there is no need to setup the entire process for it.just download it and run it that simple it is.
+
+* Docker solves is it reduces the work flow(so many manual steps).
+
+* docker doemon is used to listen to our requests and acts upon that request. and docker doemon run with root user.
+
+* difference between Docker hub ang github is github is version control system is to store the source code and docker hub is also a version control system
+  is used to store docker images.
+
+* the difference betweeen CMD and ENTRYPOINT is, both commands are used to execute start command.so whenever someone run the docker run both CMD and 
+  ENTRYPOINT serve as start command.
+
+* the only difference is ENTRYPOINT is something that you cannot change or modify and CMD can be modified.
+
+* whenever we have expose the port in the Dockerfile, while running the container we must map that expose port to the host port then only we can access it
+  in the host machine.
+
+
+while containerizing the application follow these steps:
+1.select the base image
+2.select the working directory, where your application data stores.
+3.copy the requirements.txt and source code to the working directory.
+4.if you have any start commands then write it in CMD or ENTRYPOINT or use both. 
+
+
+* Docker images are heavy(in size) because everything we need to place in the same Dockerfile and we have to select the base image like Ubuntu or centos 
+  based on the requirment then we need to install the package(dependencies) that the application needs by using run command and finally we write the CMD 
+  and Entrypoint.due to these download of dependencies and the base image the size of the image will become big.these problem we can solve using
+  multi stage docker builds and distroless images.
+
+multi stage docker builds:
+                           in multi stage docker builds everything we will write in one Dockerfile only but in differnt stages.
+
+* there is no limit in stages, we can build the image in any number of stages.
+
+* in first stage, we will select the base image and then install the package or dependencies that the application needs. and then in next stage we will 
+  select the runtime environment for the application that is used to run the application i.e jdk or python based on the application and then we will copy 
+  the above base image using copy --from build(above base image name) and then we will mention  CMD OR ENTRYPOINT command from the above to here to execute 
+  the application.so when the image is created it will remove the base image from the created image and the size of the image is less.
+
+
+Distroless docker image:
+                        distroless images is very minimalistic image that will have only runtime environment and the basic commands like ls will not execute
+                        because the main idea is to have only runtime environment and the main purpose of this to execute the application.
+
+                        * distroless images typically contain only essential software required to run an application or service.
+
+                        * the biggest advantage that you can get from the distroless images is security.
+
+for example python distroless image can have only python runtime environment
+
+link for Distroless images : https://github.com/GoogleContainerTools/distroless
+
+
+
+Docker Images:
+               lets see how we can build images and host application in container
+
+Dockerfile instructions:
+
+1.FROM -> Base Image
+2.LABELS -> adds metadata to an image(i.e tags)
+3.RUN -> execute commands in a new layer and commit the results.
+4.ADD/COPY ->adds files and folder into image
+
+difference between ADD and COPY is COPY just dump the file and ADD is we can provide link and it will download the file and extract it and dump the file.
+
+5.CMD -> runs binaries/commands on docker run
+6.ENTRYPOINT -> allow you to configure a container that will run as an executable
+7.VOLUME -> create a mount point and marks it as holding externally mounted volumes.
+8.EXPOSE -> container listens on the specified network ports at runtime
+9.ENV -> sets the environment variables
+10.USER -> sets the user name(or UID)
+11.WORKDIR -> sets the working directory
+12.ARG -> defines a variable that users can pass at build time
+13.ONBUILD -> adds to the images a trigger instruction to be executed at a later time.
+
+NOTE:
+
+       1.RUN is used to execute commands during the build process of a Docker image, while CMD is used to specify the default command to run when a Docker 
+         container is started from the image
+
+       2.if you pass commands in CMD it will be overridden when you executing the container when you pass commands to it.
+
+       3.ENTRYPOINT commands can not be overridden.
+
+       4.in Dockerfile, if you have two ENTRYPOINTS then while executing the container it will take the latest ENTRYPOINT and the old one will be ignored.
+
+       5.in Dockerfile, if you have two CMD then while executing the container it will take the latest CMD and the old one will be ignored.
+
+       6.if you have CMD and ENTRYPOINT then it will execute the ENTRYPOINT and CMD will be append to the ENTRTPOINT.
+
+now let's create a images and run it.
+
+Dockerfile:
+
+
+FROM ubuntu:latest
+LABEL "Author"="sriraju"
+LABEL "Project"="nano"
+ENV DEBIAN_FRONTEND=noninteractive
+RUN apt update && apt install git apache2 -y
+CMD ["/usr/sbin/apache2ctl","-D","FOREGROUND"]
+EXPOSE 80
+WORKDIR /var/www/html
+VOLUME /var/log/apache2
+ADD nano.tar.gz /var/www/html
+
+docker build -t sriraju12/nanoimg:v2(imagename:tag) -> command to build image
+
+to push the image into dockerhub:
+                                  1.run docker login and give username and password then you will get sucessfull
+                                  2.docker push imagename (imagename should be like dockerhub-username/imagename:tag) 
+
+
+Docker Network:
+                networking is used to allow communicate with the containers and host machines.
+
+scenarios:
+
+1.let's see how container communicates with the host machine.
+
+   * whenever the container is created, it automatically creates the virtualEthernet which is dockerzero(0).which is used to connect with host machine.
+
+   * without dockerzero we can not connect with the host and this process is called bridge networking.
+
+   * the default netwroking in docker is bridge networking. 
+
+   * if you delete the dockerzero then the container will never connect or communicate with the host machine and the application inside the container
+     will never reach with the internet and the users and their is no point to use the application inside the container. 
+
+
+The other networking concept is Host Networking,
+
+   * Host networking means the containers directly use the Eth0 of the host machine.
+
+   * in this case whenever the container is created, the docker directly bind the Eth0 of the host machine to the container.so the container and host 
+     machine are in the same CIDR range.So when you ping from container to host machine it will connect to it.
+
+   * this is a very problematic approach. primary reason that we will go for container because they are very secure.
+
+   * if the user has the access to the host machine then he can access the container also which is very bad.this is the very insecure way of creating the
+     networking. 
+
+
+* if we have the container that are running in the host machine i.e login container and finance(payment) container.If you use the default networking then  
+  login container and the finance container uses the same DockerZero to connect or communicate with container.it is very easy for the hacker to provide 
+  a single way to connect with the container which is bad.we need to provide the logical isolation so that they do not use common way(DockerZero) to connect
+  to host i.e container should be independent.This is the bridge networking which is also not secure.In order to secure this we can achieve through 
+  Bridge networking ifself using custom bridge networking.
+
+* the solution is the login container(not contain any sensitive information) will use the DockerZero to communicate with the host machine and the
+  finance container(payment) will use the custom bridge network that we have created so that their is no common way both containers use same DockerZero
+  to connect.This is the way to achieve logical isolation to containers using networking. 
+
+* docker network ls -> to see all the networks.
+
+* docker network rm login(network-name) -> to delete the network.
+
+Let's see how we can create the custom bridge network and attach it to the container,
+
+1.create the custom bridge network. it will create the custom bridge network-> docker network create secure-network(name of the network)
+
+2.while executing the container pass --network=secure-network .it will assign this network to the container.you check this by inspecting the container.
+  
+
+* if you want to create the host network then while executing the container pass --network=host that's it.
+
+* while executing the container if you don't pass any network arguments then it will take as bridge network.
+
+
+Docker Compose:
+
+                 Docker Compose allows you to define and manage multi-container applications in a single YAML file.
+
+* The problem with the normal docker container is, if you have multiple containers for example take e-commerce application where it has many services like
+  login service, payment service , cart service, menu service, mysql service etc.
+
+* by using docker container we have to write the docker file for each service and then we have to run the containers one after another individual which is 
+  like difficult to do.
+
+* instead we will use the docker-compose tool which also developed by docker INC. here we will write docker-compose YAML file and use the single command
+  to run the services using docker-compose up
+
+* we can easily up and down the containers using single command instead of running containers one by one.
+
+* the another problem is with normal docker process is like we have to maintain the order while coming up the containers using the parameter "depends_on".
+  for example before the payment service the mysql service should come up because if your making a payment you need mysql data without that payment service   
+  is of no use.this problem also solve by docker-compose.
+
+* docker-compose is not replacement for docker.
+
+* docker-compose YAML file contains build & run which uses the Dockerfile.
+
+* https://github.com/docker/awesome-compose -> which contains the docker-compose examples.
+
+* the main important steps that you should remember while write the docker-compose is services, inside the services mention the service names and inside 
+  the service name mention build(path where our dockerfile located) and mention hostname, ports mappings(internal container port to host port).these are
+  all you should remember.
+
+* the usecases of docker-compose is 1.local development - if you write the docker-compose file and share it with the developers for their testing in thier
+                                                          local system.it is very simple to use the commands just docker-compose up and down to start and  
+                                                          stop the containers.Developers does not need to know the all the docker commands to run the 
+                                                          containers.
+                                    2.testing - if you want to quickly test the application for the changes.
+
+
+
+let's see how we can containerize the application using docker-compose:
+
+   steps:
+           1.steps to setup our stack services.
+           2.find the right base image from dockerhub.
+           3.write Dockerfile to customize the images.
+           4.write docker-compose.yaml file to run multiple containers.
+           5.test it and host images on dockerhub.
+
+
+Docker init:
+             docker init is a command-line utility that aids in the initialization of Docker resources within a project. It automatically generates 
+             Dockerfiles, Compose files, and . dockerignore files based on the nature of the project, significantly reducing the setup time and complexity 
+             associated with Docker configurations.
+
+
+Docker interview Questions:
+
+1.what is docker :
+                   docker is a open source containerization plateform.it is used to manage the lifecycle of a containers.i use the docker to write the
+                   dockerfile and build the images and then push those images into the docker hub or registry.
+
+2.how containers are different from virtual machines:
+                                                      containers are very light weight because they don't have complete operating system.where as virtual
+                                                      machines have complete operating system which are heavy in size.
+
+                                                      for example, if iam running a java application, what i need is i need a applications and the runtime
+                                                      dependency to run the application and some system libraries that are need to run the application.
+
+3.what is docker lifecycle :
+                             here we need to explain from writing the dockerfile using commands like Base image, what dependencies shold be installed for
+                             the application to run, copy the source code etc. and then building the image from the dockerfile and then running the 
+                             container from the image and then pushing the image to the docker registry or hub.
+
+4.what are the different docker components:
+                                            whenever you install the docker in your local or in ec2 .it comes with a docker Cli and the docker daemon
+                                            docker daeman is responsible for executing the your tasks.let's say as a user you execute a build command
+                                            this request is received by the daemon and it will build the image.docker daemon is the heart of the docker.
+                                            if the docker daemon goes down then then docker containers will not run.
+
+5.what is the difference between docker COPY and docker ADD:
+                                                             docker ADD can copy the files from the url. wehere as docker COPY which can only copy files
+                                                             from the host system into the container.
+
+                                                             docker ADD download the files from the url and then it will extract and dump the filein the
+                                                             location. where as docker COPY does not do that just it will dump the file in the location.
+
+6.what is the difference between CMD and ENTRYPOINT:
+                                                        CMD parameter can be overridden and ENTRYPOINT parameters cannot be overridden.you can use either of 
+                                                        them or combination of both.
+
+7.what are the networking types in docker and what is the default :
+                                                                    the default networking in docker is bridge networking. however you can change the 
+                                                                    default type and configure one of them 1.custom Bridge
+                                                                                                           2.host
+                                                                                                           3.overlay
+                                                                                                           4.macVlan
+
+8.can you explain how to isolate networking between the containers :
+                                                                     bydefault every container use the bridge networking and inside it uses the   
+                                                                     virtualEthernet which also dockerzero to communicate with the host machine.
+
+                                                                     if you want to isolate the networking then create the custom bridge networking and 
+                                                                     while executing the containers pass argument as --network=secure-network which the
+                                                                     custom network that we have created.this way we can achieve isolation between 
+                                                                     containers.
+
+9.what is multi stage build in container :
+                                           multi stage build allows you to build your docker container in multiple stages allowing you to copy artifacts
+                                           from one stage to other.The major advantage of this is to build light weight containers. explain with example. 
+
+10.what are distroless images in docker :
+                                          distroless images contain only your application and its runtime dependencies with a very minimum operating system
+                                          libraries.They do not contain package managers, shells or any other programs you would expect to find in a 
+                                          standard linux distribution.they are very small and light weighted images.
+
+11.Real time challenges with docker :
+
+    * Docker is a single daemon process.which can cause a single point of failure, if the docker daemon goes down for some reason all the applications are 
+      down.
+
+    * Docker daemon runs as a root user.which is a security threat.any process running as a root can have adverse effects.when it is comprised for security
+      reasons,it can impact other applications or containers on the host. 
+
+    * Resource constraints : if you are runnning too many containers on a single host, you may experience issues with resource constraints.this can result
+                             in slow performance or crashes.
+
+                             let's say you are running 10 containers in a single host and one containers is using more memory or leaking the memory the 
+                             other containers don't get what they want.so it will effect the other containers as well.
+
+12.what steps would you take to secure containers :
+
+  some steps are
+
+                 1.use distroless images with not too many packages as your final image in multi stage build, so that there is less chance of security               
+                   issues.
+
+                 2.ensure that the networking is configured properly.this is one of the most common reason for securtiy issues.if required configure
+                   custom bridge networks and assign them to isolate containers.
+
+                 3.use utilities like sync to scan your container images.	

@@ -1,0 +1,563 @@
+Kubernetes:
+            Kubernetes automates operational tasks of container management and includes built-in commands for deploying applications,
+            rolling out changes to your applications, scaling your applications up and down to fit changing needs, monitoring your applications,
+            and more—making it easier to manage applications.
+
+            * While Docker is a container runtime, Kubernetes is a platform for running and managing containers from many container runtimes.
+
+
+    Master:kube API server:
+                             * main hero, handles all the requests and enables communications across stack services.
+                             * component in the master that exposes the kubernetes API.
+                             * it is the front-end for the kubernetes control plane.
+                             * admin connects to it using kubectl CLI
+                             * web dashboard can be integrated with this API.
+
+
+   Master:ETCD server:
+                        * stores all the information.
+                        * consistent and high available key value store used as kubernetes backing store for all the cluster data
+                        * kube API stores retrieves info from it.
+                        * should be backup regularly.
+                        * stores current state of everything in the cluster.
+
+
+   Master:kube scheduler:
+                           * watches newly created prods that have no node assigned and select a node from them to run on.
+
+
+  Master : controller manager:
+                                * logically, each controller is a separate process.
+                                * to reduce complexity,they are all compiled into a single binary and run in a single process.
+                                * these controllers include:
+                                                              1.Node controller:
+                                                                                 responsible for noticing and responding when nodes go down.
+                                                              2.Replication controller:
+                                                                                       responsible for maintaining the correct number of pods for 
+                                                                                       every replication controller object in the system.
+                                                              3.Endpoints controller:
+                                                                                       populates the endpoints object(i.e joins services and pods)
+                                                              4.Service Account and Token controller:
+                                                                                                      create default accounts and api access tokens
+                                                                                                      for new namespace. 
+
+
+    worker: kublet:
+                    an agent that runs on each node in the cluster.it makes sure that containers are running in a pod.
+
+    worker: kube proxy:
+                        * network proxy that runs on each node in your cluster.
+                        * network rule:
+                                      rules allow network communication to your pods inside or outside of your cluster.
+
+    worker: container runtime: kubernetes supports several container runtime,
+                                                                                * Docker
+                                                                                * containerd
+                                                                                * kubernetes CRI(container runtime interface)
+
+minikube setup:
+                1.open powershell as admin
+                2.setup chocolaty
+                3.install minikube with chocolaty( choco install minikube kubernetes-cli)
+                4.open powershell and run(minikube start)
+                5.minikube configuration is present in the current working directory(.kube/config)
+
+
+kops setup:
+            1.domain for Kubernetes DNS records(i.e GoDaddy.com)
+            2.create a Linux vm and setup(kops,kubectl,ssh keys,awscli)
+            3.login to aws account and setup(s3 bucket,IAM user for awscli,route53 hosted zone)
+            4.login to domain registry(GoDaddy.com) and create NS records for subdomain pointing to route53 hosted zone NS servers.
+
+note:
+      kubectl -> Kubernetes.io/docs/tasks/install-kubectl
+      kops -> GitHub.com/Kubernetes/kops/releases
+
+
+nslookup -type=ns domainname(here kopskubevpro.hkhpro.life) -> it will list all the nameservers.
+               
+
+
+* command for storing the configuration for creating the cluster in s3 bucket:
+
+kops create cluster --name=kopskubevpro.hkhpro.life(domain-name) \        here backward slash means continue command in nextline
+--state=s3://kopsbucket1237(s3 bucket-name) --zone=us-east-1a,us-east-1b \
+--node-count=2 --node-size=t3.small --master-size=t3.medium --dns-zone=kopskubevpro.hkhpro.life(domain-name) \
+--node-volume-size=8 --master-volume-size=8
+
+* if you make any changes to kops configuration then you update the changes by running the command:
+
+     kops update cluster --name kopskubevpro.hkhpro.life(domain-name) --state=s3://kopsbucket1237(s3 bucket-name) --yes --admin
+
+* kops validate cluster --state=s3://kopsbucket1237(s3 bucket-name) -> it will show that your cluster is ready 
+
+* kubectl get nodes -> it will show all the nodes.
+
+* kops delete cluster --name=kopskubevpro.hkhpro.life --state=s3://kopsbucket1237(s3 bucket-name) --yes -> it will delete the cluster
+
+
+
+kubernates objects:
+                     1.pod -> containers are present inside the pod
+                     2.service -> to have an static endpoint to the pod like load balancer.
+                     3.replica set -> to create the cluster of pods.
+                     4.deployment -> which work similar to replica set and you can deploy new image tag by using deployment(most used)
+                     5.config map -> to store our variables and configuration
+                     6.secret -> variable and some information to store that are not in clear text.
+                     7.volumes -> we can attach different types volumes to pod.
+
+
+
+KubeConfig file:
+                  use kubeconfig file to organize information about
+                                                                     1.clusters
+                                                                     2.users
+                                                                     3.Namespaces
+                                                                     4.Authencation mechanisms 
+
+Namespaces:
+            In Kubernetes, namespaces provide a mechanism for isolating groups of resources within a single cluster.
+            Names of resources need to be unique within a namespace, but not across namespaces 
+
+            * kubectl get ns -> it will display all the namespaces    
+            * kubectl get all -> it will display all the objects that are present in the default namespaces.
+            * kubectl get all --all-namespaces -> it will display all the objects of all namespaces. 
+            * kubectl create ns kubekart(namespace-name) -> it will create the namespace with the name kubekart.
+            * kubectl run ngnix --image=nginx --namespace=kubekart -> it will run the nginx in the namespace.
+
+
+
+Pods:
+       pod is the basic execution unit of a kubenetes application the smallest and simplest unit in the Kubernetes object model that you 
+       create or deploy.A pod represents processes running on your cluster. 
+
+       * Pods that run a single container:
+                                           1.The one-container-per-pod model is the most common Kubernetes use case.
+                                           2.Pod as a wrapper around a single container.
+                                           3.Kubernetes manages the pods rather than containers directly.
+
+      * Multi container pod:
+                             1.Tightly coupled and need to share resources.
+                             2.One main container and other as sidecar(supporting containers) or init container.
+                             3.Each pod is meant to run a single instance of a given application(for example run only tomcat server).
+                             4.Should use multiple pods to scale horizontally.
+
+     * kubectl create -f pod-setup.yml -> to create the pod using yaml file
+   
+                the yaml file looks like this,      apiVersion: v1
+                                                    kind: Pod
+                                                    metadata:
+                                                      name: webapp-pod(pod-name)
+                                                      labels:                      //labels are like tags
+                                                        app: frontend
+                                                        project: vprofile
+                                                    spec:
+                                                      containers:
+                                                        - name: httpd-container(container-name)
+                                                          image: httpd
+                                                          ports:
+                                                            - name: http-port(port-name)
+                                                              containerPort: 80
+
+     * kubectl get pod -> it will display the pod details(i.e name of the pod,status,age)
+
+     * kubectl describe pod webapp-pod -> it will display entire details of the pod
+  
+     * kubectl get pod webapp-pod -o yaml -> it will display the details of pod in yaml format.
+
+     * kubectl edit pod webapp-pod -> to edit the pod but most of the things in pod is non-editable.
+
+     * kubectl apply -f web.yaml -> it will apply the changes to the pod.
+  
+     * kubectl logs webapp-pod -> it will display logs of that pod.
+
+
+Service:
+         way to expose an application running on a set of pods as a network service(similar to load balancer).
+
+         1.nodeport:
+                     exposing(mapping the ports) the pods to outside network(not for production).
+        2.clusterIp:
+                     you dont want to expose to external world but for the internal communication.
+        3.load balancer:
+                         expose the pod to external network for the prodution.
+
+        * kubectl create -f service-defs.yaml -> it is used to create the service using yaml file.
+
+        * kubectl get svc -> it will display all the services.
+
+        * kubectl describe svc webapp-service(service-name) -> it will display the details of the service.
+      
+        * kubectl delete svc webapp-service(service-name) -> it is used to delete the service.
+
+         Note:
+                * while creating the service two things are important 1.selector should be match with pod label name
+                  and target port should be match with pod ports name or pod ports name.
+
+
+        let's create a service using nodeport:
+                                                1.first create the pod
+
+                                                      apiVersion: v1
+                                                      kind: Pod
+                                                      metadata:
+                                                        name: webapp-pod(pod-name)
+                                                        labels:                      //labels are like tags
+                                                          app: vproapp
+                                                      spec:
+                                                        containers:
+                                                          - name: vpro-container(container-name)
+                                                            image: sriraju12/vprofileapp
+                                                            ports:
+                                                              - name: vpro-port(port-name)
+                                                                containerPort: 8080
+
+    
+                                                           
+                                                2.create the service
+ 
+                                                     apiVersion: v1
+                                                     kind: Service
+                                                     metadata:
+                                                       name: helloworld-service
+                                                     spec: 
+                                                       ports:
+                                                       - port: 8090 (internal port)
+                                                         nodePort: 30001(external port to access and nodeport start from 30000)
+                                                         targetPort: vpro-port or 8080 (you can give portnumber or portname of the pod)
+                                                         protocol: TCP
+                                                       selector:
+                                                         app: vproapp
+                                                       type: NodePort
+
+
+
+      
+          let's create a service using loadbalancer:
+                                                    1.first create the pod
+
+                                                      apiVersion: v1
+                                                      kind: Pod
+                                                      metadata:
+                                                        name: webapp-pod(pod-name)
+                                                        labels:                      //labels are like tags
+                                                          app: vproapp
+                                                      spec:
+                                                        containers:
+                                                          - name: vpro-container(container-name)
+                                                            image: sriraju12/vprofileapp
+                                                            ports:
+                                                              - name: vpro-port(port-name)
+                                                                containerPort: 8080
+
+    
+                                                           
+                                                   2.create the service
+ 
+                                                     apiVersion: v1
+                                                     kind: Service
+                                                     metadata:
+                                                       name: helloworld-service
+                                                     spec: 
+                                                       ports:
+                                                       - port: 80 (loadbalancer port to access)
+                                                         targetPort: vpro-port or 8080 (you can give portnumber or portname of the pod)
+                                                         protocol: TCP
+                                                       selector:
+                                                         app: vproapp
+                                                       type: LoadBalancer
+
+
+
+Replica set:
+             in simple words replica set means autoscaling.If the pod is goes down then replica will automatically creates new one for us.
+            
+              
+* kubectl get rs -> it will get all the replica sets.
+
+* to scale down two ways -> 1.directly edit the replica yaml file.
+                            2.kubectl scale  --replicas=1 rs/frontend(replica-name that is mention in yaml file) => not recommended in production
+
+
+* to scale up two ways -> 1.directly edit the replica yaml file.
+                          2.kubectl edit rs frontend or kubectl edit rs/frontend => not recommended in production.
+
+
+let's see how we can write replica set yaml file,
+
+apiVersion: apps/v1
+kind: ReplicaSet
+metadata:
+  name: frontend
+  labels:
+    app: guestbook
+    tier: frontend
+spec:
+  # modify replicas according to your case
+  replicas: 3
+  selector:
+    matchLabels:
+      tier: frontend
+  template:          // this template information is about pod
+    metadata:
+      labels:
+        tier: frontend
+    spec:
+      containers:
+      - name: php-redis
+        image: us-docker.pkg.dev/google-samples/containers/gke/gb-frontend:v5
+
+
+
+
+Deployment:
+             1. A deployment controller provides declarative updates for pods and replicasets.
+             2. define desired state in a deployment, and the deployment controller changes
+                 the actual state of the desired state at a controlled rate.
+             3. deployment creates replicaset to manage number of pods.
+
+
+* kubectl set image deployment/nginx-deployment(deployment-name mention in yaml file) nginx(image-name)=nginx:1.16.1(mention different version of nginx).
+  this is not recommended for production.Best way is directly edit the yaml file and apply the changes.
+
+* kubectl get deploy -> it will display all the deployments.
+
+* whenever you make deployments,then the all the pods will delete one by one and create a new pods one by one by replica set.
+
+* kubectl rollout undo deployment/nginx-deployment(deployment-name mention in yaml file) -> it will rollback to previous version on the image.
+
+* kubectl rollout history deployment/nginx-deployment(deployment-name mention in yaml file) -> it will display the revision numbers of rollout.
+
+* kubectl rollout undo deployment/nginx-deployment(deployment-name mention in yaml file) --to-revision=2 -> it will rollback to revision 2 of the image.
+
+* kubectl scale deployment/nginx-deployment(deployment-name mention in yaml file) --replicas=6 -> it will scale up the pods.
+
+* kubectl delete deploy nginx-deployment(deployment-name mention in yaml file) -> it will delete the deployment.
+
+
+let's see how we can create the deployment yaml file,
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-deployment
+  labels:
+    app: nginx
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: nginx
+  template:
+    metadata:
+      labels:
+        app: nginx
+    spec:
+      containers:
+      - name: nginx
+        image: nginx:1.14.2
+        ports:
+        - containerPort: 80
+
+
+
+
+Commands and Arguments:
+                        how to pass commands and arguments to pods.
+
+
+let's see how we create the pod using Commands and Arguments in yaml file
+
+apiVersion: v1
+kind: Pod
+metadata:
+  name: command-demo
+  labels:
+    purpose: demonstrate-command
+spec:
+  containers:
+  - name: command-demo-container
+    image: debian
+    command: ["printenv"]
+    args: ["HOSTNAME", "KUBERNETES_PORT"]
+  restartPolicy: OnFailure
+
+
+
+Config Map:
+             set and inject variables in the pod. A ConfigMap is an API object used to store non-confidential data in key-value pairs
+
+
+* kubectl create configmap db-config --from-literal=MYSQL_DATABASE=accounts \
+  --from-literal=MYSQL_ROOT_PASSWORD=raju12 (not recommended for production).  -> it will create db-config file of configmap
+                                                                                  and inject these variable in the pod
+* kubectl get cm -> it will display all the configmaps.
+
+* kubectl get cm db-config(configmap-name mention in yaml file) -o yaml -> it will display the details of the file in yaml format.
+
+* kubectl describe cm db-config(configmap-name mention in yaml file) -> it will show indetails of the file.
+
+let's see how we can create the configmap in yaml,
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: db-config 
+data:
+  MYSQL_ROOT_PASSWORD=raju12
+  MYSQL_DATABASE=accounts
+
+lets see how we can inject these configmap file to pod,
+
+  * this will inject the entire configmap variables to the pod.
+
+
+apiVersion: v1
+kind: pod
+metadata:
+  name:db-pod
+  labels:
+    app: db
+    project: vprofile
+spec:
+  containers:
+    - name: mysql-container
+      image: mysql:5.7
+      envFrom:
+        - configMapRef:
+            name: db-config
+      ports:
+        - name: db-port(port-name)
+          containerPort: 3306
+
+
+  * if you want to inject specific variables from configmap file to the pod.
+
+
+apiVersion: v1
+kind: pod
+metadata:
+  name:db-pod
+  labels:
+    app: db
+    project: vprofile
+spec:
+  containers:
+    - name: mysql-container
+      image: mysql:5.7
+      env:
+        - name: MYSQL_ROOT_PASSWORD(variable name this will store in the container.it will take value from the key and store in this variable)
+          valueFrom:
+            configMapKeyRef:
+              name: db-config
+              key: MYSQL_ROOT_PASSWORD
+      ports:
+        - name: db-port(port-name)
+          containerPort: 3306
+
+this will inject only MYSQL_ROOT_PASSWORD variable to the pod.
+
+
+  * if you want to inject specific variables from configmap file through volumes to the pod.
+
+apiVersion: v1
+kind: pod
+metadata:
+  name:db-pod
+  labels:
+    app: db
+    project: vprofile
+spec:
+  containers:
+    - name: mysql-container
+      image: mysql:5.7
+      env:
+        - name: MYSQL_ROOT_PASSWORD(variable name this will store in the container.it will take value from the key and store in this variable)
+          valueFrom:
+            configMapKeyRef:
+              name: db-config
+              key: MYSQL_ROOT_PASSWORD
+      volumeMounts:
+      - name: config(volume name)
+        mountPath: "/config" (below mention path file will be stored in the location)
+        readonly: true
+  volumes:
+  - name: config(name of the volume)
+    configMap:
+      name: db-config(name of the configmap)
+      items:
+      - key: "MySQL_ROOT_PASSWORD"
+        path: "MySQL_ROOT_PASSWORD" (the value of the key will be stored in this file)
+ 
+      ports:
+        - name: db-port(port-name)
+          containerPort: 3306
+
+NOTE:****
+
+* kubectl exec --stdin --tty db-pod(pod-name) --bin/sh -> to login into the pod
+
+
+Secrets:
+         store and manage sensitive information such as password.
+
+
+* kubectl create secret generic db-secret(secret-name) --from-literal=MYSQL_ROOT_PASSWORD=raju12 -> it will create the secret in imperative which bad way
+  and password will be stored as encrypted password.
+
+* let's see how we can create secret using declarative way in yaml file
+
+ first you need to encode the password for that use -> echo -n "raju12" | base64  => it will encode the password
+
+
+apiVersion: v1
+kind: Secret
+metadata:
+  name: dbpass_secret
+data:
+  username: eghegaehipofugbjda24(by using this echo -n "raju12" | base64 => you will get encoded password)
+  password: uwfgoisehoifvbseise24
+type: Opaque
+
+kubectl create -f yamlfilename -> it will create the secret.
+  
+
+lets create the pod for the secret.
+      
+
+apiVersion: v1
+kind: Pod
+metadata:
+  name: secret-pod
+spec:
+  containers:
+  - name: secret-container
+    image: sriraju12/vprofiledb
+    env:
+      - name: SECRET_USERNAME
+        valueFrom:
+          secretKeyRef:
+            name: dbpass_secret(secret-name)
+            key: username
+            optional: false
+
+      - name: SECRET_PASSWORD
+        valueFrom:
+          secretKeyRef:
+            name: dbpass_secret
+            key: password
+            optional: false
+
+  restartPolicy: Never
+
+
+
+Ingress:
+          An API object that manages external access to the services in a cluster, typically HTTP.
+
+          Ingress may provide load balancing, SSL termination and name-based virtual hosting.
+
+          Ingress exposes HTTP and HTTPS routes from outside the cluster to services within the cluster.
+          Traffic routing is controlled by rules defined on the Ingress resource
+
+

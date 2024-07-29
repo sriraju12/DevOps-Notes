@@ -1,0 +1,504 @@
+Python scripting:
+                   The main difference between bash scripting and python scripting is, in python scripting indentation(i.e spaces)
+                   is very important where as in bash scripting it really doesn't care about indentation.
+
+
+Quotes And Comments:
+
+                      1.# -> this is a single line comment.
+                      2.""" multi line comment in double quote""".
+                             or
+                        ''' multi line comment in single quote'''.
+                      3.print("""this is a paragraph string 
+                                 you can use in multiple line using double quotes""").
+                                             
+                                             or
+
+                      4.print('''this is a paragraph string
+                                 you can use in multiple lines using single quotes''').
+
+
+Note:
+      In python, single quotes and double quotes both are same.
+
+
+Variables:
+            variable are like temporary storage of values.
+
+            1.x = "abc" -> single variable assignment.
+
+            2.a = b = c = 65 -> multi variable assignment to single value and values of all variables is same.
+
+            3.a, b, c = "alpha", 3, 3.5 -> multi variable assignment to multiple values and values of all variables follows the order.
+          
+            4.type -> this method is used to print the type of the variable(i.e print("the type of a is",type(q)) ).
+
+            
+Data types:
+
+             1.list:
+                      first_list = ["alpha", 123, 3.4].
+             
+             2.tuple:
+                      first_tuple = ("alpha", 123, 3.4).
+
+               * list and tuple both are same by visibility.The difference is list enclosed in sqaure brackets and
+               tuple is enclosed in rounded brackets.
+         
+               * The main difference is list is mutable(i.e we can modify its values) and tuple is immutable(i.e we can not modify its values). 
+
+             3.dictionary:
+                           first_dictionary = {"Name:"raju", "Weight":85, "Exercises":["Boxing", "Running", "Pushups"]}
+
+               * In dictionary data is store in key-value pair and enclosed in curly brackets.
+
+             4.boolean:
+                        x = True and y = False. 
+
+
+Print Format:
+               name = "raju"
+               weight = 85
+
+               1. print("name of the person is",name)
+                      
+                          or
+
+                  print("name of the person is {}".format(name))
+               
+                     *here {} will be replaced by value of name.
+
+                     *here you have an option to place the curly brackets({}) anywhere you want.
+
+                  print("{} is name of the person".format(name))
+
+
+               2.if you want to put multiple values then
+                         
+                     * print("name of the person is {} and his weight is {}".format(name,weight))
+
+                     *here first curly bracket replaced by name and second curly bracket is replaced by weight.
+
+               3.print(f"name of the person is {name} and his weight is {weight}") --> it will work only on python version above 3.6 
+
+               4.concatenation:
+                                print("name of the person is"+" "+name)
+
+
+
+Slicing:
+         slicing means getting a substring from string.
+
+         galaxy = "we are in milkyway galaxy"
+         
+         1.print(galaxy[0]) -> it will give 'w' as output.
+       
+         2.print(galaxy[ : ] -> it will print entire string.this is range(start and end-1)
+         
+         3.print(galaxy[0:2] -> it will give 'we' as output.
+ 
+         4.print(galaxy[-1] -> it will give 'y' as output and this is called negative indexing(starts with -1,-2,-3 etc).
+
+
+  slicing in list and tuple:
+                              slicing in list and tuple both are same.
+
+
+                               devops = ["Linux, "Vagrant", "Bash scripting", "Aws", "python scripting", "Ansible"]
+
+                               1.print(devops[0]) -> it will print Linux
+ 
+                               2.print(devops[0:3]) -> it will print ['Linux', 'vagrant', 'Bash scripting']
+
+                               3.print(devops[0:3][2][5:11]) -> it will print script
+
+
+ slicing in dictionary:
+                         Skills = {"DevOps": ("Linux", "Vagrant", "Bash scripting"), "Development": ["Java", "NodeJS", "React"]}
+
+                         1.print(Skills[DevOps]) -> it will print ('Linux', 'Vagrant', 'Bash scripting')
+
+                         2.print(Skills[DevOps][2]) -> it will print Bash scripting
+
+                         3.print(Skills[DevOps][2][5:11] -> it will print script
+
+                         4.print(Skills[DevOps][2][-1] -> it will print g
+
+
+
+membership operator:
+
+                      Skills = ("DevOps","Linux",23,45.7)
+
+                       1.ans = "DevOps" in Skills
+                         print(ans) -> it will print True (because DevOps present in Skills tuple).
+
+                       2.ans = "Aws" in Skills
+                         print(ans) -> it will print False.
+
+                       3.ans = 20 not in Skills
+                         print(ans) -> it will print True.
+
+
+identity operator:
+                    Identity operator is same as == operator.
+                    a = 10 , b = 15
+                  
+                    1. ans = a is b
+                       print(ans) -> it will print False
+
+                    2.ans =  a is not b
+                       print(ans) -> it will print True.
+
+
+Conditions:
+
+             1. if/else:
+
+                            x = 10
+
+                            if x < 10:
+                               print("X is less than 10")
+                            else:
+                               print("X is equal to 10")
+
+              
+             2. if/elif/else:
+
+                              x = 20
+
+                              if x > 20:
+                                 print("x is greater than 20")
+                              elif x == 20:
+                                 print("x is equals to 20")
+                              else:
+                                 print("x is less than 20")
+
+
+
+sample program using above concepts:
+
+                                     DevOps = ["Linux", "Vagrant", "Bash scripting", "Aws", "Python"]
+                                     Developement = ("Java", ".net", "React", "NodeJS")
+                                     contract_emp1 = {"Name":"Raju", "Skill":"Full stack", "Code":1234}
+                                     contract_emp2 = {"Name":"sandy", "Skill":"Jenkins", "Code":5678}
+
+                                     user_skill = input("Enter the skills to be searched")
+
+                                     if user_skill in DevOps:
+                                        print(f"we have {user_skill} in devops team.")
+                                     elif user_skill in Development:
+                                        print(f"we have {user_skill} in developement team.")
+                                     elif (user_skill in contract_emp1.values()) or (user_skill in contract_emp2.values()):
+                                        print(f"we have contract employee with {user_skill} skills in  team.")
+                                      else:
+                                        print("No such skills found")
+
+
+Loops:
+
+        1. For Loop:
+                      PLANET = "EARTH"
+ 
+                     for i in PLANET:    // here i is variable name
+                         print(i)
+                     print("outside of for loop) //it will print E 
+                                                                 A
+                                                                 R
+                                                                 T
+                                                                 H  
+
+                   
+                     SKILLS = ["Linux", "Aws", "Vagrant"]
+
+                     for i in SKILLS:   // here i is variable name
+                         print(i) // it prints every word in new line
+
+             *Nested for loop:
+                               
+                                SKILLS = ["Linux", "Aws", "Vagrant"]
+
+                                for skill in SKILLS:
+                                    print("")
+                                    print("the skill is")
+                                    for i in skill:
+                                        print(i)
+                                print("outside of for loop") // output is
+                                                                            the skill is
+                                                                             L
+                                                                             i
+                                                                             n
+                                                                             u
+                                                                             x and follws with others values.
+
+                               
+
+
+         2. While Loop:
+
+                        x = 1
+
+                        while x <= 10:
+                             print("the value of x:",x)
+                             x+=1
+                        print("outside of while loop") // it will print 1 to 10
+
+
+              import time
+
+                 x = 2
+
+                 while True:
+                     print("the value of x is",x)
+                     x*=2
+                     time.sleep(1)
+                 print("outside of while loop) // it wil print 2, 4, 8, 16, etc while delay of 1 sec for infinite times.
+
+
+Break & Continue:
+                   Break:
+                         it will break the loop.
+
+                         for i in "DevOps":
+                             print(i)
+                             if i == 'O':
+                             break
+                         print("out of loop")
+
+
+                     import random
+
+                     VACCINE = ["Covacine", "Modona", "Pfizer", "CoronaVac"]
+                     random.shuffle(VACCINE)
+                     LUCKY = random.choice(VACCINE)
+
+                     for vac in VACCINE:
+                         if vac == LUCKY:
+                             print(f"{vac} Test was sucessfull")
+                             break
+                         print(f"{vac} Test was failed")
+
+
+                   Continue:
+                             it will skip the current iteration.
+
+                             for i in "DevOps":
+                                 if i == 'O':
+                                    continue
+                                    print(i)
+                             print("out of loop")
+
+
+                     import random
+
+                     VACCINE = ["Covacine", "Modona", "Pfizer", "CoronaVac"]
+                     random.shuffle(VACCINE)
+                     LUCKY = random.choice(VACCINE)
+
+                     for vac in VACCINE:
+                         if vac == LUCKY:
+                             print(f"{vac} Test was sucessfull")
+                             continue
+                         print(f"{vac} Test was failed")
+
+
+
+Built-in functions:
+                   message = "welcome to python scripting"
+
+                    1.dir([]) -> it will return all the built-in methods available for that.
+                    2.print(message.find("python") -> it will print 11 (because python starting index number is 11)
+                    3.in the above example the search word is not present then it will print -1.
+ 
+                    seq1 = ("192","168","90","40")
+                    4.print(".".join(seq1)) // 192.168.90.40
+                    5.print("-".join(seq1)) //192-168-90-40
+
+ combining two list:
+                     mountain = ["everest", "kilimanjaro", "sahara"]
+                     numbers = [1,2,3,4,5]
+                     mountain.extend(numbers)
+                     print(mountain)
+
+
+Note:
+       1.The main difference between append and insert is, in append the value is added at the last.
+         whereas in insert we can add the value at specific position.
+       2.pop() -> this will delete the value from the list at the end.
+       3.pop(3) -> this will delete the value that is present is 3 index number.
+    
+      4.print(contract_emp1.keys()) -> in dictionaries it will print will keys.
+      5.print(contract_emp1.values()) -> in dictionaries it will print will values.
+      6.print(contract_emp1.clear()) -> in dictionaries it will delete all entire dictionary and prints empty dictionary.
+
+
+Functions:
+           A function is block of orgnized, reusable code that is used to perform single,related action.
+
+           def add(arg1,arg2):
+                total = arg1 + arg2
+               return total
+           print(add(10,20)) // 30
+
+
+
+           def summ(args):
+                 x = 0
+                for i in args:
+                   x = x + i
+                return x
+           print(summ([1,2,3]) // 6
+
+
+default argument:
+                    def greeting(MSG="morning"):
+                        print(f"good {MSG}")
+                        print("welcome to functions")
+
+                    greeting() // good morning
+                    greeting("evening") // good evening
+
+
+
+ def vac_feedback(vac, effiency):
+    print(f"{vac} have the {effiency} % effiency")
+    if effiency > 50 and effiency <=75:
+        print("It is not effective, Need more trials")
+    elif effiency > 75 and effiency < 90:
+        print("we can consider it")
+    elif effiency >= 90:
+        print("Sure, we can take it")
+    else:
+        print("Need many more trials")
+        
+vac_feedback("covaxin", 70)
+
+Note:
+      in functions order of the argument does not matter,we can give any order just mention the argument name follwed by its value.
+  
+      i.e vac_feedback(effiency=74, vac="Pfizer")
+
+
+varibale length argument(non key argument(args)):
+                                             def order(min_order,*args):
+                                                 print(f"you have ordered: {min_order}")
+                                                 for item in args:
+                                                     print(f"you have ordered: {item}")
+                                                 print("it will be delivered in 30 mins")
+                                                 print("enjoy the party")
+                                             order("salad", "KFC", "biryani")
+
+
+variable length argument(key argument(kwargs)):
+                                         import random
+                                         def time_activity(*args,**kwargs):
+                                             min = sum(args) + random.randint(0, 60)
+                                             choice = random.choice(list(kwargs.keys()))
+                                             print(f"you have {min} minutes for {kwargs[choice]} activity")
+    
+                                          time_activity(10, 20, 30, sports="Cricket", hobby="Watching Tv", work="DevOps")
+
+
+
+sample script:
+                #!/usr/bin/python3
+
+                import os
+                path = "/tmp/testfile.txt"
+           
+                if os.path.isdir(path):
+                    print("it is a directory")
+                elif os.path.isfile(path):
+                    print("it is a file")
+                else:
+                    print("file or directory does not exist")
+
+
+adding user:
+               #!/usr/bin/python3
+
+               import os
+
+               userlist = ["raju", "sandy", "kitty"]
+               for user in userlist:
+                   exitcode = os.system("id {}".format(user))
+                   if exitcode != 0:
+                       print("user does not found, we are adding the user")
+                       os.system("useradd {}".format(user))
+                   else:
+                         print("user already exists)
+  
+
+adding group:
+
+                 #!/usr/bin/python3
+
+               import os
+               exitcode = os.system("grep science /etc/group")
+               if exitcode != 0:
+                  print("group does not exist, we are adding it")
+                  os.system("groupadd science")
+               else:
+                    print("group already exist")
+
+
+now we are adding user into the group:
+                                          #!/usr/bin/python3
+
+                                           import os
+
+                                           userlist = ["raju", "sandy", "kitty"]
+                                           for user in userlist:
+                                               exitcode = os.system("id {}".format(user))
+                                               if exitcode != 0:
+                                                   print("user does not found, we are adding the user")
+                                                   os.system("useradd {}".format(user))
+                                               else:
+                                                  print("user already exists)
+
+                                            exitcode = os.system("grep science /etc/group")
+                                            if exitcode != 0:
+                                                print("group does not exist, we are adding it")
+                                                os.system("groupadd science")
+                                            else:
+                                                 print("group already exist")
+
+                                            for user in userlist:
+                                                 print("adding user {} in the science group".format(user))
+                                                 os.system("usermod -G science {}".format(user))
+
+now giving ownership and file permissions:
+
+                                            #!/usr/bin/python3
+
+                                           import os
+
+                                           userlist = ["raju", "sandy", "kitty"]
+                                           for user in userlist:
+                                               exitcode = os.system("id {}".format(user))
+                                               if exitcode != 0:
+                                                   print("user does not found, we are adding the user")
+                                                   os.system("useradd {}".format(user))
+                                               else:
+                                                  print("user already exists)
+
+                                            exitcode = os.system("grep science /etc/group")
+                                            if exitcode != 0:
+                                                print("group does not exist, we are adding it")
+                                                os.system("groupadd science")
+                                            else:
+                                                 print("group already exist")
+
+                                            for user in userlist:
+                                                 print("adding user {} in the science group".format(user))
+                                                 os.system("usermod -G science {}".format(user))
+
+                                             if os.path.isdir("/opt/science dir"):
+                                                 print("directory already exist")
+                                             else:
+                                                   os.mkdir("/opt/science dir")
+
+                                             print("assigning ownership and permissions to group")
+                                             os.system("chown :science "/opt/science dir")
+                                             os.system("chmod 770 /opt/science dir")
+
