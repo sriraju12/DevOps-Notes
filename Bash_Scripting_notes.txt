@@ -302,4 +302,77 @@ fi
               done
 
 
+* while writing the bash script use the echo statements because it will give some clear way of understanding the output.
+
+* echo command is better when the script contains less lines, if you have 1000 lines or commands then in the starting of the script just mention " set -x"
+  that means debug mode.
+
+* it will print the output as command that you have executed followed by the output.
+
+* while writing the bash script, the two best practices are at first write the meta data i.e what this script about and author etc and next write "set -x"
+  that will run in debug mode so that we can easily understand which commands gives what output exactly.
+
+* ps -ef -> it will display all the process that are running in the system. here ps means process and -ef means show in full format.
+
+* date | echo "today is" -> output is today is because date is a system default command and using this command it sends the output to the stdin but pipe
+  will not receive the output from stdin. pipe will only receive the output if it doesnot send to the stdin.
+
+* awk command is used to display the specific column and where as grep will print the entire statement.
+
+* let's see an example, where we need to print the name .
+
+      statement is : my name is raju
+
+     grep name test(filename) | awk -F" " '{print $4}' -> this will print the name (raju). $4 means name is present in 4th column in the statement.
+
+* when you execute the bash script, in that script one command is wrong and the whole script will execute and for the wrong command its shows command not  
+  found.which is bad practice.if their is a error in the script the whole script will fail.
+
+* for that you need to use " set -e" -> it will exit the script when there is an error.
+
+* the drawback of this command is with the pipe operations like when you first pipe command is wrong and the last command is right then it will execute the 
+  file.
+
+   ex: hgdckjuhadcjkh | echo -> it will excute the script because the last command was right. the " set -e " in the pipe operations always look for the
+                                last command.if it is right then it will execute the script orelse it will fail the script.
+
+* to overcome this problem, we have to use " set -o pipefail " -> it will fail the script when there is a wrong command in the whole pipe operations.
+
+
+   EX:       
+         #!/bin/bash
+
+         set -x  # print the output in debug mode
+         set -e  # exit the script when there is an error
+         set -o pipefail
+
+         df -h
+
+         free -h
+
+         ps -ef | grep amazon | awk -F" " '{print $2}'
+
+* curl command -> it is used to directly access from the internet.
+
+* wget command -> it is used to download anything from the internet to the local.
+
+* let's just see you want to see the error messages from the log file that is stored in any cloud plateform like aws, gcp or azure just take that url 
+  and then use curl url | grep error it will directly show the error logs.
+
+* where as in wget, wget url it will download that log file and then from that log file we need to grep for the errors. i.e cat logfile | grep error.
+  this is the difference.
+
+* su username -> it will switch to that user here su means switch user.
+
+* find command -> it is used to search the files or folder in the system. ex: find / -name pam -> here / means everything in the system, -name means
+                  search using name and pam means name of the file.
+
+
+
+
+
+
+
+
+
 

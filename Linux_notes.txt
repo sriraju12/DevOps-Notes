@@ -59,9 +59,12 @@ Linux:
                     6.cd or cd ~ -> whenever you want to come to home directory.
                     7.touch touchfile1.txt -> touch command is used to create the empty file
                     8.touch devopsfile{1..10}.txt ->it will create the 10 devops file(like devops1,devops2..devops10)
-                    9.cp devopsfile1.txt dev/ -> it will copy the devopsfile1.txt file to dev folder(here source is devopsfile1 and destination is dev folder)
-                    10.cp -r dev backup/ -> This is used to copy the entire directory or folder to another directory(source is dev and destination is backup)
-                    11.mv devopsfile3.txt ops/ -> this is used to move the file or folder to another folder(source is devopsfile3.txt and destination is ops)
+                    9.cp devopsfile1.txt dev/ -> it will copy the devopsfile1.txt file to dev folder(here source is devopsfile1 and destination is dev 
+                                                 folder)
+                    10.cp -r dev backup/ -> This is used to copy the entire directory or folder to another directory(source is dev and destination is 
+                                            backup)
+                    11.mv devopsfile3.txt ops/ -> this is used to move the file or folder to another folder(source is devopsfile3.txt and destination is 
+                                                  ops)
                     12.mv ops dev/ ->here we are moving entire ops directory or folder into dev directory(source is ops and destination is dev).
                     13.mv devopsfile2.txt devopsfile22.txt -> this rename the file name from devopsfile2.txt to devopsfile22.txt.
                     14.mv *.txt dev/ -> this command is used to move the all files that ends with .txt will be moved into the dev directory
@@ -296,7 +299,7 @@ Services:
          5.systemctl reload httpd ->To reload the changes without even restarting it.
          6.systemctl enable httpd -> modifies the service configuration to tell systemd that the service needs to start up automatically on boot.
 
-provising -> provising in vagrant means executing script or commands when vm is up.
+provisioning -> provisioning in vagrant means executing script or commands when vm is up.
 provising executes only one time.
 
 Steps to deploy website manually:
@@ -310,5 +313,64 @@ Note:
 
 Steps to deploy website automatically:
                                        1.In vagrantfile add the provising(scripts or commands)then everything get ready.
+
+
+
+why linux:
+            * open source and it is very secure and it contains many distribution like centos, redhat, ubuntu etc. and it is very fast.
+
+
+Architecture of LINUX:
+
+
+
+                    ----------------------------------------------
+                    |  system    |    user       |               |
+
+                    |  software  |   process     |  compilers    |
+                    
+                    |            |               |               |
+                     
+                    | ___________________________________________|
+                            system libraries
+                    |____________________________________________|
+
+                    |             kernel                         |
+                     ____________________________________________
+                                   
+                                 Operating System
+
+
+* operating takes the request from software to hardware i.e kernel. Kernel is the heart of the linux Operating system.
+
+* kernel has four primary responsibilities 1.device management
+                                           2.memory management
+                                           3.process management
+                                           4.handling system calls.
+
+* system libraries are responsible to perform tasks.
+
+* compliers are like if you want to run the java code or python code these compliers are used.
+
+* operating system is used to establish connection between software and hardware. whenever the user sent request it has to go from software to operating 
+  system and operating system to hardware and the response is received in the same way.
+
+* free -g -> to see the memory details
+
+* df -h -> to see the disk details.
+
+* top -> it is used to see the memory, cpu and disk details.
+
+* nproc -> to see how many cpu's used.
+
+
+
+
+                                
+                               
+
+
+
+
 
 

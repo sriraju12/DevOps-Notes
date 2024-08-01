@@ -11,7 +11,7 @@ GIT:
                                                                        occured still data will not be lost.
  * github is used to share the code and git is used for versioning.
 
- * the problems that will solve is versioning (making or keeping the multiple copies of changes to the files) and sharing of code.
+ * the problems that git will solve is versioning (making or keeping the multiple copies of changes to the files) and sharing of code.
 
 
 Note:
@@ -43,4 +43,100 @@ Note:
                                                                             3.git commit -m "message for the commit"
                                                                             4.git add origin https_repository url
                                                                             5.git push origin branch name(i.e main or master)
+
+branch:
+       branch is a seperation that if you want to develop anything, develop using branch and then merge the changes to the existing code.and these branch 
+       will deleted.
+
+       * if your are developing some feature to the existing application then you need to add the features branches to the developing features and then
+         if everything is ready then we will merge the changes to the existing application(main/master branch). and then we will release the application to 
+         to the customer.
+
+the best git branching strategy includes:
+                                           1.adding the features branches to the developing features.
+                                           2.then merge the changes to the master or main (existing application).
+                                           3.and then from master branch we will create the release branch and then it will deliver to the customer.
+                                           4.after delivering to the customer if any bugs will happened then we will immediately create the bugfix branch
+                                             or hotfix branch to solve the bugs and which is short lived i.e 1 or 2 days.and then it will merge to master 
+                                             and the release branch.
+
+
+NOTE:
+      1.difference between clone and fork:
+                                           fork is used to create the copy of the repository and clone is used to download the repository.
+
+      2.if you clone the repository using HTTPS it will ask for password i.e github password and if you clone the repository using SSH we need to provide
+        the public key. 
+
+      3.to create the public/private key using ssh-keygen -t rsa it will generate the key, copy the public key and go to github settings and in ssh-keys 
+        paste the public key here.so whenever you clone the repository it will not ask for the password.
+
+      4.git checkout -b feature-division -> here it will create the branch with name feature-division and whatever the files present in the main will 
+                                            present here also. so that we can work on the features and if everything is good then we can merge changes
+                                            to the main branch.
+
+     5.git log feature-division(branch-name) is equal to git checkout feature-division && git log. -> it will display the commit logs.
+
+     6.if you want to merge one branch file into others, they are three ways.
+
+              They are 1.cherry-pick: 
+                                       copy the commit-id from the logs that you want to merge and go to the target branch using checkout branch-name and 
+                                       then use git cherry-pick commit-id. changes will happen here. which is very easy to use.
+
+                                       * and if you want to merge two or three commits then cherry-pick is easy to use and if there are many commits then 
+                                         better go for merge or rebase because if many commits are there its impossible to copy each and every commit id
+                                         and then paste it.
+
+                       2.merge:
+                                 if you want to merge commits from one branch to other and they are many commits are there to commit then better to use 
+                                 merge and rebase.the merge is non-linear way i.e these changes will be updated after the main branch.this commits are 
+                                 present in the top.
+
+                                 * git merge branch-name (execute these command from the main branch)
+
+                       3.rebase:
+                                if there are many commits are there to merge one branch to another and also you want to maintain the linear order i.e one 
+                                after another commits then use rebase.these changes will be updated before the main branch.
+
+                                * git rebase branch-name (execute these command from the main branch)
+
+
+  7.the difference between merge and rebase is,
+                                                * both are used to merge the commits from one branch to another branch, the only difference is
+
+                                                * merge does not maintain the linear order i.e one after another and which is present in the top.
+                                                  these changes will be updated after the main branch.
+
+                                                * where as rebase maintains linear order and which is present in the bottom. these changes will be updated 
+                                                  before the main branch.
+
+ 8.difference between git fetch and git pull:
+                                              git fetch will inform about the latest changes that happened to the remote repository and it does not merge
+                                              the changes to it.
+
+                                              * where as git pull fetch the latest changes that happened to the remote repository and merge the changes to 
+                                                it.
+
+                                              * for example, if you clone the repository and then developers added some changes to the remote repository,
+                                                then fetch will show what are the changes that has happened it does not merge the changes to cloned 
+                                                repository where as pull will fetch the changes and merge to our cloned repository.
+
+ 9.what is .git and .gitignore:
+                                .git folder container all the information like all the file information details related to commits,remote repository 
+                                 addresses etc.all the things in git stored as objects.
+
+                                * .gitignore is like if you want to ignore anything from .git then you simply go to .gitignore and place that information 
+                                   there and the information will be ingnored.
+
+                                * for example, if you don't want to push some file from local repository to remote repository just add that file 
+                                  in .gitignore then it will be ignored.
+
+ 10.what are pre-commit hooks and post-commits hooks:
+                                                      hook is like if you want to perform some action before or after something.pre-commits are the actions 
+                                                      that are taken before the git commit and post-commit are the action that is taken after the git 
+                                                      commit.
+
+ 
+
+ 
 
