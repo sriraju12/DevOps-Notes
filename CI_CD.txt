@@ -1,0 +1,258 @@
+jenkins:
+How to integrate vscode with github:
+1. Install github pull requests and issues plugin
+2. Click on source control icon on vscode and then it shows clone repository.
+3. Then click on clone repository, it will show clone repository from github
+4. Click on it and it will ask you authenticate the github credentials.
+5. A temporary token will be stored in the git credential manager.
+6. And that’s it integration is done 
+
+NOTE : 
+The difference between variable and parameter in declarative pipeline is variable cannot be updated in runtime while parameter can be updated during runtime.
+
+Environmental variable can be access inside the pipeline using $env_name 
+Paramters can be access inside the pipeline using ${params.name}
+
+Blue Ocean plugin really good for jenkins, it provides nice UI and we can easily understand the pipeline flow. This is really helpful in understanding the parallel stages
+
+If we want to work with multi branch pipeline, first install multibranch pipeline plugin and then run the job. Based on the jenkinsfile it will takes the branch i.e lets just say you have two branches and one is develop and another one is master. In develop branch we will deploy the code into dev environment and in master branch we will deploy the code into prodution environment. Based on the branch, it will deploy the code into that environment.
+
+Jenkins is used to automate the process from build to deployment and jenkins also do the process like deploy the code into different environment.
+
+Difference between dev, staging and production are dev is where we develop and test the code with less service like one master and one node.
+In staging like three masters and 10 nodes and in prod 5 masters and 20 nodes. Prod is where customers are using the product.
+
+The manual steps that are required without automation are unit testing i.e method testing like in calculate for addition method we will write test case as 2+3 =5 . Static code analysis i.e lets say in one component you have declared 10 variables and you have used only 5 variables then the memory is wasted. We you need remove those unused variables and also the code structure like syntax etc. code quality/ vulnerability i.e if you change the version, our application need to work in the same way and does not compromise the security. Automation testing like functional testing i.e in unit testing you have test for that method only where as in functional testing we need to do end to end testing that means  we need to verify that method does not distrub the other functionalities or methods. Reports are very important because to see how many test cases are passed and fali etc. deployment i.e after doing these we need to deploy the code. These manual process takes months to deliver the product to the customers.
+
+If we use automation tools like jenkins, all the above manual steps will be managed in the jenkins. So that the product will be delivers within days or weeks to the customers.
+
+The disadvantage of using jenkins in ec2 instance is, consider you have one master and 3 slave or agent nodes. The master node is sending the traffic to agent 3 which has windows and 1, 2 for linux. Whenever the request comes for master node and which linux related and it will redirect to the 1 or 2 agent node and here agent 3 receive request very rarely and wasting the resources on aws. When you use auto scaling groups then also we need to use atleast one agent for that and still wasting the resources. Better approach is using docker.
+
+Let’s see how we can use docker for managing the jenkins. Docker is very light weight to use.
+In ec2 using jenkins whenever you want to upgrade the package or version you need to login to that ec2 instance due to that some problems may occur. So when you use docker it is very easy to create, destroy and using single command to run the container.using docker as a agent or slave decreases the cost and increases the efficiency.
+
+Lets see how docker agent works, whenever the request receive in the master then docker will create the container and run the job in the container and then it will destroy the container.
+Due to this we can save lot of resources and cost as well.initially only the master is present so, whenever the request receives then only it will create the container and run job, after the job is finished then it will destroy that container.
+
+When you use ec2 instance as a agent or slave then whenever you want to upgrade the version of the linux or windows then you need to login and do that process manually. This has a lot of work. So when you use docker, in the jenkinsfile you just need to change the version then it will configure it that’s it. It is very simple in using docker.
+
+Github actions is also used for CI/CD and it is specific to GitHub. Like cloud formation is IAC but it is specific to Aws and terraform is also IAC and it is not specific to one provider.
+
+Github actions uses YAML syntax to write the script.
+
+Github actions are useful when you are using GitHub and in future also you are not migrating to different VCS and also you are using the public repository. If you use private repository then you have to pay for that.
+
+When compare to Jenkins, if you want to setup a new instance of Jenkins then you have ec2 instance and install Jenkins and then need to setup the process for Jenkins and need to expose to the port. In future you need to upgrade the version of Jenkins you have do all these things. When you use GitHub action these things you don’t have to do, you just need to write the YAML file thats it.
+
+NOTE:
+if you want to transfer files from one server to another server you can use scp or rsync.
+
+If you want to backup the Jenkins then go to home directory of the Jenkins and in that copy the .Jenkins folder and that’s it.
+
+.Jenkins folder contains all the information like builds and pipeline information etc.
+
+Distributed build or master-slave architecture setup:
+1. check the whether the jenkins url is correct or not. Go to manage jenkins -> configure system -> jenkins url.
+2. It should matches with the browser jenkins url.
+3. Check whether agent (slave) port is enabled or not i.e port 50000.  Go to manage jenkins -> configure global security -> Agents.
+4. Create two jenkins slave vm’s and one master vm. Enable port 50000 on the master and slave vm’s.
+5. In jenkins, click on build executor status and then click on new node.
+6. Give the name for jenkins slave vm and check the box and then click on ok.
+7. Provide the details like no.of executor i.e no.of cpu’s, remote root directory i.e it is the path where our slave log data will store, in in usage choose only build jobs with label expression matching with this node, in launch method choose launch agent(slave) by connecting it to the controller i.e we need to execute one command on the slave vm and then it will connect to the master and keep another details as default.
+8. Click on the slave node and it will display the command that needs to run on the slave vm to make connection.
+9. Download the agent.jar file and take the public of the slave vm.
+10. Open the winscp and paste the public url and transfer the agent.jar file to the slave vm. i.e winscp is used to transfer files from local to the sever.
+11. login to the slave vm (ssh). Do ls -lrt here the agent.jar file is present and give the permission to that jar file and move this file to the path that is mention in the remote root directory and run the command. It will get connected to the master.
+
+ 
+The best CI/CD approach:
+
+CI PROCESS:
+
+Whenever the developer push the code into Github. We are using the Jenkins and integrating the GitHub and Jenkins using web hook. Using web hook is very best approach to use because whenever the developer make a commit to the GitHub then GitHub sends notification to Jenkins to trigger a pipeline instead of continuously monitoring the GitHub using poll SCM or scheduled jobs. To run the job we are using the docker as agent, docker is light weight and easy to use because we don’t need to install and configure manually. And then we are build the application using maven if we are using java based application and then after successful build we will run the test cases using Junit or selenium and then after it is successful then we will scan for code analysis and security vulnerabilities and then after everything is good we will create the docker image out of it using shell commands. If it is unsuccessful then we will send email notification or slack notifications. After the docker image is build, we will push the docker image to the container registry either docker hub or ECR or any other registry using shell script. This is the CI Process.
+
+CD PROCESS:
+
+For the deployment we are using the kubernetes cluster and inside it we have installed two CD tools that are argo image updater and argo cd.
+So whenever the registry has been updated with new image or new image is upload to the registry the argo image updater is continuously monitoring the registry and if it finds any new image then it will take that image and then it will upload to the another GitHub repository that contains only manifest files like service.yaml file, deploy.yaml, pod.yaml etc and it will update the image in the pod.yaml or service.yaml or deploy.yaml then the argo cd will take that file and it will run in the kubernate cluster. This is CD Process.
+This both CI/CD will the best approach.
+
+How to add users, create roles and assign roles to the users in Jenkins:
+
+1. We can create users in Jenkins, go to Jenkins and manage current user and then click on create user.
+2. Then add the user details like username, password, and email and then click on save.user will be created successfully.
+3. In Jenkins, by default only few roles is there, if you want to more roles then you need to install the plugin called Role Based Authorisation strategy.
+4. Go to manage Jenkins -> configure global security -> Authorisation -> select role based strategy  and then click on save.
+5. Go to manage Jenkins  -> click on mange and assign roles then click on manage roles.
+6. Type the role i.e developer and give the necessary permission like read, update, delete etc and then click on save.
+7. Go to manage Jenkins -> manage and assign roles -> click on assign roles and then select the user and then for that user assign the role that we have created that’s it.
+8. In this way, you can create users, and then you can create roles and assign that roles to the users.
+
+SHARED LIBRARY:
+
+Consider this example, amazon is using 1000’s of micro services and each micro services are independent to each other  and we need to write for each micro service separate Jenkins file. If you need to change something that is common in all the Jenkins file, we need to change by doing through each and every micro service. This is very difficult to make changes and it takes a lot of time.
+
+If you use shared library means a piece of code. We can resolve above problem. The common code that is present inside the Jenkins file are moved to files and we will import that files to the Jenkins file. In future, if we want to change something then in shared library we can make modification and then it will reflect in all the Jenkins files. It is that easy to maintain.
+
+Let’s see how we can use shared library:
+1. In Jenkins, go to manage Jenkins -> manage system -> search for global pipeline and give the name for shared library and the git url and other details and save the changes.
+2. In GitHub main directory( starting page) you need to create the folder called vars and then go inside that folder.
+3. Create the files that you want to store the data like of you want this file for to store git checkout or build etc you need to give appropriate name for it like mavenBuild.groovy.
+4. The file name should be camel case i.e starts with lower case and then upper case. with groovy extension.
+5. Inside the file, just create one function like def call() {
+          Sh ‘ mvn clean’
+         }
+   6. Whatever the commands or instructions that         
+        You want to keep inside the function.
+   7. Go to Jenkins file and import the shared 
+      library like @Library(“my-shared-library”) _
+8.replace the code with file name that you have      
+  created in vars folder that’s it. Like 
+  mavenBuild()
+9. Here my-shared-library is the same name that we have configured in the Jenkins.
+
+Let’s see how we can trigger pipeline using AWS: 
+
+CI PROCESS:
+
+1. In AWS, Go to code build and click on create code build.
+2. Give the details like GitHub and the name of the build etc.
+3. And write the build spec yaml file. In that we need to write the stages for it like build, testing, image building and pushing the image to registry.
+4. To store the credentials use systems manager in AWS.
+5. To access the code build service to the systems manager we have to create the role for it and add the permission for the systems manager in that role.
+6. To create a role, you need to go to IAM and click on role and then create role and add the permissions.
+7. Then save the changes and click on start build.
+8. If you want to trigger this build whenever there a change in the GitHub you need to configure the AWS code pipeline.
+9. For that go to AWS code pipeline and click on create pipeline and then choose the version control system like GitHub and then integrate with it by verifying it.
+10. And then choose the build stage that we have created above i.e code build.
+11. Make changes in that GitHub then it will automatically trigger the pipeline.
+
+CD PROCESS: 
+
+1. in AWS, go to code deploy and then click on the create application and then fill details like name of the application and the where you want to deploy like ec2 etc choose ec2.
+2. create the ec2 instance.
+3. Go to IAM, click on roles and then create the roles and then add the permissions for ec2 and code deploy because we need to connect these two services.
+4. Go to ec2 instance and then attach this role to it. Click on actions and then security and then IAM  and then attach the role.
+5. Login into ec2 instance and then we need to install the code deploy agent on it and also need to install the docker because we need to run the application.
+6. Follow the official document to install the code deploy agent on the ec2 instance.
+7. In AWS, go to code deploy and then create the deployment groups.
+8. After that create the deployments and in that we need to select the deployment groups.
+9. In order to connect the CI and CD, we need to connect code pipeline to the code deploy.
+10. For that go to code pipeline and then add the stage for it, by editing the code pipeline.in that you need to select the application name that is mention in the code deploy and the deployment groups.
+11. in order to take the image from the registry we need to write the appspec yaml file. Here  we need to mention details like take the image from the registry and then run that container. And whenever the changes occurs in the GitHub source code then this container will be deleted.
+12. Make the changes in the source code and then verify the entire pipeline.
+13. This is how we can create the CICD using the AWS tools in AWS
+
+
+ARGOCD:
+
+Lets see what is GitOps first,
+
+Without GitOps:
+
+ if you take CI for versioning, keep track of things we have git and for CD nothing is there to track the things like who have made things in the Kubernetes cluster and also maintaining the versioning. Thats where the GitOps comes into play.
+
+GitOps uses git as single source of truth to deliver applications and infrastructure.
+
+Consider an example, when you makes changes to the manifests yaml file that is present in the git and the CD tool like Argocd will automatically takes that updated file and deploy into the Kubernetes cluster
+
+Note:
+What problems GitOps is solving is,
+It will keep track of deployments
+
+Whenever you want to modify anything directly on the Kubernetes cluster then GitOps tool ArgoCd will not accept that change because if you want to modify anything in Kubernetes cluster then it has to comes from git manifests yaml file then it will automatically detect that change and then it will deploy in Kubernetes cluster.
+
+ArgoCd will continuously monitor all the resources in the Kubernetes cluster and store the cache, if anyone will try to make changes then the ArgoCd will override those changes. By this way we can achieve the security also because no one will make the changes in the Kubernetes cluster.
+
+Advantage of GitOps:
+1. security 
+2. Versioning (keep track of changes)
+3. Auto healing of any unwanted changes 
+4. Continuous reconciliation means if any one makes changes directly in Kubernetes cluster those changes it will not consider it, it just ignore those changes.
+
+Let’s understand the how ArgoCd works,
+Whenever the developer commit the changes to the manifests yaml files that are stored in the git.ArgoCd will automatically detects that change and it will pick that file and then it will deploy in the Kubernetes cluster. This how ArgoCd works.
+
+Architecture of ArgoCd:
+how ArgoCd internally works,
+
+repo server micro service takes the git state and stores in it. Application controller micro service takes the Kubernetes states and stores in it. The application controller talks to repo server and compare the state, if the bothe states are same then it will not do anything, if the repo server state changes then the application server takes that change and then deploy to Kubernetes cluster. There is ui/cli micro service, if you want to connect to ArgoCd via UI or CLI then these service will do that. And another one is DEX which is used for SSO(single sign on) authentication to the UI/CLI. The last one is REDIS which is used for caching because for some reasons the application controller goes down and after some time it will come up and some where  we need to store the state of Kubernetes cluster in our case we will store in Redis.
+
+Note:
+They are three ways to install ArgoCd:
+1. Yaml manifests 
+2. Helm charts
+3. Operators 
+
+The best way to install ArgoCd, through operators.
+
+How to access ArgoCd in UI:
+This is using Minikube only,
+   1.kubectl get svc -n argocd(name_space 
+     name) 
+     this is to check the all the running services in 
+     this name space.
+2. argocd-server is responsible for the UI or CLI.
+3. kubectl edit svc argocd-server -n argocd this is used to edit the argocd-server and in that file we need to change the type ClusterIP to NodePort.
+4. Now we can access this using terminal and if you want to access in browser then we have to do port forwarding or we need to create a tunnel.
+5. kubectl service list -n argocd this will list all the services.
+6. kubectl service argocd-server -n argocd it will create a tunnel and it will provide a IP address.
+7. Take that IP address and paste it browser then ArgoCd UI will come up.
+8. for ArgoCd login credentials use username as admin.
+9. For password -> kubectl get secret -n argocd. This will list the secrets.
+10. kubectl edit secret argocd-initial-admin-secret -n argocd
+11. copy the password, password is encrypted by default we need to decrypt it using base64.
+12. echo password | base64 —decode. It will display the password.
+13. it will login into the Argocd and then you need to create the application. You need to provide details like GitHub url and the path where Kubernetes manifests presents etc
+
+You can also access the Argocd through CLI, 
+1. Install ArgoCd cli
+2. In google search for Argocd command reference and then search for create app.
+3. Take the options whatever you want and then run it. The application is up.
+4. Before running the above command, first you need to login into the Argocd
+5. argocd login url(argocd url that we have tunnelled above)
+6. Then it will ask for username that is admin and the password that is decrypted above.
+
+
+Multi cluster deployment in Kubernetes using argocd:
+
+ArgoCd has two deployment methods:
+They are 1.hub spoke model
+                 2. Standalone model.
+
+Hub spoke model: 
+in hub spoke model, for deploying the manifests file in Kubernetes cluster only one ArgoCd is present that is centralised and it will watch for it on git and if anything changes then it will deploy to the multiple clusters in Kubernetes.ArgoCd will be deploy to n number of clusters in Kubernetes.
+
+Standalone model:
+In standalone model, for every cluster one ArgoCd is present and it is responsible to deploy the manifests files in respective cluster in Kubernetes. Every ArgoCd will continuously monitor the git for changes, if anything changes then it will deploy to the respective cluster in Kubernetes. This model we have implemented above.
+
+Let’s see how we can setup multi cluster deployment:
+1. Create three clusters and one is for hub like this is where we install ArgoCd and other two for deployment of application.
+2. kubectl config get-contexts  this will show all the clusters.
+3. kubectl config use-context context-name this will switch to that cluster.
+4. kubectl config current-context this will show the current cluster
+5. switch to the hub cluster and then install ArgoCd in it. Use doc for installation of ArgoCd.
+6. kubectl get pods -n argocd(mention namespace name) this will show all the pods and wait for the pods to be running 
+7. kubectl get cm -n argocd this will show all the configmaps.
+8. Edit the cmd configmap. kubectl edit configmap argocd-cmd-params-cmd -n argocd
+9. add this at end of the file.
+10. data:11.    Server.insecure: “true”
+12. This is to run the ArgoCd in secure way using http.
+13. kubectl get svc -n argocd this is to check whether the services are running or not.
+14. kubectl edit svc argocd-server -n argocd in that file change the type from ClusterIP to NodePort.
+15. kubectl get pods -n ardocd  this will show the pods and also the port mapping.
+16. Copy the http port for the argocd-server and go to aws and take the public ip of hub cluster and paste it browser like publicip:port
+17. ArgoCd UI will up and running.
+18. kubectlb get secrets -n argocd this where initial password for ArgoCd is present.
+19. kubectl edit secret argocd-initial-admin-secret -n argocd this will display the password.
+20. By default password is encrypted and you need to decrypt it using base64. echo password | base64 —decode. It will generate the actual password
+21. We need to add the clusters to the ArgoCd, through UI we cannot add the clusters but we can delete it.
+22. Install the ArgoCd CLI and create the cluster . For that check official documentation. Before running this command first login into the ArgoCd through CLI using argocd login ip address of the argocd ui server.
+23. The final step is to get the manifests files from git and ArgoCd will deploy it to the clusters in Kubernetes.
+24. Go to the ArgoCd UI and create the two applications for the two clusters and that’s it.
+
+Overview of it:
+1. create the clusters
+2. In the hub cluster, install the argocd
+3. Verify login
+4. Create the clusters using commands.
