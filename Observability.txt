@@ -1,0 +1,122 @@
+Observability:
+What is the use of observability:
+The observability is used to keep track of the internal state of the system like disk utilization i.e how much disk is utilising the node. Cpu utilization i.e how many cpu’s are consuming by the node. Memory and how many http request are coming to the system etc. (metrics)
+
+Observability also provides reason for the failures like you are received 100 request and out of which 5 are failing then it will provides reasons why they are failing.(logging)
+
+Observability also provides how to fix the failure or issue like it provides the traces, what is the reason for the failure in detail manner. So that you can fix those issues or failure easily.(traces)
+
+If you are setting up the metrics, logging and tracing then it is called observability.
+
+In simple,
+Metrics - which will help you in understanding the state of the system.
+Logging - it will help you to understand why system is in this state.
+Traces - it will help you to fix the issue or failure.
+
+Let’s see how we can see above three in one scenario: 
+For example, 100 requests are received by the system and out of which 5 are failed. These details will be given by metrics. Using logging, at what time the request are failed and what is reason for the failure will be given by logging. The traces will give the complete trace of the request from client to load balancer, load balancer to front end, front end to back end and back end to database. This complete trace information will be given by trace.
+
+Difference between monitoring and observability:
+
+Monitoring - metrics + alerts + dashboard 
+Observability - metrics + logging + traces.
+
+Monitoring is a sub part in observability.
+
+Whose responsibility to implement observability developers or DevOps engineers:
+It is a collective responsibility to implement observability because developers need to write the logs and failure scenarios and also traces. DevOps engineers need to install the tools for the metrics, logging and traces. Without writing the logs and traces by developers there is no use of tools and vice versa.
+
+Metrics:
+Let’s understand with real time example:
+Let’s there is a patient in the hospital and the nurse is going to check on that patient for every 30 mins to collect the information like BP, heartbeat etc information to keep track of patient health. These information like BP, heartbeat etc are called metrics. Using metrics doctor will decide patient is in good condition or not. The drawback of the metrics is, it gives you the raw data in notepad or paper will not unreadable or not that easy to read instead you can use dashboard for it. It takes the metrics data and represent in diagrams which is easy to understand and read. It also provides  the alerts.
+Metrics - metrics is a historical or periodical data of events.
+
+Monitoring tool: 
+Prometheus is a monitoring tool that will pull the metrics from the Kubernetes cluster and represent them in graph format. In the Prometheus alert manager component is present which is responsible for alert(notify). We can also push the metrics to the Prometheus.
+
+Architecture of Prometheus:
+The components present in Prometheus are:
+1. Retrieval 
+2. TSDB(Time Series Data Base)
+3. HTTP server
+
+Application in Kubernetes  —>  exporters   —>  Prometheus   —> grafana
+
+Flow:
+Prometheus will pull the information of metrics  from the exporter or push gateways by using 
+Retrieval. And that information will be stored in TSDB(Time Series Data Base). If you want to retrieve information from the Prometheus then that information will be given by HTTP server which takes information from TSDB using promQL will write queries and sends request and HTTP server gives that information to us. In Kubernetes cluster they are 10 application lets say and you want the data from 5 application only then by using service discovery we can set the targets to collect metrics.
+
+Install:
+Install the Prometheus, Grafana and Alert manager in Kubernetes cluster.
+
+Prometheus pull information from exporter like node exporter which is responsible for node related information like cpu utilization, memory utilization on the nodes.
+Kube-state metrics which gives the information about the Kubernetes resources like deployment, config maps, etc.
+/metrics which gives the information metrics about the application.
+
+The main use of grafana:
+The grafana is used for visualisation for the dashboards. In Prometheus, visualisation is not that much. In Prometheus, if you want any information like cpu utilisation then you need to write the PromQL query for it. Where as in grafana by default comes with commonly used PromQL queries like cpu, memory, disk utilisation and how many config maps present in particular namespace etc. grafana can also integrate with other monitoring tools like nagios, graphite etc. in future if you want to change the monitoring tool then grafana supports that tools. We can create the custom dashboard as well in grafana.
+For that you just click on new and then click on add visualisation and then select the data source i.e Prometheus and then write the PromQL query and that’s it. The dashboard is ready and you can save it and share with your manager or teammates.
+
+If you want to integrate Grafana with the Prometheus then in grafana click on connections and then click on add data source and select the Prometheus and then add the details like Prometheus url etc and that’s it.
+
+Instrumentation:
+Let’s see what is instrumentation:
+Instrumentation is the data that developers should write or define in the application for the metrics, logging and tracing. So that the DevOps engineers should install the tools for it to observe the behaviour of the application. This is called instrumentation.
+
+We have datatypes in programming languages, similarly we have metrics types for metrics.
+They are four types: 
+ 1.Counter metrics
+ 2.Gauge metrics
+ 3.Histogram metrics
+ 4.Summary metrics
+
+1. Counter metrics: counter metrics means it will keep on increasing the count. i.e if you want to know how many users are created in the application. Here the number always increases. Http request for the application, here also number always increases then for this cases counter metrics should be used.
+2. Gauge metrics: gauge metrics means it will increase or decrease the count. i.e cpu, memory, disk utilisation. In this cases the value is either increasing or decreasing then in this cases gauge metrics should be used.
+3. Histogram metrics: histogram metrics means when you not bother about increasing or decreasing of values. i.e http request latency like how much time it takes to complete the request those information will be saved in the buckets. In this case histogram should be used.
+
+
+Logging:
+Logging is nothing but the messages in the application. For example, you have simple calculate application if you have write the application without logging then when you execute the application the user don’t know what values to string like string, integer etc. if you provide proper logging then user will easily understand what should be entered. This is benefits that logging provides. Also logging helps in understand the failures of the application. If you have wrote the logs then when the application is failure then we can easily identify the reason for the failure.
+
+For logging we will use EFK( Elastic search Fluent bit Kibana)
+
+The architecture of EFK:
+
+Nodes   -> Fluent bit  -> Elastic search -> Kibana                                      |
+                                                 EBS
+
+The Fluent bit will be deployed in the each node in Kubernetes and Fluent bit collects the data from the nodes and sends to the Elastic search which will be act as database and we can also sends to data to the EBS volumes to store. The Elastic search sends data to the Kibana which is data visualisation tool which represents in graphs.
+
+Difference between EFK AND ELK:
+EFK - Elastic search Fluent bit Kibana:
+Which is used to forward the data that is collected in the nodes to the elastic search.
+
+ELK - Elastic search Logstash Kibana:
+which is also used to forward data to the elastic search and also we can filter the data that is collected before forwarding to the elastic search. Logstash provides additional features when compare to the EFK.
+
+Note:
+Here Instrumenting means include and isolation means grouping.
+
+Tracing:
+Tracing will give the complete information about the request from start point to end like how the request flows in the application and also give you the information about how much time it’s taken to process that time. By using this you can analyse how much time it suppose to take. 
+In tracing they are two parts. First part is, developer needs to instrument the tracing the application using open telemetry. Second part is,  DevOps engineers need to install the tracing tool called Jaeger to collect the tracing. If part one is not done then there is no use of part 2 and vice versa. 
+
+Tracing is nothing but the time taken for the each request from one point to another 
+
+Architecture of tracing using Jaeger:
+They are four components in Jaeger:
+They are 1. Agent 
+                2. Collector
+                3.DB
+                4. UI
+
+1. Agent: Agent is installed in Kubernetes and it collects all the traces that are instrumented by the developers and send to collector.
+2. Collector: Collector collects all that information and sends to the DB.
+3. DB is to store the traces information and here DB will not come by default, you need to install it like elastic search.
+4. UI: through UI, you can write queries and retrieve that information from the DB.
+
+Note:
+In AWS, if one service need to talk with another service then you need IAM role. Similarly, when the pod that is deployed in EKS need to talk with the services in AWS, we will create the service account for the pod and we will link the service account to the IAM role using OIDC connector.
+
+Why we need to use open telemetry while instrumenting:
+There are 100’s of observability tools present in the market. Let’s say your company is using data dog and in future company wants to migrate to another tool. Which very difficult because we need to instrument the whole application for metrics, logs and traces. Instead we can use open telemetry which is not specific to one tool. Instrument using open telemetry and in exporter file mention the who wants to receive this logs, metrics and traces. That’s it. In exporter file, for metrics we can use prometheus and for logs we can use EFK and for traces we can use Jaeger. These details needs to mention in exporter file. In future, if you want to move from one tool to another tool. It is very simple, in exporter file mention the receiver details.
