@@ -364,13 +364,196 @@ Architecture of LINUX:
 * nproc -> to see how many cpu's used.
 
 
+*****************************************************************Linux Interview questions*****************************************************************************
 
 
-                                
-                               
+1.command to check kernel version:
+uname -a -> to display all the information like kernel version, hostname and architecture.
+uname -r -> to display only kernel version
+
+2. create new user and add it as sudo:
+sudo adduser username
+sudo usermod -aG sudo username.
+su username to switch into the user and sudo whoami to verify sudo user or not.
+
+3.pgrep -f1 a -> to list all the running process with a and id of the process
+kill process-id -> to delete it.
+
+4.command to list all the files with less than SMb:
+find mention-path-type f -size -5M
+here -type f means search only files -size -5M means M means megabytes and means less than
+
+5.command to check disk space usage and free RAM
+df -h and free -h (here -h means human readable format).
+
+6.command to check the list of installed packages:
+dpkg -1 -> for ubuntu
+rpm -qa -> for centos
+
+ 7. command to check your linux filesystem:
+df -T -> quick overview of filesystem types
+1sblk -f -> details view with device and mount point information.
+
+8. how to sort content in a file in linux:
+sort -r filename
+
+9. how to display unique content from a file in linux:
+sort file | uniq
+
+10. how to search the multiple words and display the matched content from a file in linux:
+grep -1 -E "word1 word2" filename
+
+11. how to count no. of lines in a file in linux:
+wc-1 filename
+
+12. how to display starting two characters of all lines:
+cut-c 1-2 file.text
+
+13. how to check cpu/core/thread info of your linux server:
+1scpu
+
+14. if you want to run a script or task in background even if you close your terminal. what is the way?
+using nohup command
+
+15.which command is used to display a list of currently configured physical volumes:
+pvdisplay it will display detailed information about physical volumes.
+
+16. what is the first line typically written in a shel script? what is its meaning? what happens if this line is omitted, and how do you run the script in such a case? 
+
+A: First Line in a Shell Script:
+   #!/bin/bash (shebang)
+
+  Meaning:
+  - Specifies the interpreter to execute the script (e.g., /bin/bash for Bash).
+
+  If Omitted:
+  - The default shell (e.g., /bin/sh) runs the script, which may cause errors if syntax differs.
+
+  How to Run Without Shebang:
+  - Explicitly specify the shell:
+    bash script.sh
+
+17. Crontab (cron table) is a configuration file used to schedule and automate tasks (cron jobs) at specified times or intervals.
+
+How It Works:
+Cron Daemon reads crontab files and executes listed tasks at scheduled times.
+
+Jobs are defined in a specific format:
+javascript
+
+* * * * * /path/to/command
+
+{ Each * represents a time field:
+Minute (0-59)
+Hour (0-23)
+Day of Month (1-31)
+Month (1-12)
+Day of Week (0-6, Sunday=0) }
+
+Configure and Schedule a Job:
+
+Edit Crontab File:
+Open crontab editor:
+bash
+crontab -e
+
+Add a Job:
+Example: Schedule a script to run daily at 3:00 AM:
+javascript
+0 3 * * * /path/to/script.sh
+
+Verify Scheduled Jobs:
+List current crontab jobs:
+crontab -l
+
+18. How do you allow ports in linux ?
 
 
+A:  Allowing ports involves configuring the system's firewall to accept traffic on specific ports. This is essential for enabling services like HTTP, SSH, or custom applications to communicate over the network. Common tools include:
+
+ufw: Simplified firewall management.
+iptables: Advanced packet filtering and port management.
+firewalld: Dynamic firewall with zone-based configuration.
 
 
+19. what are ping, telnet, curl, wget?
+
+Ping: Tests connectivity to a host by sending ICMP echo requests and measuring response time.
+Telnet: Connects to a remote host on a specific port, often used for testing network services.
+Curl: Transfers data from or to a server using various protocols (HTTP, FTP, etc.), commonly used for API testing.
+Wget: Downloads files from web servers, supporting recursive downloads and resumption.
+
+
+20. how can you check status of a services in linux machine?
+
+1. systemctl - systemctl status <service_name>
+
+2. Checking Process Directly: ps aux | grep <service_name>
+
+3. For Specific Ports : netstat -tuln | grep <port_number>
+
+
+21. how do you kill a process in linux?
+
+Find the Process ID (PID):
+ps aux | grep <process_name>
+
+Kill the Process by PID:
+kill <PID>
+
+Force Kill (if necessary):
+kill -9 <PID>
+
+Kill by Name:
+pkill <process_name>
+
+22. how do you check cpu utilization in linux?
+
+cat /proc/stat
+mpstat
+vmstat 1
+htop
+top
+
+23. what are differnces etween top and htop ?
+
+Top: A command-line tool for real-time system monitoring, displaying CPU, memory, and process stats.
+Htop: An interactive, user-friendly version of top with a colorful interface, process tree, and easier navigation.
+
+Interface: htop has a more user-friendly, colorful interface; top is basic and text-based.
+Interactivity: htop allows mouse interaction and easier navigation; top is less interactive.
+Process Management: htop lets you manage processes (e.g., kill, renice) directly; top requires more commands for such actions.
+Customization: htop provides more options for sorting and display customization.
+
+24. what are grep and egrep commands in Linux?
+
+grep: Searches for a specified pattern in a file or input stream and prints matching lines.
+grep "pattern" file.txt
+
+egrep: An extended version of grep that supports extended regular expressions (ERE), allowing more complex patterns.
+egrep "pattern1|pattern2" file.txt
+
+egrep is effectively grep -E.
+
+25. how can you list only directories in Linux?
+
+ls -d */
+
+26. How do check the processes running in Linux?
+
+ps aux
+top
+htop
+pgrep <process_name>
+pstree
+
+
+27. what does netstat command do in linux?
+
+The netstat command in Linux displays network connections, routing tables, interface statistics, and other network-related information, such as open ports and active connections.
+
+netstat -tuln
+
+This shows all active TCP/UDP connections with listening ports.
 
 
