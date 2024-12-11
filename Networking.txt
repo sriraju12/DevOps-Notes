@@ -1,0 +1,21 @@
+Networking:
+
+CIDR:
+Let’s how we can calculate the CIDR:
+
+Let’s say you want 32 ip address then you write
+Like this,
+172.20.1.0/27 -> this CIDR range contains 32 ip address. 
+For the ip address, they are 4 byte or 32 bits.
+32-27 ‎ = 5 and 2 power 5 is 32. So the above ip address have 32 ip addresses. This how we can calculate the ip address for the CIDR.
+
+OSI MODEL:
+Let’s see what are the 7 layers present in OSI Model:
+Application layer  -> Presentation layer  -> Session layer  -> Transport layer -> Network layer  -> Data link layer  -> Physical layer
+
+Let’s how request goes to the application from the browser using OSI Model:
+
+When the user sends request in the browser, first it will check whether you have entered name should resolves to any DNS(Domain Name System) and also it checks. For that first, from browser it will check the request whether it is HTTP or HTTPS which is application layer. And after that data is encrypted or formatted which is Presentation layer. After that it will create the session because it will stop you to login multiple times which is session layer. These three layer are happened in the browser itself.  After that data is segmented or divided into small packets and also uses TCP/UDP protocol which is based on the application layer which is transport layer. After that small packets of data will be send to the router which is network layer. After that data will be converted into frames passes to switch which is data link layer. And after that through switch, data will be send to the optical cable using electronic  signals which is physical layer. This how request goes from browser to the application. The response will be vice versa like physical layer to application layer
+
+========================================================================
+
