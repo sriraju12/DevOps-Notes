@@ -1296,6 +1296,54 @@ Let’s see the steps how we can automate the infrastructure for VPC using terra
 15. Now we need to attach the load balancer and the target group.
 16. We need to create the load balancer listener. Which contains the load balancer, port , the protocol and the default action. In default action we need to mention target group and the type is forward. default action is, when the request comes to load balancer then it forward 16. to target group and then the target group to instances.
 
+#############################################################################################################################################
+
+interview questions:
+
+1.what is a statefile.
+statefile contains the information about the resources that are created in the cloud using terraform. It maintains the state between cloud and the new created terraform files.
+
+2.where do you store statefile.
+the best way to store statefile in S3 bucket using remote backend.
+
+3.what is a null resource in terraform.
+A null_resource in terraform is a special type of resource that doesnot manage any actual infrastructure like virtual machines or networks. Instead, it is used to performs actions such as running scripts, commands. it's useful when you need to automate tasks that are not directly related to infrastructure provisioning.
+For example, if you want to run the script everytime your infrastructure changes you can use a null_resource with local-exec provisioner to execute the script.
+
+4.what will appear in the terraform plan if you comment out a resource block in the creation of ec2 instance.
+when you comment out a resource block in terraform such as EC2 instance, and then run terraform plan. Terraform will detect that ec2 resource is no longer in your configuration and it will show this as a resource destruction. it will plan to destroy the ec2 instance during the next terraform apply.
+
+5.what is terraform refresh.
+Terraform refresh command that updates the terraform statefile with the latest data from your infrastructure. It syncs the statefile with the actual state of the resources by querying the providers API's for the current configuration of the resources.
+
+6.how to auto approve the terraform changes.
+To automatically approve changes in terraform without manually confirming them then you can use -auto-approve flag when you run the terraform apply like terraform apply -auto-approve
+usecase: when running terraform in an automated CI/CD pipeline where you don't want manual intervention for approval.
+
+7.what is private module registry in terraform.
+a private module registry helps organisations to store and share their own terraform modules securely, without making them public. It ensures that sensitive or internal infrastructure code stays within the organisation while still benefiting from reusable and version control modules.
+
+8.if you delete the local terraform statefile and it is not stored in the S3 or dynamoDB then how can you restore it.
+without a statefile, you lose terraform ability to track existing resources. terraform import command is your primary tool for manually rebuilding the statefile but it is time consuming.
+example: terraform import name_of_the_resource resource_id
+
+9.how would you upgrade the terraform plugins.
+1.update the version in the required_providers block.
+2.run terraform init -upgrade
+3.to verify the version run terraform providers -> it will list all the providers with the version and check the version you have upgraded.
+
+10.what apporach would you take to manage statefile when you are working with different environment.
+use workspaces because it maintains the separate statefile for each environment. Due to this conflicts will be resolved.
+
+11.how do you approach testing your terraform configurations before deploying to the aws 
+use terraform plan -> it will show all the details like what are created or destroyed.
+for deploying into production, please test it isolated environments using CI/CD to avoid the unwanted errors.
+
+12.how would you handle secrets management for AWS resources in terraform configuration.
+store the secrets in aws secrets manager and use it terraform configuration using data block. data block is used to fetch the details from cloud and resource block is used to create the resources in the cloud.
+
+13.what is terraform graph.
+terraform graph is a command in terraform helps you see how resources in your configuration are connected to each other. it creates a dependency graph showing which resource depends on which other resource.
 
 
 
