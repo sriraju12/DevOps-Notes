@@ -469,3 +469,26 @@ Docker interview Questions:
                    custom bridge networks and assign them to isolate containers.
 
                  3.use utilities like sync to scan your container images.	
+
+############################################################################################################################################
+
+1.how to remove all unwanted or unused docker object from system.
+docker system prune -a 
+
+2.Is dockerfile immutable.
+No, dockerfile is not immutable. it is a plan text file that defines the instructions to build a docker image. Docker Images build from the dockerfile are immutable.
+
+3.what is dockerfile.
+A Dockerfile is a script containing a set of instructions that are used to build a docker images.
+
+4.difference between docker engine and docker container.
+docker engine:
+Docker Engine is the core software that provides the runtime environment for building, running and managing docker container. it act as foundation for all docker operations.
+example: when you run a command like docker run, the docker engine is responsible for pulling the image,creating the container and starting it.
+
+docker container:
+A Docker Container is a light weight, isolated runtime environment created by docker engine from a docker image. To run application in environment. docker container encapsulates the application and it's dependencies.
+example: A container running nginx is created using nginx docker image and it runs as an isolated service managed by docker engine.
+
+5.what is the purpose of the .dockerignore file.
+The .dockerignore file serves to specify which files and directories should not be included when building a docker image from the current context. This is particularly useful for preventing unnecessary files from being copied into the docker image, which helps to reduce the image size etc.
