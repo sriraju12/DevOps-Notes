@@ -903,6 +903,69 @@ if you are doing it manually there is a chance of errors.
 
 16.what do you think that ansible can improve :
                                                  the window support for ansible should be improve. and ansible does not support such IDE's.
+
+############################################################################################################################################
+1.what are loops in ansible.
+loops in ansible are are used to reduce the work of repeatative task. For example, if you want to install multiple package or softwares like
+nginx, git, httpd, wget etc then you need to create the separate task for each one which is kind of repetative thing. Instead of writing
+multiple task we can use loops.s
+
+2.Ansible Roles.
+In playbook YAML file we write everything in the one playbook only i.e vars, tasks, handlers and meta data. if the playbook is huge
+let's say 20 vars , 70 tasks etc. which is not much readable and the person who open this file lost his interest after seeing this many lines of code and maintainance is also difficult.
+
+                 * to solve this problem, ansible roles come into play where we separate the vars in one file, tasks in one file and handlers 
+                   in one file and metadata in one file. which is more readable and maintainance is also simple.
+
+                 * the other advantage with the ansible role is we can share roles across organization.
+
+3.Is ansible idempotent.
+if you take bash script, you have written the script and executed the script and again 2nd time you have scripted the script then the script will fail because the things already present. If you take ansible, the script will not fail because the ansible maintain the state.When you execute the script then it will compare the previous state and the current state, if there are any changes then it will make modifications.s
+
+4.ansible script to install nginx.
+
+- name: nginx setup
+  hosts: dbservers
+  become: yes
+  tasks:
+    - name: Install nginx
+      ansible.builtin.yum:
+        name: nginx
+        state: present
+
+5.conditional in ansible.
+condition in ansible is, when you have to perform some action based on the something we can use "when" in ansible for conditions. For example,
+if you want to install software based on the operating system then we can use "when" condition to achieve this scenario.
+
+6.what are the pre-requisites to use ansible.
+ ansible is agentless and you don't need to install any agent on the target machines, the only thing that you need to install on the target
+ machine is python because ansible converts the ansible script file into python code and then execute the script in target machines.
+
+7.what are the different types of modules present in ansible.
+In ansible, modules are core units of functionality that allow users to perform various automation tasks such as core modules which contains
+commands, file management like copy,file etc and package management like apt,yum etc. cloud modules which are used to automate cloud infrastructure, database module which contains information about configuration details of DB like mysql_user, mysql_db etc etc.
+
+8.you want to install nginx on group of servers and want to skip installation on specific server on that group. how can you achieve this.
+by adding tags in the task and while running the playbook pass --limit tag-name then it will install only on that servers.
+
+9.how do you perform dry run for ansible playbook.
+ansible-playbook name-of-the-playbook -i inventoryfile --check or -C
+
+10.how do you handle sensitive information such as api keys or passwords in ansible.
+   By using anisble vault we can store passwords in a file and that file is encrypted and also protected with password.
+
+11.how to continue playbook task if some of the tasks fail in ansible playbook.
+   for every task at the end add ignore_errors to true then if one task fail in playbook still other tasks will execute.
+
+12.can we create infrastructure using ansible.
+yes we can infrastrcture using ansible collections and ansible also used to deployment but primary purpose of ansible is configuration management.
+
+13.what is ad-hoc commands in ansible.
+adhoc commands are one-liner commands used to perform quick tasks on the manage nodes(target machines) without writing the ansible playbook.
+For example, to shutdown the ec2 instances, creating file or copying a file etc.
+
+14.what is the advantage of ansible over chef.
+chef is also configuration management tool. To use chef, you need to install the agent on the target machines also learning chef is difficult. This problems will be solved by ansible.
                                                  
  
 
