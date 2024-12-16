@@ -1149,6 +1149,326 @@ In Kubernetes, JSONPath is used to extract and manipulate specific fields from J
 
 kubectl get pods -o jsonpath='{.items[*].metadata.name}'
 
+############################################################################################################################################
+
+interview questions:
+
+1.what is the difference between stateful and stateless in kubernetes.
+Stateless Applications:
+What it means: Stateless means that the application doesn’t remember anything between sessions or requests. Each time it gets a request, it starts fresh without any memory of previous requests.
+Example: Imagine a web server that shows a webpage. Every time you visit, it doesn’t remember anything about your last visit—just a clean page every time.
+How it works in Kubernetes: If a stateless app's pod (container) crashes or gets replaced, Kubernetes doesn’t need to worry about restoring any data because the app doesn’t store anything locally. You can easily add or remove pods without worrying about losing data.
+Stateful Applications:
+What it means: Stateful means the application needs to remember things across requests. It keeps track of data or information even if it restarts.
+Example: A database like MySQL. It needs to remember your data (like customer information) even if the server goes down and comes back up.
+How it works in Kubernetes: Kubernetes has to make sure that if a stateful app's pod restarts or scales, it can still access its data. Kubernetes ensures that each pod has its own "identity" and access to persistent storage (so the data doesn’t get lost when the pod restarts).
+
+In Kubernetes:
+Stateless apps are managed by a Deployment, which makes it easy to add/remove pods without worrying about data.
+Stateful apps are managed by a StatefulSet, which ensures that each pod has its own identity and access to data, so it can “remember” information across restarts.
+
+2.what are kubernetes services and explain each of them.
+n Kubernetes, Services are used to expose and manage access to your applications (running in pods) in a way that's reliable and consistent. They allow communication between different parts of your application or with external users, even as your pods are created, destroyed, or moved around.
+
+ClusterIP = A private, internal address to talk to services in your cluster.
+NodePort = A way to expose your app on a specific port on all the machines in the cluster.
+LoadBalancer = A fancy, cloud-managed service that gives your app a public IP and distributes traffic to it.
+
+3.explain kubernetes architecture.
+Kubernetes is a platform for managing and automating the deployment, scaling, and operation of containerized applications.
+Main Components of Kubernetes Architecture
+1.Master Node (Control Plane)
+2.Worker Nodes
+
+1.Master Node (Control Plane)
+The Master Node is like the "brain" or the manager of your Kubernetes cluster. It makes all the important decisions (like scheduling and monitoring) and keeps track of what's happening inside the cluster.
+
+Main parts of the Master Node:
+
+API Server: This is like the front desk of the Kubernetes control plane. It receives all the requests (from users or other parts of Kubernetes) and processes them. It communicates with all the other components.
+Scheduler: Think of the scheduler as a "traffic manager" who decides which worker node (machine) should run which container (pod). It assigns workloads to the nodes based on availability and resources.
+Controller Manager: It ensures that the desired state of the system matches the actual state. For example, if you need 5 instances of a service running and one fails, the controller manager makes sure a new one gets started automatically.
+etcd: This is a key-value store where all the important cluster data (like configuration and state information) is saved. It’s like the "memory" of Kubernetes, storing everything about your cluster’s state.
+
+2.Worker Nodes
+Worker Nodes are the machines (physical or virtual) that actually run your applications (in containers) and do the work. They receive instructions from the master node.
+
+Main parts of a Worker Node:
+
+Kubelet: The "worker" that listens to the master and ensures that the containers (pods) are running properly on the node. It takes orders from the master node and keeps the containerized apps healthy.
+Kube Proxy: It manages network communication between pods, ensuring that traffic is correctly routed to the right application. It helps with things like load balancing and service discovery.
+Container Runtime: This is the software that runs your containers. For example, Docker or containerd. It’s responsible for running the actual application inside the container.
+
+4.what are resource requests and limits in kubernetes.
+A resource request is the minimum amount of resources (CPU and memory) that a container needs to run properly. It’s like telling Kubernetes, "This is the minimum I need for this container to run."
+A resource limit is the maximum amount of resources (CPU and memory) that a container can use. It’s like telling Kubernetes, "This is the maximum I allow this container to use."
+
+Request is like the minimum amount of resources the container needs to run.
+Limit is like the maximum amount of resources the container can use.
+
+Real-Life Analogy:
+Imagine you're running a small office with multiple employees (containers) working on different tasks:
+
+The request is like telling the office manager how much desk space (memory) and how many computers (CPU) you need to do your work comfortably. The manager uses this information to assign you an appropriate desk.
+
+The limit is like telling the manager that even if you really want to, you're not allowed to take up more space than a certain amount. If you start taking over more than your share, the manager will stop you (or kick you out of the office if necessary!).
+
+5.difference between secrets and configmaps in kubernetes.
+A ConfigMap is used to store non-sensitive configuration data that your application might need, such as environment variables, configuration files, or command-line arguments.
+A Secret is used to store sensitive data such as passwords, API keys, or any information that needs to be kept private and secure.
+
+6.difference between deployment,stateful and replica set.
+In Kubernetes, Deployments, StatefulSets, and ReplicaSets are all controllers used to manage the deployment and scaling of application pods.
+
+A Deployment is a higher-level controller used for managing stateless applications that can be easily scaled, updated, and replaced without worrying about maintaining the state.
+Key Features:
+Stateless Applications: It is used for applications where the pods do not need to persist data. For example, web servers or API servers.
+Rolling Updates: Deployments automatically handle rolling updates, meaning you can update your application without downtime by gradually replacing old pods with new ones.
+Scaling: You can easily scale the number of pod replicas (copies) up or down.
+
+A StatefulSet is a controller used for managing stateful applications that need to maintain identity, stable storage, and persistent state across pod restarts.
+Key Features:
+Stateful Applications: It is used for applications that need to remember data or have unique identities (like databases or message queues). Each pod gets a stable network identity (e.g., my-statefulset-0, my-statefulset-1).
+Persistent Storage: StatefulSets can be used with Persistent Volumes (PVs), so that data is preserved even if the pod is restarted.
+Ordered Deployment: Pods in a StatefulSet are created and terminated in a specific order, which is important for some stateful applications (like a database cluster that needs pods to be started in a specific order).
+
+A ReplicaSet is a lower-level controller that is responsible for maintaining a specified number of replicas (pods) of a pod running at all times. It is often used indirectly through Deployments, as a Deployment automatically creates and manages a ReplicaSet.
+Key Features:
+Basic Scaling: It ensures that a specific number of identical pods are running at any given time.
+No Updates or Rollouts: Unlike Deployments, ReplicaSets don't handle rolling updates or versioning of the pods. They simply ensure the number of pods is as requested.
+No State Management: ReplicaSets are for stateless applications, just like Deployments, but they don't have features like ordered deployment or stable network identities.
+
+7.what is the role ETCD in kubernetes.
+etcd is a key-value store that holds all the configuration and state data for your Kubernetes cluster.
+It helps Kubernetes track and manage the desired and actual state of resources (pods, services, deployments).
+etcd is critical for ensuring the stability and reliability of the Kubernetes cluster, acting as the central database for the entire cluster's state.
+Without etcd, Kubernetes wouldn't be able to remember what should be running, where it should be running, or what the current state of the cluster is.
+
+8.how rolling update works in a deployment.
+In Kubernetes, a Rolling Update is a strategy used in a Deployment to update the application without causing downtime. It gradually replaces the old version of your app with the new version, one pod at a time (or in small batches). This allows your application to continue serving traffic while it’s being updated.
+
+How Rolling Update Works in a Deployment:
+Let's say you have an application running with 5 replicas (pods), and you want to update the application to a new version.
+
+Start with the Current Version:
+Initially, the Deployment has your app running with 5 replicas, each running the old version of the application.
+
+Update the Deployment:
+When you update the Deployment (for example, changing the container image to a new version), Kubernetes will begin a rolling update to replace the old pods with new ones that use the updated container image.
+
+Gradual Replacement:
+
+Kubernetes will not replace all pods at once. Instead, it will replace them one by one or in small batches. This ensures that there are always some running pods to handle traffic, avoiding downtime.
+For example, if you have 5 pods, Kubernetes might stop and replace 1 pod at a time. So, there will always be 4 pods running the old version and 1 pod running the new version during the update.
+Health Checks:
+
+Kubernetes checks if the new pods are running successfully (healthy) before replacing the next pod. If a new pod is not healthy (it fails a readiness probe), Kubernetes will stop and wait for it to become healthy before proceeding.
+If something goes wrong with the new pods, Kubernetes can rollback to the previous version to ensure your application remains stable.
+Complete the Update:
+Once all the old pods are replaced by the new ones, the update is complete. All the pods are now running the new version of the application.
+
+9.what are the different types of kubernetes volumes.
+PersistentVolume (PV) and PersistentVolumeClaim (PVC)
+What it is: This is a more advanced and flexible storage option.
+A PersistentVolume (PV) is a piece of storage provisioned by an administrator or dynamically created based on storage classes.
+A PersistentVolumeClaim (PVC) is a request by a user for a specific amount of storage from a PV. It’s like asking for a certain amount of space on a disk.
+When it’s used: It’s used when you need persistent storage that will survive pod restarts and even pod deletions. The data is stored outside the pod, often on network storage, and can be reused by different pods even if the pod is rescheduled to another node.
+Use case: For databases, file storage, or any other application that needs data persistence across pod restarts.
+
+ConfigMap and Secret Volumes
+What they are:
+ConfigMap Volumes store configuration data (non-sensitive) that your app can use at runtime, like environment variables or configuration files.
+Secret Volumes store sensitive information, such as passwords, API keys, or certificates, and provide an encrypted way to store this data securely.
+When they’re used: These volumes are useful for storing application configuration or secrets that your containers need to function but want to keep separate from the container image itself.
+Use case: Use a ConfigMap to store configuration files for your app or a Secret to securely store API keys and passwords.
+
+10.if a pod is in crash loop, what might be the reason and how to recover it.
+When a pod is in CrashLoopBackOff, it means it keeps failing to start up. This happens for various reasons, such as:
+Errors in the application code (bugs or crashes),
+Missing or wrong configurations (environment variables, files),
+Resource problems (using too much memory or CPU),
+Connectivity issues (can't reach other services it depends on).
+
+To recover:
+Check the logs to find out why the pod is failing.
+Inspect the pod configuration (resources, environment variables, volume mounts).
+Fix the error (update the code, adjust configuration, increase resources).
+If needed, delete the pod and let Kubernetes create a new one.
+
+11.what is the difference between statefulset and daemon set.
+In Kubernetes, both StatefulSet and DaemonSet are controllers used to manage the deployment and scaling of pods
+A StatefulSet is used when you need to run pods that require stable, persistent storage and maintain unique network identities across restarts. It’s typically used for applications like databases or any application that needs to remember its identity (like Redis, MySQL, Cassandra).
+
+A DaemonSet ensures that a copy of a specific pod runs on every node in the cluster (or a subset of nodes). It's useful when you need certain types of pods (like logging agents, monitoring agents, or network proxies) running on every node in your cluster.
+Use Case: If you need to deploy a pod on every worker node in the cluster, such as a log collection agent (like Fluentd), monitoring agent (like Prometheus Node Exporter), or network proxy.
+
+12.what is sidecar container in kubernetes and whar are it's usecases.
+A sidecar container in Kubernetes refers to a helper container that runs alongside the main container within the same Pod. The sidecar container is not the primary application but performs supporting tasks that enhance or extend the functionality of the main application container.
+Real-World Example of Sidecar:
+Imagine you're running a web application in a Kubernetes pod. You have a main container that serves the website, but you also want to:
+Log user requests: You could run a Fluentd sidecar container to collect and send the logs to a logging system like ELK or Splunk.
+Monitor application performance: You could run a Prometheus exporter sidecar container to collect metrics like response time and request count, which can then be scraped by Prometheus for monitoring.
+Secure traffic with TLS: You might use a proxy sidecar (e.g., Envoy) that manages TLS encryption and ensures all traffic to and from your web app is secure.
+
+13.what is kubernetes and why it is used.
+Kubernetes (often abbreviated as K8s) is an open-source platform that helps you manage and orchestrate (automate) the deployment, scaling, and operation of containerized applications.
+why it is used:
+It’s used because it makes deploying, scaling, and managing applications (especially complex ones) much easier and more reliable. It also helps ensure that your applications stay up and running without manual intervention.
+
+14.what is pod in kubernetes.
+A Pod is the smallest unit of work in Kubernetes.
+A Pod can hold one or more containers that share the same network and storage resources.
+Pods are temporary and can be automatically replaced by Kubernetes if they fail.
+Pods allow you to manage containerized applications in a scalable and automated way in Kubernetes.
+
+15.what are kubernetes ingress.
+Ingress is like a gatekeeper that manages how external traffic (from the internet) gets into your Kubernetes cluster and how it is routed to different services inside.
+Ingress is a way to manage external HTTP/HTTPS traffic to services inside the cluster.
+It allows you to define routing rules (path-based, host-based), handle SSL termination, and provide load balancing.
+How Does Ingress Work?
+Ingress works by defining rules for how traffic should be routed. It usually relies on an Ingress Controller (like NGINX or Traefik) to actually implement the rules.
+
+Here’s a basic flow:
+Ingress Resource: You define an Ingress resource, which specifies how external traffic should be routed to services. For example, you might route traffic coming to example.com/api to one service and traffic coming to example.com/login to another service.
+Ingress Controller: The Ingress Controller listens for incoming requests and uses the rules in the Ingress resource to decide where to send the traffic (which service and which port).
+
+16.explain the concept of service mesh in kubernetes.
+A Service Mesh is a dedicated infrastructure layer that helps manage and secure the communication between microservices in a Kubernetes cluster. It provides features like traffic management, security, observability, and reliability for the services running inside the cluster, without needing to modify the application code.
+
+How Does a Service Mesh Work?
+A Service Mesh works by using sidecar proxies that are deployed alongside each microservice. These proxies intercept the communication between services and handle tasks like routing, load balancing, and security.
+Here's how it works in simple terms:
+Sidecar Proxy: A sidecar proxy is a small helper process that runs alongside your application containers in the same Pod (just like sidecar containers). This proxy intercepts and manages all the network traffic to and from the service it’s running with.
+Control Plane: The control plane is responsible for configuring and managing the mesh. It decides how traffic should be routed, how services should be secured, and gathers data on the performance of the services. It pushes these configurations to the proxies.
+Data Plane: The data plane consists of the sidecar proxies deployed with the services. The proxies handle the actual traffic and enforce the policies set by the control plane.
+
+17.what is namespace and why it is used.
+A Namespace is like a folder or container where you can organize and manage your Kubernetes resources, helping to avoid conflicts and manage access for different teams or projects.
+Namespace is a way to organize and isolate resources in a Kubernetes cluster.
+It helps you separate different environments (dev, staging, prod), teams, or applications within the same cluster.
+Namespaces provide resource isolation, access control, and avoid name conflicts.
+By using namespaces, you can better manage and secure large-scale Kubernetes clusters.
+
+18.how does kubernetes handles pod failures.
+Kubernetes monitors the health of Pods and automatically restarts or replaces failed Pods to ensure the desired application state.
+ReplicaSets and Deployments ensure the right number of Pods are running, even if some Pods fail.
+Kubernetes can reschedule Pods to different nodes if a node fails.
+Kubernetes can scale the number of Pods if needed to handle increased load.
+
+19.what are the different workloads in k8's.
+pod,deployment,relica sets,daemon sets,statefulsets,job and cronjob.
+
+20.what is the difference between replicationController,replicasets and deployment.
+The ReplicationController is the oldest controller in Kubernetes for managing a set of identical Pods. Its main job is to ensure that a specific number of Pods (replicas) are running at all times. If a Pod fails, the ReplicationController will create a new one to maintain the desired number of replicas.
+A ReplicaSet is a more advanced and flexible version of the ReplicationController. It has the same basic function of ensuring that a specified number of identical Pods are running, but with added features and better support for newer Kubernetes features.
+A Deployment is the most advanced and recommended way to manage Pods in Kubernetes. It builds on top of ReplicaSets and provides even more functionality, including rolling updates, rollbacks, and version management.
+
+21.how does kubernetes manages internal and external networking.
+Internal Networking in Kubernetes:
+Internal networking refers to communication within the Kubernetes cluster between different Pods and services.
+1.Pod-to-Pod Communication:
+Pods in Kubernetes can communicate with each other directly using their IP addresses. Each Pod gets its own unique IP address in the cluster, and Pods can reach each other using these IPs.
+example:If you have two Pods running on different nodes, they can still talk to each other directly using their IP addresses.
+2.Services:
+A Service in Kubernetes is an abstraction that allows Pods to communicate with each other without needing to know their exact IP addresses. A Service creates a stable DNS name or IP address that can be used to access a set of Pods.
+example:A web application running in one Pod can access a database running in another Pod by referring to the Service name (e.g., database-service) instead of the Pod's IP address.
+3.DNS in Kubernetes:
+Kubernetes includes a DNS server that allows services and Pods to be discovered by name. This means you don’t need to worry about IP addresses — you can use the Service name, and Kubernetes will resolve it to the right IP address.
+For example, if you create a Service named frontend-service, other Pods in the cluster can reach it by using the DNS name frontend-service.
+4.Kubernetes allows you to define Network Policies to control which Pods can communicate with each other. This is useful for implementing security and isolation between different parts of your application.
+Example: You can set up a Network Policy that only allows Pods in the frontend namespace to access Pods in the backend namespace, and deny access to Pods in other namespaces.
+
+External Networking in Kubernetes:
+External networking refers to how your Kubernetes cluster communicates with the outside world (internet or other systems outside the cluster).
+1.nodeport
+2.load balancer
+3.ingress controller
+
+Internal Networking: Kubernetes allows Pods and Services to communicate with each other easily using unique IPs and DNS names. Services like ClusterIP help Pods find each other and talk to one another without worrying about IP addresses.
+External Networking: To allow external traffic to reach your cluster, Kubernetes uses NodePort, LoadBalancer, and Ingress. These methods expose your services to the outside world, whether it's through a port on your node, a load balancer, or HTTP routing based on rules.
+
+22.what are persistent volumes and persistent volume claims.
+A Persistent Volume (PV) is a piece of storage in your cluster that has been provisioned by an administrator or dynamically by Kubernetes. It represents the actual storage resource that can be used by your applications.
+Example: You could have a 100GB disk (like an AWS EBS volume) that you allocate as a Persistent Volume in your cluster. This volume could be used by your database Pod to store its data permanently, even if the Pod is restarted.
+
+A Persistent Volume Claim (PVC) is a request made by a user (or Kubernetes workload) for a specific amount of storage from the available Persistent Volumes in the cluster.
+Example: If your database needs 10GB of storage, you can create a PVC requesting 10GB of storage. Kubernetes will either assign an existing PV or create a new one to fulfill the claim.
+
+23.explain the process of binding PV to a PVC in k8's.
+In Kubernetes, Persistent Volumes (PVs) and Persistent Volume Claims (PVCs) work together to manage storage for your applications. The PVC is a request for storage by the user, and the PV is the actual storage resource that gets allocated. 
+steps:
+1. Create a Persistent Volume (PV)
+Before a PVC can be bound to a PV, the PV must first exist. The administrator typically creates a Persistent Volume (PV), which represents the actual storage resource in the Kubernetes cluster. This PV can be backed by a variety of storage solutions like cloud storage (e.g., AWS EBS, Google Persistent Disk), NFS, or even local disks.
+2.Create a Persistent Volume Claim (PVC)
+A Persistent Volume Claim (PVC) is created by the user (or the Kubernetes application) to request a specific amount of storage. It specifies the desired storage size, access mode, and optionally, a storage class that matches the PV.
+3.Once both the Persistent Volume (PV) and Persistent Volume Claim (PVC) are created, Kubernetes handles the binding process automatically. Here’s how it works:
+1.Matching Criteria which includes storage size,access mode and storage class.
+2.Binding: Once a suitable match is found, Kubernetes binds the PVC to the PV. This means the storage is now allocated to the PVC, and the PVC can be used by a Pod.
+3.Pod Access: Once the PV and PVC are bound, the Pod that needs persistent storage can use the PVC. The PVC is then mounted into the Pod, allowing the Pod to read from and write to the storage.
+4.What Happens After Binding
+PV and PVC remain bound: Once the PVC is bound to a PV, they stay bound until the PVC is deleted.
+
+24.what is HPA in k8's.
+The Horizontal Pod Autoscaler (HPA) is a feature in Kubernetes that automatically adjusts the number of Pods in a deployment, replica set, or stateful set based on metrics like CPU utilization, memory usage, or custom metrics (like request rates, error rates, etc.). In simple terms, HPA scales the number of Pods up or down based on the workload, ensuring that your application can handle varying amounts of traffic or load.
+
+25.difference between cluster autoscaler and HPA.
+Cluster Autoscaler (CA):
+Scales nodes in the Kubernetes cluster.
+Purpose: When there are not enough resources (CPU, memory) in the cluster to schedule the required Pods, Cluster Autoscaler can add more nodes to the cluster.
+Scaling Action: Adds or removes worker nodes (VMs or physical machines) to/from the cluster.
+Horizontal Pod Autoscaler (HPA):
+Scales Pods in a deployment, replica set, or stateful set.
+Purpose: HPA automatically adjusts the number of Pods based on observed metrics (like CPU or memory usage).
+Scaling Action: Adds or removes Pods to/from the application based on resource demand.
+
+26.what is RBAC in kubernetes.
+RBAC stands for Role-Based Access Control. It's a way of managing and controlling who can access and perform actions in a Kubernetes cluster, and what actions they can perform on different resources. In simple terms, RBAC lets you define roles and permissions for users and services within a Kubernetes environment.
+
+RBAC is like a permissions system that defines who can do what in a Kubernetes cluster.
+You can define roles (like "admin", "read-only", etc.), then bind those roles to users or service accounts.
+It helps ensure that only the right people or applications can access or modify Kubernetes resources, based on their assigned role.
+
+27.what is difference between Role and clusterRole.
+In Kubernetes, both Role and ClusterRole are used in Role-Based Access Control (RBAC) to define what actions users or service accounts can perform on resources. 
+Role: Think of it as a local permission system, which works only inside a specific namespace.
+ClusterRole: Think of it as a global permission system, which works across all namespaces or for cluster-level resources.
+
+28.what is service account and why would you use it.
+A Service Account is like a digital identity for your application (running in a Pod) to interact with Kubernetes. Just like a person needs an ID card to prove who they are, a Service Account lets the application prove its identity to Kubernetes and ask for permission to do things like read data or create resources.
+Why Do You Need It?
+Applications (running inside Pods) often need to access Kubernetes resources like:
+Secrets (passwords or keys)
+ConfigMaps (configuration settings)
+Pods, Services, or Deployments
+But, Kubernetes needs to know who is asking for access and what they are allowed to do. A Service Account helps manage this securely.
+
+29.what is node affinity in k8's.
+Node Affinity is a way to tell Kubernetes where (on which nodes) you want your Pods to run, based on certain labels on the nodes.
+In simple terms, Node Affinity allows you to control or restrict which nodes a Pod can run on by matching labels attached to the nodes.
+In Kubernetes, you have different nodes (machines) that can run your Pods. Sometimes, you might want to run a Pod only on a specific node, or a certain type of node, for reasons like:
+Hardware requirements (e.g., you need a node with more memory).
+Special configurations (e.g., you want a Pod to run on a node that has a GPU).
+Node-specific tasks (e.g., you want certain workloads to run only on nodes in a particular zone or region).
+Node Affinity helps you ensure that your Pods are scheduled on the right nodes based on your needs.
+
+30.what is static pods.
+A Static Pod in Kubernetes is a Pod that is not managed by the Kubernetes control plane (like the Deployment or ReplicaSet controllers). Instead, it is directly managed by the Kubelet (the agent running on each node).
+Node-Specific: Static Pods run only on the node where the configuration is placed.
+No Kubernetes Controller: They're not managed by Kubernetes controllers like Deployments, so if the Pod is deleted or crashes, it won't be recreated unless the Kubelet detects the manifest file again.
+Used for System Components: Commonly used for essential system Pods (e.g., kube-proxy, DNS) that need to run on specific nodes.
+
+31.what is taint and toleration in k8's.
+In Kubernetes, Taints and Tolerations are a way to control which Pods can be scheduled onto which nodes. They help to restrict or allow Pods to run on certain nodes based on specific conditions.
+A Taint is a property that you can apply to a node, which prevents Pods from being scheduled on that node unless the Pod has a matching Toleration. Taints are like "labels" on nodes, but instead of describing a node's characteristics, they prevent Pods from being scheduled there unless they explicitly tolerate the taint.
+Why use Taints? Taints are used to mark nodes with special conditions (e.g., nodes with limited resources, nodes that are reserved for specific workloads, etc.). They ensure that only specific Pods can run on those nodes.
+
+A Toleration is a property that you can apply to a Pod, which allows the Pod to be scheduled on nodes that have a matching Taint. Tolerations allow Pods to "tolerate" or "ignore" the taints on certain nodes and be scheduled there.
+Why use Tolerations? Tolerations are used to make sure that a Pod can be scheduled on a node that has a Taint. They ensure that only Pods that are meant for a specific node can be placed on that node.
+
+
+
+
+
 
 
 
