@@ -18,4 +18,173 @@ Let’s how request goes to the application from the browser using OSI Model:
 When the user sends request in the browser, first it will check whether you have entered name should resolves to any DNS(Domain Name System) and also it checks. For that first, from browser it will check the request whether it is HTTP or HTTPS which is application layer. And after that data is encrypted or formatted which is Presentation layer. After that it will create the session because it will stop you to login multiple times which is session layer. These three layer are happened in the browser itself.  After that data is segmented or divided into small packets and also uses TCP/UDP protocol which is based on the application layer which is transport layer. After that small packets of data will be send to the router which is network layer. After that data will be converted into frames passes to switch which is data link layer. And after that through switch, data will be send to the optical cable using electronic  signals which is physical layer. This how request goes from browser to the application. The response will be vice versa like physical layer to application layer
 
 ========================================================================
+Networking: 
+            OSI(Open Systems Interconnection) Model : 
+                       physical layer(0's & 1's) -> data link layer(frames) -> network layer(packets) -> transport layer -> session layer ->
+
+                       presentation layer -> application layer. 
+
+
+Whenever the Physical layer receives the signal it converts into bits (0's & 1's) and it sends to Data Link layer.
+The data link layer make sure that the signal is error free from node to node over Physical layer, in this layer
+data is in frames.Then the data will pass to Network layer,the data is in packets and then data will pass to
+Transport layer,in this data will check end to end connections.session layer is to establish,manage and terminate
+session .presentation layer is to encrypt and decrypt the data.application layer is to allow acess to network resource
+ 
+
+
+
+OSI Model             DOD Model            Protocols             Devices/Apps
+
+
+5,6,7 layers         Application           dns,https,ssh etc      web server, mail server etc
+                     layer                 
+
+
+layer 4              host to host          tcp/udp                gateway
+
+
+layer 3              internet              ip                     router,firewall layer 3 switch
+
+
+layer 2              network acess         MAC Address            bridge layer 2 switch
+
+
+layer 1              network acess         eternet                hub
+
+
+
+Note:
+
+     1.ipv4 range -> 0.0.0.0 to 255.255.255.255
+     2.ip is of two types -> public ip is internet
+                             private ip is local network
+
+private ip is classfied into 3 classes and their ranges are
+                                                            1.class A => 10.0.0.0 to 10.255.255.255
+                                                            2.class B => 172.16.0.0 to 172.31.255.255
+                                                            3.class C => 192.168.0.0 to 192.168.255.255
+
+
+Protocols & port numbers:
+
+ 
+Label on column        Service name                      UDP and TCP port numbers
+
+1.DNS                  Domain name service-UDP           UDP 53
+
+2.DNS-TCP              Domain Name Service-TCP           TCP 53
+
+3.HTTP                 Web                               TCP 80
+
+4.HTTPS                Secure Web(SSL)                   TCP 443
+
+5.SMTP                 Simple Mail Transfer Protocol     TCP 25
+
+6.POP                  Post Office Protocol              TCP 109,110
+
+7.SNMP                 Simple Network Management         TCP 161,162 UDP 161,162
+
+8.TELNET               Telnet Terminal                   TCP 23
+
+9.FTP                  File Transfer Protocol            TCP 20,21
+
+10.SSH                 Secure Shell(terminal)            TCP 22
+
+11.AFP IP              Apple File Protocol/IP            TCP 44,548
+
+
+
+Network Commands:
+                  1.ifconfig -> it will show all active network interfaces with names
+                                    or
+                    ip addr show
+                
+                  2. ping ip(type total ip address) -> to check whether this ip is connected or not
+                  
+                  3.netstat -antp -> to see the open ports.Networking: 
+            OSI(Open Systems Interconnection) Model : 
+                       physical layer(0's & 1's) -> data link layer(frames) -> network layer(packets) -> transport layer -> session layer ->
+
+                       presentation layer -> application layer. 
+
+
+Whenever the Physical layer receives the signal it converts into bits (0's & 1's) and it sends to Data Link layer.
+The data link layer make sure that the signal is error free from node to node over Physical layer, in this layer
+data is in frames.Then the data will pass to Network layer,the data is in packets and then data will pass to
+Transport layer,in this data will check end to end connections.session layer is to establish,manage and terminate
+session .presentation layer is to encrypt and decrypt the data.application layer is to allow acess to network resource
+ 
+
+
+
+OSI Model             DOD Model            Protocols             Devices/Apps
+
+
+5,6,7 layers         Application           dns,https,ssh etc      web server, mail server etc
+                     layer                 
+
+
+layer 4              host to host          tcp/udp                gateway
+
+
+layer 3              internet              ip                     router,firewall layer 3 switch
+
+
+layer 2              network acess         MAC Address            bridge layer 2 switch
+
+
+layer 1              network acess         eternet                hub
+
+
+
+Note:
+
+     1.ipv4 range -> 0.0.0.0 to 255.255.255.255
+     2.ip is of two types -> public ip is internet
+                             private ip is local network
+
+private ip is classfied into 3 classes and their ranges are
+                                                            1.class A => 10.0.0.0 to 10.255.255.255
+                                                            2.class B => 172.16.0.0 to 172.31.255.255
+                                                            3.class C => 192.168.0.0 to 192.168.255.255
+
+
+Protocols & port numbers:
+
+ 
+Label on column        Service name                      UDP and TCP port numbers
+
+1.DNS                  Domain name service-UDP           UDP 53
+
+2.DNS-TCP              Domain Name Service-TCP           TCP 53
+
+3.HTTP                 Web                               TCP 80
+
+4.HTTPS                Secure Web(SSL)                   TCP 443
+
+5.SMTP                 Simple Mail Transfer Protocol     TCP 25
+
+6.POP                  Post Office Protocol              TCP 109,110
+
+7.SNMP                 Simple Network Management         TCP 161,162 UDP 161,162
+
+8.TELNET               Telnet Terminal                   TCP 23
+
+9.FTP                  File Transfer Protocol            TCP 20,21
+
+10.SSH                 Secure Shell(terminal)            TCP 22
+
+11.AFP IP              Apple File Protocol/IP            TCP 44,548
+
+
+
+Network Commands:
+                  1.ifconfig -> it will show all active network interfaces with names
+                                    or
+                    ip addr show
+                
+                  2. ping ip(type total ip address) -> to check whether this ip is connected or not
+                  
+                  3.netstat -antp -> to see the open ports.
 
