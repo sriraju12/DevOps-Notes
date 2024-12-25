@@ -10,11 +10,11 @@ TerraForm:
 
 * terraform fmt -> to format the terraform file i.e it will make the file in more readable way.
 
-* terraform plan -> it will show, what is the execution the file.
+* terraform plan -> it will show, what is the execution of the file.
 
 * terraform apply -> it will start executing the script.
 
-* terraform maintains the state i.e it stores the current information in the state, if you make any changes and apply the changes 
+* terraform maintains the state i.e it stores the current information in the statefile, if you make any changes and apply the changes 
   then it will compare the current state with remote state and then apply the changes.
 
 * terraform destroy -> it will delete the resources.
@@ -111,7 +111,7 @@ instance.tf file,
 
 
 Provisioners:
-              provisioning means when the vm is up or when the instance is going to launch at the you want to perform
+              provisioning means when the vm is up or when the instance is going to launch at that time you want to perform
               some tasks or operation in the vm.
 
 let's see how we can connect to Linux machine through terraform,
@@ -151,7 +151,7 @@ provisioner "file" {
 }
 
 More Provisioners:
-                     1. file -> the file provisioner is used to copy files or directori es
+                     1. file -> the file provisioner is used to copy files or directorises
                      2. remote-exec -> invokes a command/script on remote resource.(it will execute in remote machine)
                      3. local-exec -> provisioners invokes a local executable after a resource is created.(it will execute in local machine)
 
@@ -618,7 +618,7 @@ output "PUBLICIP" {
 
 
 CloudFormation:
-                  CloudFormation is a cloud automation tool just like Terraform.Only difference is t
+                  CloudFormation is a cloud automation tool just like Terraform.Only difference is,
 
                  coludformation is specific to aws and where as Terraform supports various types.
 
