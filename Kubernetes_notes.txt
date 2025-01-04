@@ -1149,6 +1149,30 @@ In Kubernetes, JSONPath is used to extract and manipulate specific fields from J
 
 kubectl get pods -o jsonpath='{.items[*].metadata.name}'
 
+
+upgradation of EKS(Managed Kubernetes control plan cluster):
+
+the pre-requisites:
+1.first cordon the nodes -> it will make the node as unschedulable
+2.read the release notes -> to know about the changes made on the new version.
+3.for EKS, we can not downgrade the version -> if you upgrade the version from 1.30 to 1.31 then you can not downgrade it to 1.31 to 1.30
+4.first upgrade in lower environments like dev,staging and observer for 1-2 weeeks like everything is good then only go for prod.
+5.control plan and data plan should be in same version.
+6.kubelet and cluster auto scaler should compatable with new version. if not then upgrade those.
+7.make sure that 5 available ip address in the subnet.
+
+process:
+1.first upgrade the control plan component using the eksctl updrade command.
+2.upgrade the data plane components. here in EKS, there are either nodegroup(using launch templates), nodes(manual creation of ec2 instances),
+  fargate.
+3.if you are using nodegroup using launch templates then in the compute section on the ami version you will get update button to upgrade the
+  data plane components.
+4.update the AddOns like CNI etc.
+
+to check upgradation:
+to verify whether the upgraded version is working or not, you need to run the script i.e end-to-end testing or functional testing.this will
+check everything is working fine or not.
+
 ############################################################################################################################################
 
 interview questions:
