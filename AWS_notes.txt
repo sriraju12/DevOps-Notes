@@ -933,6 +933,48 @@ Stateless Firewalls (like NACLs in AWS) treat each packet independently and requ
 8.what is the standard port of RDP.
 standard port is TCP 3389
 
+9.what are types of routing policies in route 53.
+Amazon Route 53 offers several types of routing policies to control how traffic is routed to your resources. Here are the main types:
+
+1. Simple Routing
+Use case: For a single resource (e.g., a web server).
+How it works: Routes traffic to a single record without any conditions. It’s the default routing policy.
+2. Weighted Routing
+Use case: To distribute traffic across multiple resources based on assigned weights.
+How it works: Traffic is split according to the weights you assign to each record. For example, if one resource has a weight of 70 and another has a weight of 30, 70% of the traffic goes to the first resource.
+3. Latency Routing
+Use case: To route traffic to the resource with the lowest latency.
+How it works: Routes traffic to the AWS region with the lowest latency for the user’s location.
+4. Failover Routing
+Use case: For high availability, routing traffic to a backup resource in case the primary fails.
+How it works: Routes traffic to a primary resource and fails over to a secondary resource if the primary becomes unavailable.
+5. Geolocation Routing
+Use case: To route traffic based on the user's geographic location.
+How it works: Routes traffic to different resources based on the country or region of the user’s IP address.
+6. Geoproximity Routing
+Use case: To route traffic based on both geographic location and resource proximity.
+How it works: Routes traffic to resources based on the geographic location of both the user and the AWS resource, with the option to bias traffic to be closer to a specific resource.
+7. Multivalue Answer Routing
+Use case: To return multiple IP addresses for a DNS query, improving availability and fault tolerance.
+How it works: Returns multiple values (IP addresses), and the client can choose one to connect to. It works similarly to weighted routing but with multiple values.
+Summary:
+Simple: Single resource.
+Weighted: Distribute traffic based on weights.
+Latency: Route based on lowest latency.
+Failover: Failover to a backup if the primary fails.
+Geolocation: Route based on geographic location.
+Geoproximity: Route based on location and proximity.
+Multivalue: Return multiple IPs for fault tolerance.
+
+10.let's have a scenario you are experiencing high cpu utilization on your ec2 instances how do you use cloudwatch to troubleshoot the issue.
+Check CPUUtilization metric in CloudWatch to identify if CPU usage is high.
+Set up a CloudWatch Alarm for proactive monitoring.
+Review other EC2 metrics like disk I/O, network activity, and memory usage.
+Analyze EC2 instance logs for application or system issues.
+Use CloudWatch Logs Insights to query and analyze detailed logs.
+Investigate application-level behavior (using top or htop).
+Check for any Auto Scaling or instance health issues.
+
 
 
 
