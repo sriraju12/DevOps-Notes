@@ -1345,8 +1345,36 @@ store the secrets in aws secrets manager and use it terraform configuration usin
 13.what is terraform graph.
 terraform graph is a command in terraform helps you see how resources in your configuration are connected to each other. it creates a dependency graph showing which resource depends on which other resource.
 
+##########################################################################################################################################
 
-
+1. State Management 
+You are working on a project with multiple team members, and the Terraform state file gets corrupted. How will you recover it? 
+2. Dependency Management
+You have two Terraform resources where one depends on another. However, Terraform is not respecting the dependency. How will you handle this? 3. Multi-Environment Setup
+How would you set up Terraform for managing multiple environments like dev, staging, and production? 
+4. Drift Detection
+A resource managed by Terraform was manually modified outside of Terraform. How will you detect and reconcile the drift? 
+5. Resource Deletion Prevention
+A resource is accidentally deleted from the configuration. How can you ensure it is not destroyed in the future?
+6. Error Resolution
+When running terraform apply, you encounter a circular dependency error. How would you resolve this? 
+7. Module Reusability 
+You need to create reusable infrastructure components for multiple teams. How would you implement this in Terraform?
+8. Provisioning Resources How would you provision resources dynamically based on the count or conditional logic?
+9. Terraform Backend Migration
+You are migrating the Terraform state backend from local to remote (e.g., S3). What steps will you take? 
+10. Access Control
+How would you restrict unauthorized users from accessing Terraform-managed resources? 
+11. Resource Replacement 
+You need to replace a resource without affecting its dependencies. How will you achieve this in Terraform?
+12. Handling Secrets
+How would you securely manage and pass sensitive data (like API keys) in Terraform configurations? 
+13. Plan Validation 
+How would you ensure that the changes planned in Terraform do not cause unexpected disruptions in production? 
+14. Importing Existing Resources
+How would you bring existing infrastructure under Terraform's management without recreating resources? 
+15. Handling Large Configurations
+Your Terraform configuration has grown significantly. How would you structure and manage it for better maintainability?
 
 
 
