@@ -1,0 +1,288 @@
+GITHUB ACTIONS:
+
+inorder to write the GitHub action, first you need to create the .github/workflows folder in the mainpage of the
+repository. in that folder, we can create the yaml files for the GitHub actions.
+
+WORKFLOW:
+
+A Workflow is a automated process that will run one or more jobs. it is defined in YAML.it will run when 
+triggered by an event(such as pushing the code repository or PUll REQUEST),or manual trigger or scheduled job.
+ex: building and testing application or deploying application every time when it is created etc.
+
+A workflow must contain the following basic components:
+1.One or more events that will trigger the workflow.
+2.One or more jobs, each of which will execute on a runner machine and run a series of one or more steps.
+3.Each step can either run a script that you define or run an action, which is a reusable extension 
+  that can simplify your workflow.
+  
+  
+TRIGGER WORKFLOWS:
+
+1.Trigger can be of event(pushing code to repo or PUll Request)
+2.Manual triggers
+3.Scheduled job.Workflow triggers are defined with the on keyword in yaml.
+
+how GitHub actions trigger the workflow:
+
+whenever there is an event in the repo then it will search for .github/workflows directory and in that it will
+look for the workflow files. in that workflow file, whatever mention on the on keyword likepush or pull request,
+it will run the workflow.
+
+1.trigger the workflow, when push(commit) is made to any branch in the workflow repository: use this 
+
+    on: 
+      push:         
+        branches:           
+          - main
+          
+2.we can have branch filter, like trigger workflow only when it matches to this branch filters. use this
+
+    on:      
+      push:       
+        branches:          
+          - main          
+          - 'feature/**'
+
+When using the pull_request and pull_request_target events, you can configure a workflow to run only for 
+pull requests that target specific branches.
+Use the branches filter when you want to include branch name patterns or when you want to both include and 
+exclude branch names patterns. Use the branches-ignore filter when you only want to exclude branchname patterns.
+You cannot use both the branches and branches-ignore filters for the same event in aworkflow.
+
+1.if you want to trigger a workflow on pull request then use this. 
+
+ on:   
+   pull_request:     
+     branches:       
+       - main
+       
+2.if you want to trigger a workflow on pull request for branch filter then use this
+
+ on:  
+   pull_request:    
+     branches:       
+       - main       
+       - 'feature/ETR:**'
+       
+3.if you want to exclude some branches to trigger workflow on pull request the use this 
+
+  on:   
+    pull_request:     
+      branches:        
+        - main        
+        - 'feature/ETR:**'        
+        - '!release/**'
+Here it will ignore the release branches to trigger the workflows because we have excluded it.
+
+NOTE:
+
+1.The * wildcard matches any character, but does not match slash (/). 
+  example: feature/my-branch but not feature/beta/my-branch
+  
+2. The ** wildcard matches any character including slash (/) in branch and tag names.
+   example: feature/beta-a/my-branch, feature/your-branch, feature/mona/the/octocat 
+   
+
+When using the push and pull_request events, you can configure a workflow to run based on whatfile paths
+are changed. Path filters are not evaluated for pushes of tags.Use the paths filter when you want to include
+file path patterns or when you want to both includeand exclude file path patterns. Use the paths-ignore
+filter when you only want to exclude file pathpatterns. You cannot use both the paths and paths-ignore filters
+for the same event in a workflow.If you want to both include and exclude path patterns for a single event,
+use the paths filterprefixed with the ! character to indicate which paths should be excluded.
+
+1.if you want to run workflow only when these files are modified then use this:
+
+  on:   
+    push:     
+      paths:       
+        - '**.js'
+        
+2.if you want to run workflow when mention files are matched and also ignore changes on some files. use this:
+
+  on:  
+    push:    
+      paths:      
+        - 'sub-project/**'      
+        - '!sub-project/docs/**'
+here, if you made any changes on this path(sub-project/docs/**), the workflows will not run.
+
+
+NOTE:
+
+for pull request, we can mention when to trigger the workflow like after creating the Pull Request or after 
+closing the Pull request. use this:
+
+for open Pull Request:
+
+  on:  
+    pull_request:    
+      types:      
+        - opened    
+      paths:      
+        - '.github/workflows/**'      
+        - '.github/CODEOWNERS'      
+        - 'package*.json'
+        
+for closed Pull Request:
+
+  on:  
+    pull_request:    
+      types:      
+        - closed   
+    paths:      
+      - '.github/workflows/**'      
+      - '.github/CODEOWNERS'      
+      - 'package*.json'
+      
+      
+WORKFLOW SYNTAX:
+Workflow files use YAML syntax, and must have either a .yml or .yaml file extension.
+You must store workflow files in the .github/workflows directory of your repository.
+ 
+A workflow run is made up of one or more jobs, which run in parallel by default.
+Each job runs in a runner environment specified by runs-on.
+ 
+ex:
+ 
+jobs:
+  my_first_job:
+    name: My first job
+  my_second_job:
+    name: My second job
+ 
+if one job is dependent on job another then use this: here job3 only runs when job1 and job2 successfully completed.
+if it fails then it will not execute the job3.
+ 
+   jobs:
+     job1:
+     job2:
+       needs: job1
+     job3:
+       needs: [job1, job2]
+ 
+if you want to execute the job3, regardless of whether successful or fail then use this:
+ 
+jobs:
+  job1:
+  job2:
+    needs: job1
+  job3:
+    if: ${{ always() }}
+    needs: [job1, job2]
+ 
+if you want to run the workflows then we need to mention the runners i.e. where the job will be executed.
+we can have shared runner provided by GitHub, or we can have self-hosted runner.
+ 
+for that you need use "run-on" keyword.
+ 
+   runs-on: ubuntu-latest
+ 
+actions" are reusable, self-contained pieces of code that perform specific tasks within a workflow,
+such as checking out code, setting up build environments, or deploying applications.
+ 
+  jobs:
+    my_first_job:
+      steps:
+        - name: Check out repository
+          uses: actions/checkout@v4
+ 
+if you want to install Java with specific version then use with keyword:
+ 
+jobs:
+     my_first_job:
+       steps:
+         - name: Check out repository
+           uses: actions/checkout@v4
+ 
+         - name: Set up JDK 14
+           uses: actions/setup-java@v1
+           with:
+             java-version: 14
+ 
+Each run keyword represents a new process and shell in the runner environment. When you provide
+multi-line commands, each line runs in the same shell. i.e run keyword is used to run shell commands.
+ 
+A single-line command:
+ 
+  - name: Install Dependencies
+    run: npm install
+ 
+A multi-line command:
+ 
+   - name: Clean install dependencies and build
+     run: |
+       npm ci
+       npm run build
+ 
+ 
+workflow templates:
+ 
+GitHub provides preconfigured workflow templates that you can use as-is or customize to create
+your own workflow. GitHub analyzes your code and shows you workflow templates that might be useful
+for your repository.
+ 
+For example, if your repository contains Node.js code, you'll see suggestions for Node.js projects.
+ 
+ 
+Storing secrets:
+ 
+If your workflows use sensitive data, such as passwords or certificates, you can save these in
+GitHub as secrets
+ 
+click on settings -> on left side click on actions -> click on secrets
+ 
+syntax:
+   ${{ secrets.SONAR_TOKEN}}
+ 
+you can store insensitive information, in variables in the location but instead of clicking on secret
+just click on variables.
+ 
+syntax:
+   ${{ vars.SONAR_URL}}
+ 
+ 
+Dependent jobs:
+ 
+By default, the jobs in your workflow all run in parallel at the same time. If you have a job that
+must only run after another job has completed, you can use the needs keyword to create this
+dependency. If one of the jobs fails, all dependent jobs are skipped; however, if you need the
+jobs to continue, you can define this using the if conditional statement.
+ 
+jobs:
+  setup:
+    runs-on: ubuntu-latest
+    steps:
+      - run: ./setup_server.sh
+  build:
+    needs: setup
+    runs-on: ubuntu-latest
+    steps:
+      - run: ./build_server.sh
+  test:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - run: ./test_server.sh
+ 
+ 
+Using a matrix:
+ 
+A matrix strategy lets you use variables in a single job definition to automatically create multiple
+job runs that are based on the combinations of the variables. For example, you can use a
+matrix strategy to test your code in multiple versions of a language or on multiple operating systems.
+The matrix is created using the strategy keyword, which receives the build options as an array.
+ 
+For example, this matrix will run the job multiple times, using different versions of Node.js.
+ 
+jobs:
+   build:
+     runs-on: ubuntu-latest
+     strategy:
+       matrix:
+         node: [14, 16]
+     steps:
+       - uses: actions/setup-node@v4
+         with:
+           node-version: ${{ matrix.node }}
+
+           
