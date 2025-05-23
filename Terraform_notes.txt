@@ -1377,6 +1377,206 @@ How would you bring existing infrastructure under Terraform's management without
 Your Terraform configuration has grown significantly. How would you structure and manage it for better maintainability?
 
 
+###############################################################################################################################################
+
+1.mutable vs inmmutable infrastructure:
+
+mutable:
+         modify or change tags, update instance type on the same ec2 or same resource. Basically updating on the same resource.
+
+inmmutable:
+            destroy old and create a new instance or resource . it avoids configuration drifts.
+
+
+inmmutable infrastructure can be achieve using lifecycle block.
+
+for example using ec2:
+
+resource "aws_instance" "inmmutable_example" {
+  ami = "ami-78f992jko99"
+  instance_type = "t2.micro"
+
+  lifecycle {
+    create_before_destroy = true
+  }
+
+  tags = {
+    Name = "inmmutable_example"
+  }
+}
+
+2. what is terraform lifecycle.
+
+The Terraform lifecycle refers to the sequence of steps and processes that occur when working with Terraform to manage infrastructure as code.
+
+steps:
+
+* Write Configuration
+* Initialize i.e terraform init
+* Plan i.e terraform plan
+* apply i.e terraform apply 
+* destroy i.e terraform destroy
+
+
+3. you have multiple ec2 instance and if want to delete particular instance, how will you delete it.
+
+remove that instance configuration from the configuration file then apply the changes then automatically that instance will be deleted.
+
+or
+
+terraform state list -> it is used to list all resources in the statefile.
+terraform destroy -target=aws_instance.key[0] -> to delete the 1st ec2 instance listed.
+
+3. if you want to create a 10 ec2 instances then you can add count = 10 in the ec2 configuration. i.e it will create the 10 ec2 with same instance type.
+
+4. list datatype and when to use it.
+
+all the items are of same type and length may vary.
+example: tags, names, IDS etc.
+
+variable "instanceTypes" {
+  type = list(string)
+  default = ["t2.micro", "t2.small"]
+}
+
+resource "aws_instance" "inmmutable_example" {
+  count = length(var.instanceTypes)
+  ami = "ami-78f992jko99"
+  instance_type = var.instanceTypes(count.index)
+  tags = {
+    Name = "inmmutable_example-${count.index}"
+  }
+}
+
+
+
+
+5.what is map and when to use it.
+
+map is a key-value pair. i.e type = map(string) -> to store only string values, type = map(any) -> to store any values.
+
+example:
+
+vvariable "instanceTypes" {
+  type = map(string)
+  default = {
+    "ec2-1" = "t2.micro"
+    "ec2-2" = "t2.small"
+  }
+}
+
+resource "aws_instance" "inmmutable_example" {
+  for_each = var.instanceTypes
+  ami = "ami-78f992jko99"
+  instance_type = each.value
+  tags = {
+    Name = each.key
+}
+}
+
+6. difference between count and map.
+ 
+ count: when orders matters. count is mostly used with list. if you want diffence ec2 instance then use count.
+
+ foreach: when naming matters. foreach is mostly used with map. if you want diffence ec2 names then use map.
+ foreach can only be used on set(string) or map(string). The reason why for each does not work on list(string) is because a list can contain duplicate
+
+7. if you want to create the resources in multiple regions then how to do it.
+
+using alias
+
+Example:
+
+provider "aws" {
+  alias = "south"
+  region = "us-east-1"
+}
+
+provider "aws" {
+  alias = "north"
+  region = "us-west-1"
+}
+
+resource "aws_instance" "ec2_region_1" {
+  ami = "ami-13jkiod0kls"
+  instance_type = "t2.micro"
+  provider = "aws.south"
+}
+
+resource "aws_instance" "ec2_region_2" {
+  ami = "ami-13jkiod0kls"
+  instance_type = "t2.micro"
+  provider = "aws.north"
+}
+
+8. command to delete workspace -> terraform workspace delete workspace_name
+
+9. disadvantage of terraform.
+
+* There is no error handling
+* There is no way to roll back. As a result, we must delete everything and re-run code.
+
+10. if one resource is deleted then how to recover it.
+
+* write the resource configuration with the same values that are present in the cloud resource.
+* copy the resource id
+* run -> terraform import resource_type.resource_name resource_id
+
+11. what is drift detection and how to prevent it.
+
+drift happen when acutual infrastructure in cloud does not match with the statefile. for example, some manually changed the ec2 instance type from t2.micro to t2.small
+
+how to detect drift:
+run -> terraform plan : it will show what's been modified.
+
+how to prevent it:
+
+* make all the changes through terraform apply command only.
+* regularly run terraform plan command to detect any drifts.
+* use tools like terraform cloud or atlantis to automatically detect and alert on drifts.
+* use lifecycle block to reduce drift 
+   example:
+
+   lifecycle {
+    ignore_changes = [instance_type]  # prevents terraform from changing the instance type, even if it is drift.
+   }
+
+ 12. important lifecycle block methods:
+
+   lifecycle {
+    prevent_destroy = true
+    ignore_changes = [instance_type]
+    create_before_destroy = true
+   }  
+
+13. what is terraform taint command.
+
+terraform taint command marks a resource for destruction or deletion and recreate during next terraform apply.
+
+syntax: terraform taint resource_name i.e for ec2 -> terraform taint aws_instance.resource_name.
+
+now terraform taint is depricatted and replaced with this from version 1.5+  
+
+syntax: terraform apply -replace="aws_instance.resource_name" for ec2
+
+14. how to handle secrets in terraform.
+store the secrets in aws secrets manager and whenever required in the script just use data block to read secrets and then use where ever you want to use.
+
+15. how do you handle dependencies between resources in terraform.
+
+    using depends_on keyword.
+
+16. how do you handle prevent accidental deletion in terraform.
+
+   using lifecycle block.
+
+    example:
+
+    lifecycle {
+      prevent_destroy = true
+    }
+
+
 
 
 
