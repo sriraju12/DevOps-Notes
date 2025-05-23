@@ -1,5 +1,5 @@
 TerraForm:
-            Terraform is an automatication tool for cloud.
+            Terraform is an automation tool for cloud.
 
 
 * terraform file should be saved with .tf format.
