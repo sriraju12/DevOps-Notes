@@ -1576,6 +1576,104 @@ store the secrets in aws secrets manager and whenever required in the script jus
       prevent_destroy = true
     }
 
+17. what is local-exec provisioner.
+it is used to run a local shell commands on the machine where terraform is executed(but not on the provisioned resource)
+
+Example:
+
+resource "null_resource" "example" {
+  provisioner "local-exec" {
+    command = "echo resource created"
+  }
+}
+
+18. what is terraform state rm command .
+it removes a resource from the statefile without deleting it in the cloud.
+
+syntax: terraform state rm aws_instance.example. for ec2.
+
+19.how will you debug provisioning failures in terraform.
+
+enable detailed logging -> TF_LOG=DEBUG terraform apply
+
+if you want to redirect logs to log file then use this -> TF_LOG=DEBUG TF_LOG_PATH=debug.log terraform apply
+
+
+NOTE:
+
+if you want to delete or apply one resource at a time the use this:
+
+for apply -> terraform apply -target="aws_instance.exmaple" for ec2 
+
+for deletion -> terraform destroy -target="aws_instance.key[0]"
+
+20. how do you handle failures in provisioning scripts like remote-exec or local-exec.
+
+use explicity handled using set -e in bash:
+
+Example:
+
+provisioner "remote-exec" {
+  inline = [
+    "set -e",
+    "apt update",
+    "apt install nginx"
+  ]
+}
+
+if the provisioning script failed and you want to continue with other resource creation then you can use this:
+
+on_failure = "continue"
+
+use on_failure = "fail" , if you want to terminate the resource creation when failure occured.
+
+Example:
+
+provisioner "remote-exec" {
+  inline = [
+    "apt update",
+    "apt install nginx"
+  ]
+
+  on_failure = "continue"
+
+  connection {
+    type = "ssh"
+    user = "ubuntu"
+    private_key = file("~/.ssh/raju.pem")
+    host = self.public_ip
+  }
+}
+
+21. you have stored a secret in the secrets manager in the aws and want to read in the terraform configuration. how will you read it.
+
+step 1: you have stored secrets in secret manager with name my-db-secret with JSON
+ {
+  username: "sriraju",
+  password: "sriraju@1234
+ }
+
+ step2: read the secret
+
+ data "aws_secretsmanager_secret" "db_secret" {
+  name = "my-db-secret"
+ }
+
+data "aws_secretsmanager_secret_version" "db_secret_version" {
+  secret_id = data.aws_secretsmanager_secret.db_secret.id
+}
+
+step 3: decode JSON and make it available
+
+locals {
+  db_creds = jsondecode(data.aws_secretsmanager_secret_version.db_secret_version.secret_string)
+}
+
+output "db_username" {
+  value = local.db_creds.username
+  sensitive = true # terraform will hide the value in CLI output during plan/apply and also prevent accidental logging or exposing secrets.
+}
+
 
 
 
