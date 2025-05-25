@@ -1674,6 +1674,64 @@ output "db_username" {
   sensitive = true # terraform will hide the value in CLI output during plan/apply and also prevent accidental logging or exposing secrets.
 }
 
+22. How do you troubleshoot and debug the terraform configuration.
+
+  * terraform validate  -> checks for any syntax corrections in the configuration
+  * terraform plan  -> preview changes terraform will make, helps us to spot unexpected modifications or errors.
+  * export TF_LOG=DEBUG , terraform apply  -> set the TF_LOG environment variable to get debug output.
+    if you want to save logs to a file then -> export TF_LOG_PATH=./terraform.log 
+
+23. how would you handle a situation where you need to update the instance type of a ec2 instance in aws without downtime.
+
+use the lifecycle block, in that mention create_before_destroy = true
+
+lifecycle {
+  create_before_destroy = true
+}
+this will create the new ec2 instance and then it will destroy the existing one.
+
+24. how would you do if the terraform apply results in an error while trying to destroy a resource.
+
+* read the error message in terminal and understand the failure cause for it.
+* manually inspect the resource like verify if the resource still exists in the cloud.
+* try to manually delete the resource and the run terraform refresh to update the statefile.
+* terraform state rm to remove the resource from statefile. i.e if the resource is already gone but terraform still tries to destroy it.
+* retry terraform apply i.e after state cleanup or manual fix rerun apply to continue it.
+
+
+Important Terraform commands:
+
+terraform plan -out=file_name  -> write a plan to a file to apply it later
+
+terraform plan -target resourceType.resourceName  -> create a plan for specific resource
+
+terraform plan -refresh-only  -> inspect the drift without updating the statefile
+
+terraform apply file_name  -> create or update the infrastructure using a plan file
+
+terraform output  -> show all output values 
+
+terraform output -json  -> show all output values in a json format
+
+terraform output name  -> show a specific output value
+
+terraform show file_name  -> show a saved plan
+
+terraform show -json file_name  -> show a saved plan in json format
+
+terraform state show resource_name  -> show details about a resource
+
+terraform state mv source_name  destination_name  -> rename a resource in a statefile
+
+terraform state rm resource_name  -> remove resource from statefile 
+
+terraform state pull  -> pull current state and print it in the terminal.
+
+terraform fmt -check  -> check whether the configuration is formatted correctly, return non-zero exit if not.
+
+terraform apply -destroy  -> it will delete all the resources in the current configuration.
+
+
 
 
 
