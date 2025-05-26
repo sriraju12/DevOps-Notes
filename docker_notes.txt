@@ -493,6 +493,39 @@ example: A container running nginx is created using nginx docker image and it ru
 5.what is the purpose of the .dockerignore file.
 The .dockerignore file serves to specify which files and directories should not be included when building a docker image from the current context. This is particularly useful for preventing unnecessary files from being copied into the docker image, which helps to reduce the image size etc.
 
+6. How do you link two docker containers together.
+You can link two docker containers together using custom bridge network which allows communicate by name.
+
+step1:
+create the custom bridge network  -> docker network create my-custom-bridge-network
+
+step2:
+run the 1st container on the network  -> docker run --name webapp01 --network my-custom-bridge-network nginx:latest
+
+step3:
+run the 2nd container on the same network  -> docker run --name webapp02 --network my-custom-bridge-network nginx:latest
+
+step4:
+test the connection from container2 i.e login into container2   -> docker exec -it webapp02 /bin/bash and then ping webapp01
+
+or 
+
+this is deprecated using --link 
+
+run the 1st container and then run the 2nd container and pass --link container1_name flag to the container2 and then test the connection.
+
+* docker run --name webapp01 nginx:latest
+* docker run --name webapp02 --link webapp01 nginx:latest
+* login into container2  -> docker exec -it webapp02 /bin/bash and then ping webapp01
+
+7. what is docker container prune command do?
+it is used to remove unstopped containers only. if you want to remove unstopped containers without prompt then use --force flag i.e docker container prune --force
+
+8. what is docker images prune command do?
+it is used to remove dangling image i.e images that are not tagged and also images that are not used by any container. to remove dangling images without prompt
+use --force flag i.e docker images prune command --force
+
+
 #############################################################################################################################################
 
 all commands in docker:
