@@ -557,3 +557,155 @@ netstat -tuln
 This shows all active TCP/UDP connections with listening ports.
 
 
+############################################################################################################################################
+
+Linux Commands:
+
+1. du -h directory/fileName -> displays the file/Directory disk usage.
+
+2. stat fileName -> displays the detailed infomation of the file like fileName, size, permissions, modify time etc.
+
+3. tree -> show the directory in a tree format
+
+4. umask -> default permissions set for newly created files and directories
+
+    Example: umask -> display current umask
+             umask 027 -> set new umask
+
+5. ps aux -> display all the running processes
+
+6. top -> Monitor system processes in real time i.e live view of processes
+
+7. htop -> Enhanced process viewer i.e advanced version of top and this needs to be installed.
+
+8. kill -> to kill the process i.e kill 1234
+
+9. killall -> kill processes that match a given name i.e killall process_name
+
+10. pkill -> kill the processes based on pattern matching, usually by process_name
+
+    Example: pkill process_name
+             pkill -9 process_name -> -9 means forcefully stop or kill
+
+11. ping -> it is used to check network connectivity i.e test if a device(host, website, IP) is reachable over the network.
+
+     Example: ping hostname or IP  i.e ping google.com or ping 172.12.0.0
+
+              ping -c 4 google.com -> -c means count i.e send fixed number of pings
+
+              ping -i 2 google.com -> -i means seconds i.e interval between pings
+
+12. ifconfig -> Display network configuration (deprecated). now we can use ip a or ip addr
+
+13. traceroute destination_name -> track the path packets takes to destination i.e it shows each hop(router) a packet travels through
+                                    to a reach a destinatiom on a network.
+
+                                    traceroute google.com -> you'll see a list of ip addresses(or hostnames) showing each step from your 
+                                                             machine to google
+
+                                    used to diagnose network issues.
+
+14. nslookup -> Query DNS records i.e used to query DNS servers and find details like IP address of a domain.
+
+     Example: nslookup google.com
+
+15. netstat -tunl -> displays network services currently listening for incoming connections. 
+
+                      here  -t -> shows TCP ports
+                            -u -> shows UDP ports
+                            -n -> show numeric addresses
+                            -l -> show only listening sockets
+
+                      alternative of netstat is -> ss -tunl
+
+
+                     netstat -a -> show all connections
+                     netstat -l -> show listening ports
+                     netstat -t -> show TCP connections
+                     netstat -u -> show UDP connections
+                     netstat -r -> show routing table
+                     netstat -i -> show interface stats
+
+16. uname -> display system information i.e like basic info abput the system like OS, kernel
+
+    uname -a -> indetails information.
+
+17. uptime -> show system uptime i.e displays how long the system has been up.
+
+18. awk -> pattern scanning and processing
+            
+           Example: awk '{ print $1 }' file.txt -> prints 1st column
+
+19. sed -> to fing and replace content in a file
+
+           Example: sed -i 's/exisitng_word/new_word/g' file_name
+
+20. sort -> sort file content i.e sort fileName
+
+21. uniq -> Report or omit repeated lines i.e removes deuplicates
+
+             Example: uniq -c file
+
+22. alias -> Create command shortcuts.
+
+             Example: alias k='ls'
+
+23. unalias -> Remove an alias.
+
+               Example: unalias k
+
+24. bg -> it is used to resume a suspended job and let it run in the background.
+
+           Example: bg or bg %1  i.e both are same %1 means job number
+
+            jobs -> display all the background/suspended jobs
+            fg -> bring a background job to foreground
+
+25. nohup -> runs a command that keeps running after logout
+
+             Example: nohup ./script.sh &
+
+26. scp -> securely copy files to remote server
+
+           Example: scp file_name user@remote:/path
+
+27. telnet -> connect to remote servers on specific port i.e test network connectively
+
+               Example: telnet hostname port i.e telnet google.com 80
+
+28. ip route -> display or manipulate IP routing table
+
+          ip route show -> shows the routing table.
+
+29. dig -> query DNS servers and troubleshoot domain name resolution. nslookup is depricated and now we are using dig.
+
+           Example: gig google.com
+
+30. cron -> schedule regular tasks i.e runs regualrly
+
+            Example: 0 2 * * * /home/user/backup.sh -> it will run this script every day 2 am
+
+            crontab -l -> view current user's cron jobs
+
+            crontab -e -> edit your cron jobs
+
+31. vmstat -> vmstat stands for virtual memory statistics. it shows real-time system performance like memory usage, cpu usage, I/O stats
+
+               Example: vmstat delay count -> vmstat 2 5  i.e updates every 2 seconds for 5 times
+
+32. iostat -> displays cpu and disk I/O performance i.e it ise= used to check how your cpu and storage devices(disks) are performing.
+
+               Example: iostat delay count i.e iostat 2 3 i.e shows cpu and disk stats every 2 seconds for 3 times
+
+33. at -> schedule a one time task i.e it will run only once.
+
+          Example: at Time i.e echo "backup.sh" | at 2:00 AM
+
+34. iptables -> it is used to setup, manage and inspect firewall rules for linux i.e it controls how incoming and outgoing network traffic
+                is handled by thr system.
+
+                sudo iptables -L -v -n -> view current rules
+
+                sudo iptables -F -> clears all firewall rules
+
+
