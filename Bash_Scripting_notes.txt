@@ -368,6 +368,98 @@ fi
                   search using name and pam means name of the file.
 
 
+1. How would you write a script to check if a file exists, and if it does, print its contents and delete it?
+
+#!/bin/bash
+
+FILE="example.txt"
+
+if [ -f "$FILE" ]; then
+       echo "File is present"
+       cat $FILE
+       rm $FILE
+else
+ echo "File not found"
+
+fi 
+
+2. Command-Line Arguments: How do you access command-line arguments in a Bash script? Write a simple script that accepts two numbers
+   and prints their sum.
+
+#!/bin/bash
+
+num1=$1
+num2=$2
+
+sum=$((num1 + num2))
+
+echo $sum
+
+
+3. Write a script to iterate through a list of IP addresses and ping each one. Report which ones are reachable and which are not.
+
+#!/bin/bash
+
+IPS=("8.8.8.8" "192.168.0.1" "1.1.1.1")
+
+for IP in ${IPS[@]}; do
+  if ping -c 1 $IP &> /dev/null; then
+    echo "$IP is reachable"
+  else
+    echo "$IP is not reachable" 
+  fi
+done  
+
+
+4. How do you check the exit status of a command? Write a script that executes a command and prints "Success" or "Failure" based on the result.
+
+#!/bin/bash
+
+ls /etc/sriraju
+
+if [ $? -eq 0 ]; then
+  echo "Success"
+
+else
+  echo "Failure"
+
+fi  
+
+
+5. What is the difference between "$variable" and $variable
+
+$variable:
+$variable is subject to word splitting and filename expansion, 
+
+"$variable":
+"$variable" is not. Always using double quotes is considered a best practice because it prevents unexpected behavior and errors.
+
+6. what is set -u in bash
+set -u (short for set -o nounset) is a command that ensures your script will exit immediately if it tries to use a variable
+that has not been set or assigned a value.
+
+
+7. What is a Here Document, and when is it useful? Write a script that uses a Here Document to create a multi-line configuration file.
+
+A Here Document, or "here-doc," is a way to pass multiple lines of input to a command or program from within a shell script.
+It's a powerful tool that allows you to treat a block of text as if it were a file, without needing to create a temporary file on disk.
+
+
+#!/bin/bash
+
+NAME="krishnamsetty sriraju"
+
+cat <<- EOF
+
+currently working as DevOps Engineer at HCLTECH
+Looking for Job Change
+This is $NAME
+
+EOF
+
+
+
+
 
 
 
