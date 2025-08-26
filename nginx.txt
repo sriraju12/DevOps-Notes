@@ -1,0 +1,332 @@
+Nginx:
+
+NGINX is an open-source, high-performance web server that also functions as:
+
+1. A reverse proxy
+2. Load balancer
+3. HTTP cache
+4. Mail proxy
+
+It is designed for high concurrency, performance, and low memory usage — making it ideal for modern DevOps and cloud environments.
+
+Web server -> Serving static React/Angular apps
+Reverse proxy -> Forwarding requests to backend apps (Node.js, Python, Java)
+Load balancer -> Distributing load between multiple backend servers
+SSL termination -> Handling HTTPS at the edge
+Caching	Reducing -> load on upstream services
+Ingress controller (Kubernetes) -> Managing traffic inside Kubernetes clusters
+Rate limiting & security enforcement ->	Protecting APIs from abuse or bots
+
+/etc/nginx/nginx.conf -> Main configuration file
+/etc/nginx/sites-available/	-> Stores virtual host (server block) configs
+/etc/nginx/sites-enabled/ -> Symlinks to active site configs
+/var/www/html -> Default web root directory
+/var/log/nginx/ -> 	Contains access and error logs
+
+
+run nginx as docker container -> docker run --name nginx-demo -p 8080:80 -d nginx
+
+
+
+NGINX as a Web Server:
+
+* A web server is software that serves static files (like .html, .css, .js, .png) over HTTP. When users visit your website, 
+  the web server responds with these files.
+
+* NGINX is one of the fastest and most popular web servers used for this purpose.
+
+/etc/nginx/sites-available -> in this location their is a default file is present in that we need to modify the content if you want to use 
+                              multiple domain names for your website like amazon.com, amazon.in etc.
+
+/etc/nginx/sites-enabled -> in this location also one default file is present, in that we need to create a symbolic link so that nginx will
+                            consider your configurations and ready for that particular domains.
+
+/etc/nginx/nginx.conf -> ii is a admin configuration file. it is a good practice to keep this file for default settings.   
+
+Anatomy of a Basic server Block:
+
+server {
+    listen 80;
+    server_name localhost;
+
+    root /var/www/html;
+    index index.html;
+
+    location / {
+        try_files $uri $uri/ =404;
+    }
+}
+
+
+Here listen 80; -> Listens on HTTP port 80
+     server_name localhost; -> Domain or IP to respond to
+     root -> Path where NGINX looks for files
+     index -> Default file to serve (usually index.html)
+     location / -> URL path handling
+
+
+Serve a Static Website Using NGINX:
+
+1. create or modify the content of index.html in the location /var/www/html
+2. reload the nginx -> sudo systemctl reload nginx
+3. access the wesite in browser.
+
+
+using docker container:
+
+1. create a folder -> mkdir nginx-static && cd nginx-static
+2. add index.html file
+3. run nginx container ->  docker run --name web-nginx -v $PWD:/usr/share/nginx/html:ro -p 8080:80 -d nginx
+4. access the browser -> http://localhost:8080
+
+
+Common Errors & Fixes:
+
+403 Forbidden -> Check file permissions (use chmod/chown)
+404 Not Found -> Ensure correct root or alias
+NGINX not reloading changes -> Use sudo nginx -s reload or restart NGINX
+Port already in use -> Use sudo lsof -i :80 to identify process
+
+
+NGINX as a Reverse Proxy:
+
+* A reverse proxy is a server that receives client requests and forwards them to backend servers, then sends the response back to the client.
+
+* NGINX is one of the most popular tools used as a reverse proxy in production.
+
+Why Use NGINX as a Reverse Proxy:
+
+* Protect backend services from direct access
+* when you give direct ip-address and port to the client to access it then it might causes problem like rate limiting(sending too many requests)
+  and other vulnerability issues. to prevent this either we can implement in code or using reverse Proxy.
+
+* Reverse Proxy automatically resolves all this problems.
+
+
+how to do it:
+
+in this location -> /etc/nginx/sites-available/default Update the existing server block or create a new one.
+
+add this:
+
+server {
+    listen 80;
+    server_name localhost;
+
+    location / {
+        proxy_pass http://localhost:3000;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+    }
+}
+
+Here, proxy_pass -> forwards requests to your backend app
+      proxy_set_header -> preserves original request metadata (like IP and host)
+
+
+Reverse Proxy to a Node.js App:
+
+1. install node js
+2. Create a simple backend app -> mkdir ~/node-backend && cd ~/node-backend
+                                  vi server.js
+
+3.  add this content in server.js file.
+
+const http = require('http');
+http.createServer((req, res) => {
+  res.end('Hello from Node.js backend!');
+}).listen(3000);
+
+4. Configure NGINX as reverse proxy
+
+ Edit the NGINX default site:
+
+ sudo vi /etc/nginx/sites-available/default
+
+ Replace the location / {} block with:
+
+ location / {
+    proxy_pass http://localhost:3000;
+    proxy_set_header Host $host;
+    proxy_set_header X-Real-IP $remote_addr;
+}
+
+
+5. Test and reload NGINX
+
+   Check config for syntax errors -> sudo nginx -t
+   Reload NGINX -> sudo systemctl reload nginx
+
+6. access in browser -> http://localhost
+
+
+
+Load Balancing with NGINX:
+
+* Use NGINX to distribute traffic across multiple backend servers — improving availability, reliability, and scalability of your applications.
+
+* Load balancing is the process of distributing incoming network traffic across multiple backend servers.
+
+Load Balancing Algorithms in NGINX:
+
+* round-robin -> Default — rotates through all backends equally
+* least_conn ->	Sends traffic to the backend with the fewest active connections
+* ip_hash -> Uses client IP to consistently route requests to the same backend
+
+Load Balance Two Local Backend Servers:
+
+1. Create Backend Servers
+
+  * We'll run two simple HTTP servers using Node.js.
+
+  * mkdir ~/load-test && cd ~/load-test
+
+  * create two files server1.js and server2.js and add this content
+
+     require('http').createServer((req, res) => {
+     res.end('Response from Server 1');
+     }).listen(3001);
+
+     require('http').createServer((req, res) => {
+     res.end('Response from Server 2');
+     }).listen(3002);
+
+2. run both servers in background
+
+   node server1.js &
+   node server2.js &
+
+3. add Load Balancer Configuration
+
+   * sudo vi /etc/nginx/sites-available/default
+
+   * Replace contents with:
+
+upstream backend_app {
+    server 127.0.0.1:3001;
+    server 127.0.0.1:3002;
+}
+
+server {
+    listen 80;
+    server_name localhost;
+
+    location / {
+        proxy_pass http://backend_app;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+    }
+}  
+
+4. Test and reload NGINX
+
+   Check config for syntax errors -> sudo nginx -t
+   Reload NGINX -> sudo systemctl reload nginx
+
+5. access in browser -> http://localhost    
+
+
+Switching Load Balancing Methods:
+
+Use Least Connections:
+
+upstream backend_app {
+    least_conn;
+    server 127.0.0.1:3001;
+    server 127.0.0.1:3002;
+}
+
+Use IP Hash:
+
+upstream backend_app {
+    ip_hash;
+    server 127.0.0.1:3001;
+    server 127.0.0.1:3002;
+}
+
+NOTE:
+
+stiky session means for one client the request will always go to one instance of the application only.
+
+ip_hash in load balancing is a stiky session.
+
+
+SSL/TLS Setup in NGINX Using a Self-Signed Certificate:
+
+* Secure your application with HTTPS using a self-signed SSL certificate.
+
+* This is ideal for local development, internal tools, and non-public test environments.
+
+Why Use HTTPS (Even in Dev):
+
+* Encrypts traffic between client and server
+* Simulates production-like environment for testing
+* Helps catch mixed-content issues early
+* Required by modern frontend frameworks and APIs
+
+1. Create a Self-Signed Certificate
+
+sudo openssl req -x509 -nodes -days 365 \
+ -newkey rsa:2048 \
+ -keyout /etc/ssl/private/nginx-selfsigned.key \
+ -out /etc/ssl/certs/nginx-selfsigned.crt
+
+ When prompted:
+               Common Name (CN): use localhost or your server’s IP
+
+2. Update NGINX Configuration
+
+   * Edit the default site config -> sudo nano /etc/nginx/sites-available/default
+
+   * Replace with the following:
+
+server {
+    listen 443 ssl;
+    server_name localhost;
+
+    ssl_certificate /etc/ssl/certs/nginx-selfsigned.crt;
+    ssl_certificate_key /etc/ssl/private/nginx-selfsigned.key;
+
+    location / {
+        proxy_pass http://localhost:3000;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+    }
+}
+
+# Optional: Redirect HTTP to HTTPS
+server {
+    listen 80;
+    server_name localhost;
+    return 301 https://$host$request_uri;
+}   
+
+3. Reload NGINX
+
+   sudo nginx -t
+   sudo systemctl reload nginx
+
+4. curl -k https://localhost   
+
+
+
+
+10 common commands devops engineers use:
+
+1. top/htop
+
+2. systemctl - checking the status of the services
+
+3. journalctl -xe - this will shows logs of last few services
+
+4. journalctl -u service_name - to check the logs of a particular service_name
+
+5. tail -f logs.log - it will show the active logs of the files. if you remove -f then it will not show the active logs
+
+6. grep and awk commands
+
+7. docker and kubectl commands
+
+8. scp command
+
+9. crontab
