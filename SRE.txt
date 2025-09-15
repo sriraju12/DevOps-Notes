@@ -1,0 +1,136 @@
+SRE(Site Reliability Engineer):
+
+what do they:
+
+Automation
+
+Monitoring - monitoring applications, creating alerts
+
+Incident Management - when you get some failure alerts, what steps would you take to resolve it i.e from starting to end of the issue.
+
+Error Budgets - maximum amount of acceptable downtime a service can have over a specific period without upsetting users.
+                It's the inverse of a Service Level Objective (SLO).
+
+                The concept of an error budget is used to balance the competing interests of the development team (who want to release new features quickly)
+                and the operations team (who want to maintain a stable and reliable system).
+
+                1. Define SLOs: First, you must establish a Service Level Objective (SLO), which is the desired level of reliability for your service.
+                   For example, an SLO for an e-commerce website might be 99.9% availability over a month. This means the service should be available 
+                   for 99.9% of the time.
+
+                2. Calculate the Error Budget: The error budget is the remaining percentage. If your SLO is 99.9% availability, your error budget
+                   is 100%−99.9%=0.1%. This 0.1% represents the acceptable amount of downtime or failed requests. For a month with 43,200 minutes 
+                   (30 days x 24 hours x 60 minutes), a 0.1% error budget translates to 43.2 minutes of allowed downtime.
+
+                3. Use it for Decision-Making: The error budget acts as a buffer. As long as the service is meeting its SLO (meaning it hasn't used up its
+                   error budget), development teams can take risks and release new features. However, once the error budget is exhausted, it's a signal to 
+                   stop all non-essential releases and focus on improving system stability and addressing the root causes of the errors that
+                   consumed the budget. This is often referred to as a "code freeze."
+
+
+Toil - Reducing of Repeatative/Manual work 
+
+       Example: Manually restarting a service that frequently crashes.
+
+                Manually provisioning a new server or virtual machine for an application.
+
+
+
+SLA, SLO, SLI:
+
+SLA(Service Level Agreement) - Agreement made between you and the client or users
+
+SLO(Service Level Objectives) - Objectives(points) your team must hit to meet that agreement.
+
+SLI(Service Level Indicators) - The real numbers on your performance
+
+
+Observability - Monitoring + Logging + Tracing
+
+Monitoring - Here we will monitors the health the application, nodes and creating alerts for failure cases i.e Popular tools are Prometheus, Grafana
+
+Logging - Here we can check the logs for failures i.e Popular tool is ELK or EFK
+
+Tracing - Here we can trace the request from source to destination like how it is flowing and where it is reaching i.e Popular tool is Jaegar
+
+
+Anti Fragility - An antifragile system is one that learns from and benefits from disorder, volatility, and failures. It is a system that, when a component fails, 
+                 becomes even more reliable and capable than it was before.
+
+                 Example:  a single, manually configured server for a high-traffic website is fragile. If the traffic spikes, the server crashes.
+
+                           a high-traffic website would be one that gets stronger and more reliable as traffic spikes, rather than crashing. It's a system    
+                           designed to benefit from the very stress that would cause a fragile system to fail.
+
+
+
+
+Incident Management steps:
+
+1. Incident detection/ incident reporting:
+
+   monitoring systems - continuous monitoring of systems, applications and infrastructure to detect abnormalities from expected behaviour.
+
+   Alerting - configuring alerting mechanism to notify the appropriate personnel or teams when predefined threshold or conditions are breached.
+
+   User Reports - User or Customer may report incident through various channels such as customer support or feedback
+
+
+
+2. Incident Triage:
+
+   Prioritization - Evaluate the severity and impact of the incident to priotitize the incident. classify the incident based on their potential impact
+                    on users and business operations.
+
+   Assignment - Assign responsibilities to the appropriate individual or team based on theie expertise and availability.
+
+   Here like some incidents you may resolve and some incidents you may not resolve at that time you will assign to another person or team
+
+
+
+3.Resolution:
+   
+   Mitigation- implements temporary fixes or workaround to restore the service functionality quickly
+
+   Permanent Fix: identify the root cause of the issue and fix it to prevent reoccurance.
+
+   Here like after you assign to someone they will resolve it. 
+
+
+4. Communication and Reporting:
+
+    status updates - provide regular status updates to stakeholders throughout the incident lifecycle.
+
+    Closure - communicate the resolution of the incident to internal teams.
+
+    Here you just need to follow upon the incident for the fix.
+
+
+5. Root Cause Analysis(RCA):
+
+   Investigation - conduct a thorough investigation to identify the root cause of the incident. This may involve examing logs, analysing of code and reviewing configuration settings.
+
+   Documentation - Document the findings of the root cause analysis, including contributing factors and potential preventive measures.
+
+   Here like we need to document the incident i.e reason for failure, fix for it, priority like P0 or p1, will it occur again etc.
+
+
+Important Linux Directories:
+
+/var -> This folder contains all the logs of the application and also database logs for troubleshooting purpose
+
+/etc -> it contains configuration files.
+
+* in the server public key is stored in home directory of .ssh and then go inside of it, their is file called authorized_keys, here the public key is stored.
+
+* private key is stored in our local system.
+
+   
+
+
+
+   
+                           
+
+
+                
