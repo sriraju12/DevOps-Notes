@@ -126,10 +126,59 @@ Important Linux Directories:
 * private key is stored in our local system.
 
    
+Http Status Codes:
+
+1xx - information
+
+2xx - success
+
+3xx - client error
+
+4xx - server error
+
+      400 - when you are trying to access the url but server is not able to process due to malformed request syntax
+
+      401 -  unauthorized access i.e lack of vaild credentials
+
+      403 - forbidden i.e a 403 error is returned when the client has provided credentials, but those credentials do not grant them permission to access the specific resource. 
+
+      404 - A 404 error is returned when a client tries to access a URL that doesn't correspond to any existing file, page, or API endpoint on the server.
+            The server is working, but the specific item requested simply isn't there.
+
+500 - A 500 error is a server-side error. This means the problem is not with the client's request (unlike a 4xx error) but with the server itself.
+      The server cannot be more specific about the exact error because it is an unforeseen issue. 
+
+      This is due to database server error.
 
 
 
-   
+if the web server is not working then first you need to see what kind of web server is using like httpd or nginx -> /var/log
+
+next check whether that web server is running or not -> systemctl status httpd or sytemctl status nginx
+
+if it is in inactive state then start the web server -> systemctl start httpd or nginx
+
+logs of the web server present in this location -> /var/log/httpd
+
+in httpd, two logs files are present, access_log, error_log. 
+
+
+var/log -> all the log files are present here
+
+tail -f error.log -> this command is used to show the latest logs
+
+var/log/auth.log / secure -> security related logs can be found in this file
+
+
+Monitoting tools helps in identify the issue and it also tells you the performance of the system or application.
+
+logging tools helps in troubleshooting the issue and it also you gives you the events like what happened.
+
+
+
+      
+
+            
                            
 
 
