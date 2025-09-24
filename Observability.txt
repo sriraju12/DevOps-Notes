@@ -385,6 +385,43 @@ Secure the server Grafana is running on.
 Log and monitor activity to detect suspicious actions.
 Back up your configuration to avoid data loss.
 
+6. what kind of grafana dashboards are typically used in a devops environment
+
+Common Types of Dashboards:
+
+Application Performance Monitoring (APM):
+
+* APM dashboards focus on the health and performance of the applications 
+* Key Metrics: Request rates, error rates, response times (latency), and saturation (REDS method).
+
+Infrastructure Monitoring:
+
+* high-level overview of the underlying infrastructure, including servers, containers, and cloud services.
+
+* Key Metrics: CPU, memory, disk I/O, and network usage (USE method)
+
+Kubernetes Monitoring:
+
+* For environments using Kubernetes, specialized dashboards are used to monitor the health of the cluster, nodes, and pods.
+
+* Key Metrics: Pod status, resource utilization (CPU, memory), and network traffic within the cluster.
+
+
+7. what kind of alert conditions do you usually configure
+
+Simple Thresholds -  A metric goes above or below a fixed value
+
+Time-based Conditions - These alerts trigger only when a condition persists over a period of time, which helps prevent "flapping" alerts from temporary spikes
+      
+      Example: CPU usage is over 90% for more than 5 minutes.
+
+Change and Rate Conditions - These alerts are used to detect rapid changes or trends in a metric.
+
+      Example: The number of errors per second has increased by more than 10% in the last minute.
+
+"No Data" and "Error" Conditions - These are critical for detecting issues where the monitoring system itself fails     
+
+      Example: To alert when a server or service has gone offline, or when the data collection agent (like a Prometheus exporter) has failed.
 
 LOGGING(ELK):
 1.what is ELK and what are its main components.
