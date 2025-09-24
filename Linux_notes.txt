@@ -708,4 +708,135 @@ Linux Commands:
 
                 sudo iptables -F -> clears all firewall rules
 
+35. what is the difference between soft link and hard link.
+
+soft link - A soft link points to the file path (the name of the original file).
+
+hard link - A hard link points directly to the inode (the physical data on the disk)
+
+* Hard links cannot link to directories and Soft links can link to directories 
+
+36. how to check which ports are running or open.
+
+To list all listening TCP and UDP ports -> ss -tulpn or netstat -tuln(now depricated)
+
+37. what does netstat -ntlp do and how to use it.
+
+The command netstat -ntlp is used in Linux to display a list of all active network connections and listening ports,
+along with the program that is using each port. 
+
+38. command to generate ssh keys
+
+ssh-keygen -t ed25519
+
+
+39. what if user lost a ssh key
+ 
+If a user loses their private SSH key, they lose the ability to authenticate to any server using that key
+
+How to fix it:
+
+There's no way to recover a lost private key for security reasons
+
+solution: * create a new key pair using ssh-keygen
+
+40. how do ypu check network connectivity between two server.
+
+we can use ping or traceroute
+
+ping ip_address or hostname -> ping 192.168.1.100
+traceroute google.com -> shows the path a packet takes to reach the destination. This helps diagnose where a connection is failing.
+
+41. what command would you use to find files larger than 100MB
+
+find / -size +100M -> / means all directories
+                      -size the option used to specify the file size.
+                      + means greater than 
+
+
+find / -type f -size +100M  -> To search only for files (not directories)     
+
+1.Create a user named john with a non-interactive shell 
+
+  sudo useradd -s /sbin/nologin john
+
+  cat /etc/passwd | grep john -> command to check whether user is added or not.
+
+
+2. Create a user named raju and Assign a unique UID 1101 and designate the home directory as /var/www/raju
+
+   sudo useradd -u 1101 -d /var/www/raju raju
+
+3. Create a group named nautilus_developers and Add the user mohammed into the nautilus_developers group. If the user doesn't exist, create it as well.
+
+   sudo useradd mohammed
+
+   sudo groupadd nautilus_developers
+
+   sudo usermod -aG nautilus_developers mohammed
+
+   id mohammed -> to check whether mohammed is added to the nautilus_developers group or not.
+
+4. Create a user named sriraju without a home directory.   
+
+   sudo useradd -M sriraju
+
+5. Create a user named siva and set the expiry date to 2024-02-17, ensuring the user is created in lowercase as per standard protocol.   
+
+   sudo useradd -e 2024-02-17 siva
+
+    sudo chage -l username -> to check the expiry date of the user. 
+
+6. Task is to disable direct SSH root login    
+
+   open this file -> sudo vi /etc/ssh/sshd_config
+
+   look for PermitRootLogin and then modify to no and then save the file
+
+   restart the ssh -> sudo systemctl restart sshd
+
+
+7. Locate all files (excluding directories) owned by user anita within the /home/usersdata directory.
+   Copy these files while preserving the directory structure to the /official directory.  
+
+   find /home/usersdata -type f -user anita -exec cp --parents {} /official/ \; 
+
+
+#################################################################################################################################################
+
+Commands:
+
+1. passwd -l username -> Lock a user account 
+
+2. passwd -u username -> Unlock a user account
+
+3. usermod -l new_username old_username -> Change or update the username
+
+4. groups username -> Viewing Group Memberships
+
+5. rmdir empty_folder –> Removes an empty directory
+
+6. tac file.txt –> Displays file content in reverse order
+
+7. ps -u username –> View processes for a specific user
+
+8. pgrep processname –> Find a process by name and return its PID
+
+9. kill -STOP PID –> Stop a running process
+
+10. renice -n 10 -p PID –> Lower priority of a process
+
+11. renice -n -5 -p PID –> Increase priority of a process (requires root)
+
+12. command & –> Run a command in the background
+
+13. tail -f /var/log/syslog –> Live monitoring of system logs
+
+14. lsblk –> Display block devices
+
+15. fdisk -l –> List disk partitions
+
+
+
+
 
