@@ -1698,6 +1698,18 @@ this will create the new ec2 instance and then it will destroy the existing one.
 * terraform state rm to remove the resource from statefile. i.e if the resource is already gone but terraform still tries to destroy it.
 * retry terraform apply i.e after state cleanup or manual fix rerun apply to continue it.
 
+25. infrastructure provisioning through terraform failures
+
+* check logs - review the error logs from terraform to pinpoint the problems
+* review configuration files - ensures that the terraform files are syntactically correct and that all required resources are defined
+* credentials issues - ensure to have correct credentials and permissions to create resources
+
+26. accidentally deleted the statefile
+
+Always store statefile in a remote backend i.e s3 bucket and turn on versioning.
+ 
+
+
 
 Important Terraform commands:
 
@@ -1731,6 +1743,54 @@ terraform fmt -check  -> check whether the configuration is formatted correctly,
 
 terraform apply -destroy  -> it will delete all the resources in the current configuration.
 
+1. terraform init : Initializes a new or existing Terraform configuration, setting up. 
+                    backend and download required plugins and preparing working directory.
+2. terraform init -get-plugins=false : Initialize without downloading plugins.
+3. terraform init -verify-plugins=false : Initialize without verifying the plugins.
+4. terraform fmt : Format the code as per HCL standard.
+5. terraform validate : Validate the syntax.
+6. terraform validate -backend=false : Validate the syntax and skip the backend.
+7. terraform plan : Preview the changes and show the execution plan to make
+infrastructure.
+8. terraform plan -out plan.out : Outputs the plan to the document file.
+9. terraform plan -destroy : Outputs the destroy plan to the document file.
+10. terraform apply : Execute the changes specified in the plan.
+11. terraform apply –auto-approve : Apply the changes without prompting to
+provide YES.
+12. terraform destroy –auto-approve : Destroy the changes without prompting to
+provide YES.
+13. terraform apply plan.out : Use plan.out to make apply the change.
+14. terraform apply -target=aws_instance.my_ec2 : Apply changes of only this
+resource.
+15. terraform apply -var my_region_variable=us-east-1 : Apply to this region
+specified as runtime variable.
+16. terraform apply -lock=true : Lock the statefile while applying the changes.
+17. terraform apply refresh=false : Apply the infrastructure changes without
+refreshing the statefile.
+18. terraform show : Displays the current state or plan details.
+19. terraform state : Manage and inspects the terraform statefile.
+20. terraform state pull >terraform.tfstate : Download the statefile and output to
+file.
+21. terraform state list : Displays the list of all terraform statefiles.
+22. terraform state rm aws_instance.my_ec2 : Delete the specified resource from
+the state file.
+23. terraform providers : Get information about all the supported providers.
+24. terraform workspace new my_workspace : Create new workspace.
+25. terraform workspace select my_workspace : Select the workspace.
+26. terraform workspace list : Displays the list of all available workspaces.
+27. terraform output -json : List of all outputs in the JSON format.
+28. terraform output : Displays the output variables defined in configuration.
+29. terraform version : Displays the version of terraform and gives Warning if
+outdated or needed to upgrade.
+30. terraform get update=true : Downloads the required modules of terraform.
+31. terraform graph | dot -Tpng >graph.png : Show all the dependencies and
+infrastructure model in Graph format.
+32. terraform taint aws_instance.my_ec2 : Taint the specified resource and to
+recreate on next apply only.
+33. terraform untaint aws_instance.my_ec2 : Remove the taint from the specified
+resource.
+34. terraform login : Login to the Terraform Cloud.
+35. terraform logout : Logout from the Terraform Cloud.
 
 
 
