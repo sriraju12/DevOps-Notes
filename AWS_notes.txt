@@ -976,6 +976,92 @@ Investigate application-level behavior (using top or htop).
 Check for any Auto Scaling or instance health issues.
 
 
+11. how many objects can a s3 bucket can store
+
+* An S3 bucket can store an unlimited number of objects. There is no hard limit on the total number of files or the total amount of data
+  you can store within a single bucket.
+
+* An individual S3 object can range in size from 0 bytes to a maximum of 5 TB  
+
+
+12. your ec2 instance in a private subnet needs to download packages without NAT gateway. what alternatives exists.
+
+When an EC2 instance in a private subnet needs to download packages without using a NAT Gateway, the most common and
+secure alternative is to use VPC Endpoints.
+
+13.how do you setup geographical based routing using aws services
+
+To set up geographic-based routing in AWS, you primarily use Amazon Route 53 with either its Geolocation or Geoproximity routing policies. 
+These policies determine which resource to route a user's traffic to based on their geographic location.
+
+
+14. how do you troubleshoot SSH issues in an ec2 instance.
+
+client-side:
+
+* SSH Command & Key Pair: Ensure you're using the correct SSH command. The most common mistake is using the wrong private key file (.pem)
+  or not setting the correct file permissions. The key file must have read-only permissions for the user, which you can set with chmod 400 
+  my-key.pem. Also, confirm you're using the correct username for your specific AMI (e.g., ec2-user for Amazon Linux, ubuntu for Ubuntu, centos for CentOS).
+
+* SSH Verbose Output: Run the SSH command with verbose output (ssh -vvv -i my-key.pem ec2-user@your-instance-ip). The output will provide
+  detailed information about each step of the connection process, helping you pinpoint the exact point of failure, such as authentication 
+  issues or a timeout.
+
+AWS-Side Network Configuration:
+
+* Security Groups: This is the most frequent cause of connection issues
+
+* Network ACLs (NACLs): If Security Groups are correct, check the NACLs for the subnet. Remember that NACLs are stateless, so you need both inbound and outbound rules.
+
+* Public IP Address & Route Tables: Confirm your EC2 instance has a public IP address and is in a public subnet. The subnet's route table
+  must have a route to an Internet Gateway to allow external traffic to reach the instance.
+
+Instance-Level Issues:
+
+* Instance State: The instance must be in a running state. If it's stopped, starting it might change its public IP, so be sure to get the new one.
+
+* SSH Daemon (sshd) Service: The SSH service on the instance itself may not be running or is misconfigured. If you can't connect,
+  you can't check this directly. This is where other tools come in.
+
+
+15. what problems occur when two VPC's have overlapping CIDR blocks in AWS  
+
+* Having two VPCs with overlapping CIDR blocks in AWS can cause significant network communication problems. While AWS allows you to create 
+  separate VPCs with the same IP range, the issue arises when you try to establish connectivity between them.
+
+* VPC Peering Fails: You cannot create a VPC peering connection between two VPCs if their CIDR blocks overlap. This is a fundamental limitation
+  of VPC peering. If you attempt it, the connection will immediately fail.
+
+* Transit Gateway Routing Issues: AWS Transit Gateway, which is designed to connect thousands of VPCs, also has issues with overlapping CIDRs. 
+  A Transit Gateway will not propagate routes for VPCs with overlapping CIDR blocks, meaning traffic will not be able to be routed between them.
+
+* Complex Workarounds: To get around these issues, you must implement complex workarounds, such as using Network Address Translation (NAT).
+  This involves setting up NAT gateways or instances in each VPC to translate the IP addresses, which adds complexity, management overhead,
+  and potential latency. This is generally considered a last resort.
+
+
+16. how can you enable communication between overlapping CIDR VPC's
+
+ * Communicating between VPCs with overlapping CIDR blocks is complex and is generally not recommended by AWS. Direct methods like VPC Peering
+   and AWS Transit Gateway will fail if the CIDRs overlap because the routing becomes ambiguous.
+
+* To enable communication, you must use a method that translates the IP addresses to avoid the conflict. The most common solution is to use
+  Network Address Translation (NAT).
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
 
 
 
