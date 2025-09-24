@@ -525,6 +525,10 @@ it is used to remove unstopped containers only. if you want to remove unstopped 
 it is used to remove dangling image i.e images that are not tagged and also images that are not used by any container. to remove dangling images without prompt
 use --force flag i.e docker images prune command --force
 
+9. how do you debug a container that has exited.
+Check the logs: The most crucial step is to retrieve the logs to see what happened right before the container exited.
+Inspect the container: For more in-depth information, you can use docker inspect
+
 
 #############################################################################################################################################
 
