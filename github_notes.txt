@@ -136,6 +136,90 @@ NOTE:
                                                       that are taken before the git commit and post-commit are the action that is taken after the git 
                                                       commit.
 
+
+11. What is a detached HEAD:
+                             Detached HEAD occurs when Git points directly to a commit instead of a branch.   
+
+                             * Commits made here won’t belong to any branch unless you create one .
+
+
+12. What is git stash:
+                       git stash temporarily saves uncommitted changes and resets your working directory.  
+
+                       Example: You are mid-feature but must switch to main to fix a bug. Run git stash,
+                                switch branch, fix and commit the bug, then return and restore with git stash pop.   
+
+
+13. What is a Git tag:
+                       A tag is a label pointing to a specific commit, often used for releases (v1.0.0).   
+
+
+14. How do you create and push a tag:
+                                      git tag -a v1.0.0 -m "First release" -> creating a tag
+
+                                      git push origin v1.0.0 -> push tag
+
+
+15. How do you delete a tag:
+                             Local -> git tag -d v1.0.0   
+
+                             Remote -> git push --delete origin v1.0.0 
+
+
+16. how do you undo last commit in git:                                                          
+                                       You can undo your last commit in Git using two primary commands: git reset or git revert
+
+                                       git reset (For Local Commits):
+                                       Use git reset to "undo" a local commit that has not yet been pushed to a shared remote repository.
+
+                                       git reset --hard HEAD~1
+
+
+                                       git revert (For Pushed Commits):
+                                       Use git revert to undo a commit that has already been pushed to a shared remote repository.
+
+                                       git revert HEAD
+
+
+17. How do you view commit history in git:
+                                           You can view commit history in Git using the git log. i.e git log 
+
+                                           git log --oneline -> Displays each commit on a single line.
+
+
+18. How do you rename a branch in git:
+                                      Renaming a Local Branch:
+                                      
+                                      git branch -m <new-branch-name> -> If you are on the branch you want to rename
+                                      git branch -m <old-branch-name> <new-branch-name> -> If you are on a different branch, you can specify both the old and new names
+
+                                      Renaming a Remote Branch:
+                                      You cannot directly rename a remote branch. Instead, the process involves renaming your local branch, 
+                                      deleting the old remote branch, and then pushing the newly named local branch to the remote.
+
+                                      git branch -m <new-branch-name> -> rename local branch
+                                      git push origin --delete <old-branch-name> -> delete remote branch
+                                      git push -u origin <new-branch-name> -> push newly created branch
+
+
+19. What is the difference between git add . and git add -A:
+                                                             git add . stages all new and modified files in the current directory and its subdirectories. 
+                                                             It does not stage deleted files.
+
+                                                             git add -A stages all changes in the entire working tree, regardless of the current directory. 
+                                                             This includes new, modified, and deleted files.
+
+
+20. What is cherry-pick in git:
+                                git cherry-pick is a Git command that allows you to take a specific commit from one branch and apply it to 
+                                another. Unlike git merge or git rebase, which move entire branches, cherry-pick is used for selecting and
+                                applying individual commits
+
+                                i.e git cherry-pick <commit-hash or ID>
+
+
+
+                                                                         
  
 
  
