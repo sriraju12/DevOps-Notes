@@ -524,3 +524,33 @@ Resolve Dependency Conflicts: Use version ranges and exclusions to handle depend
 By properly managing dependencies in your CI/CD pipeline, you ensure that your builds are consistent, fast, and reliable, with minimal risk of version conflicts or missing dependencies.
 
 
+15. The deployment pipeline fails due to errors in the CI or CD pipeline.
+
+* check the logs - review build or deployment logs for erorr messages
+* verify configuration - ensure that environment variables, credentials or configuration files are correctly set up.
+* dependency issues - check if any dependencies are outdated or missing
+* Rollback - if possible, Rollback to a stable version and investigate the change made in the current version
+
+16. The application is running slow or experiencing high latency in production
+
+* monitor metrics - use monitoring tools like prometheus, grafana or new relic to check CPU, memory and network usage.
+* check database performance - look for slow queries or database resource limitations that might be causing performance issues
+* Application profiling - use tools like APM(Application performance Monitoring) to identify specific bottlenecks in the application code.
+
+
+16. The CI/CD pipelines takes too long to complete.
+
+* build cache - check if build caching is implemented(ex: docker layers, mave/gradle cache) to speed up builds
+* parallelization - enable parallel testing or deployment steps to decrease the overall time.
+* resource allocation - check if the CI/CD runners have enough resources(like CPU, memory) to handle the workloads efficiently.
+
+
+17. how to find errors in CI/CD pipelines
+
+* Check the Pipeline Logs
+* Validate Configuration Files
+* Inspect Dependencies and Environment Variables
+
+
+
+
