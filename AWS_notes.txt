@@ -584,6 +584,408 @@ steps:
 
 AWS:
 
+* one subnet can be present in one availability zone only. it can not be present in 2 availability zones.
+
+* one availability zone can have multiple subnets.
+
+* if a route table having route to internet via internet gateway then that route table becomes public route table.
+
+* if you attach this public route table to a subnet then that subnet becomes public subnet.
+
+* in NACL's, both inbound and outbound rules can be defined is 40 rules only.
+
+* In AWS, ephemeral ports are important for configuring Network Access Control Lists (NACLs). While Security Groups are stateful, automatically allowing return traffic
+  for a given connection, NACLs are stateless. This means you must explicitly define rules for both inbound and outbound traffic.
+
+* When a client (like your computer) connects to a server (like an EC2 instance), it uses a well-known port for the inbound request (e.g., port 80 for HTTP).
+  However, the return traffic from the server back to the client uses an ephemeral port.  
+
+* Because NACLs are stateless, you must add an outbound rule to your NACL that allows traffic back to the client on the ephemeral port range. 
+  If you don't, the server's response will be blocked by the NACL, and the connection will fail, even if your inbound rule is correct.
+
+
+  Example:
+            * Inbound Request: A client sends a request to your EC2 instance on a port you've opened, like port 80.
+
+            * Outbound Response: The EC2 instance processes the request and sends a response back to the client. This response is sent from your
+                                 instance's source port (80) to the client's randomly assigned ephemeral port.
+
+            * NACL Rule: To allow this response, your NACL needs an explicit outbound rule that permits traffic to the ephemeral port range. 
+                         This range is defined by the operating system of the client, not the server. For most Linux kernels, the range is 32768-60999.
+                         For Windows and macOS, it's typically 49152-65535. A common practice is to allow a wide port range to cover various client types.
+
+
+* Ephemeral Ports for:
+                       Linux: 32768 to 60999
+          
+                       Microsoft Windows: 49152 to 65535
+
+
+* In NACL's, lower rule number has a higher priority and rules are evaluated or processed in sequencially i.e #100 is evaluated before rule #200.
+
+* rule number starts with 100.
+
+
+
+
+VPC:
+
+* create the VPC
+
+* create the two subnets and then create the 2 route tables.
+
+* one route table is for public subnet and another route table is for private subnet.
+
+* for public route table, add internet gateway and then associate it with public subnet.
+
+* for private route table, associate with private subnet.
+
+* create the NACL's for private subnet and public subnet.
+
+* launch two ec2 instances and place one ec2 instance in public subnet and another in private subnet.
+
+* create the security groups for each ec2 instance.
+
+* Now, if you want to connect from ec2 instance from public subnet to ec2 instance in private subnet then
+  first copy the pem file to the ec2 instance in public subnet using scp command.
+
+* you can connect via ssh from public ec2 instance to private ec2 instance.
+
+* for that you need remember 4 things like public subnet security group and then public subnet NACL outboud rule and
+  then private subnet NACL inbound rule and then private subnet security group.
+
+* for public subnet security group, we don't need to do anything because security group is stateful, so we don't edit outbound rules.
+
+* for public subnet NACL's, we need to create NACL outbound rule for SSH from VPC range.
+
+* for private subnet NACL, we need to create NACL inbound rule for SSH from VPC range because here traffic is incoming.
+
+* for private subnet security group, we need to add SSH rule from either private ip address of the ec2 instance in public subnet or
+  security group of ec2 instance in public subnet. Both should work here.
+
+* Now, the ssh connection from ec2 instance of public subnet to ec2 instance of private subnet won't work because we need to do for outgoing traffic also.
+  till now we have done it for incoming traffic only.
+
+* for that you need remember 4 things like private subnet security group and then private subnet NACL outboud rule and
+  then public subnet NACL inbound rule and then public subnet security group. 
+
+* for private subnet security group, we don't need to do anything because security group is stateful, so we don't edit outbound rules. 
+
+* for private subnet NACL's, we need to create NACL outbound rule for SSH from VPC range and for port range we need to use Ephemeral Ports(Linux: 32768 to 60999).
+
+* for public subnet NACL, we need to create NACL outbound rule for SSH from VPC range and for port range we need to use Ephemeral Ports(Linux: 32768 to 60999).
+
+* for public subnet security group, we don't need to do anything because it is stateful and it should remember this connection.
+
+* This connection is also called jump server or bostion host.
+
+* if the ec2 instance in the private subnet wants to connects to internet then you need to create NAT Gateway and then attach this NAT gateway to the 
+  private subnet route table. i.e NAT Gateway should be present in public subnet.
+
+* how it goes to the internet, ec2 instance in private subnet sends requests then it will go to NAT Gateway that is present in public subnet through 
+  private subnet route table. from NAT Gateway, it will go to Internet Gateway(IGW) and from IGW to internet.
+
+* create the NAT Gateway and while creating don't forgot to place in public subnet.
+
+* go to private subnet route table and then add route 0.0.0.0/0 to NAT Gateway.
+
+* if you want to do curl https://google.com from ec2 instance in private subnet i.e here it is trying to connect to the internet.
+
+* let's see what things we need to keep in mind to establish this connection.
+
+* first security group private subnet and then create the NACL outbound rule and then create the public subnet NACL inbound rule and then create public subnet NACL outbound rule.
+
+* for private subnet security group, we don't need to do anything because here traffic is outgoing.
+
+* for private subnet NACL, we need to create outbound rule for HTTPS(443) to 0.0.0.0/0 
+
+* next we need to create the public subnet NACL inbound rule for HTTPS(443) to 0.0.0.0/0 or our VPC Range
+
+* and also we need to create the public subnet NACL outbound rule for HTTPS(443) to 0.0.0.0/0. i.e it should go to IGW(internet gateway) via public subnet inorder to reach
+  internet.
+
+* Now, we need to look after incoming traffic from internet(response).
+
+* from internet, incoming(response) traffic reaches to NAT Gateway that is present in public subnet. so we need to create a NACL inbound rule(we have already allowed Ephemeral Ports)
+
+* from public subnet NAT Gateway to private subnet traffic go. so we need to allow/create public subnet NACL outbound rule(we have already allowed Ephemeral Ports).
+
+* Now we need to create the private subnet NACL inbound rule(we need to allow Ephemeral Ports to 0.0.0.0/0 (because response is coming from internet.)
+
+* for private subnet ec2 instance security group we don't need to do anything because it will remember the connection.
+
+
+NOTE:
+
+* Ephemeral Ports are used for response 
+
+* Elastic IP are fixed IP's. if you attached to ec2 instance and then you have deleted ec2 instance still Elastic Ip is present. You need to manually delete that IP.
+
+* VPC CIDR range should be between /16 to /28 only i.e 10.24.0.0/16
+
+* can we create VPC with same CIDR range. yes we can create it because VPC is isolated environment. but it is of no use in the same account. Always try to create VPC
+  with different CIDR range.
+
+
+
+Multi CIDR Range:
+
+* for VPC, we can create maximum of 5 CIDR range for more IP's. for example, 10.24.0.0/16, 10.25.0.0/16, 10.26.0.0/16, 10.27.0.0/16, 10.28.0.0/16
+
+* previously this option is not there that's why they are creating another VPC and deploying resources in that VPC. 
+
+* if you need more IP's then you can use multi CIDR range in the VPC.
+
+* when you add the CIDR range in the VPC, then automatically that CIDR range will be added to the all route tables in that VPC.
+
+* in the route table, in routes if you see the any status as Blackhole that means that service is not working (mainly the route table uses NAT Gateway service only).
+  we need to check health of the service for troubleshooting.
+
+* in the VPC, first created CIDR range can not be deleted but you can delete remaning 4 CICR ranges.
+
+
+Reserved IP Addresses:
+
+* in the VPC, you have given CIDR range as 10.24.0.0/16 and while creating the subnet you have given CIDR range as 10.24.0.0/24 then for this subnet 
+  total available IP's should be 256.
+
+* but when you check in the subnet, it will show only 251.
+
+* remaining 5 IP address are reserved IP Addresses for that subnet.
+
+* here our subnet CIDR range is 10.24.0.0/24 then
+
+    10.24.0.0 IP is allocated to network address
+
+    10.24.0.1 IP is allocated to VPC router
+
+    10.24.0.2 IP is allocated to DNS
+
+    10.24.0.3 Ip is allocated to future use
+
+    10.24.0.255 Ip is allocated to network broadcast address
+
+* These 5 Ip's are called Reserved IP Addresses 
+
+* if you are creating the VPC with CIDR range as 10.24.0.0/28 then while creating the subnet CIDR range as 10.24.0.0/29 here available IP's are 8 only in that 5 are
+  reserved IP's. you can only create one subnet here.
+
+
+
+
+How to Extend/Add EBS Volumes to ec2 instance:
+
+* One EBS can only attach it to the single ec2 instance only
+
+* for ec2 instance if you attach volume then that volume becomes Block Devices.
+
+* while attaching the volume to ec2 instance then both ec2 and volume should be present in same avilability zone only.
+
+* These volumes is called EBS(Elastic Block Storage).
+
+* you can increase the storage but you cannot decrease it.
+
+
+For Windows how to extend volume:
+
+* you have increase volume size in aws and we need to add that unused volume to our disk then click window + R then type diskmgmt.msc
+
+* it will open the disk management window, here it will show unallocated storage. 
+
+* right click on the c drive and then select extend volume. it will open popup and then click on next till very end. That's it.
+
+
+Attaching new volume to Windows:
+
+* create the volume and then attach it to the ec2 instance.
+
+* click window + R then type diskmgmt.msc and it will open the disk management window, here it will show unallocated storage. 
+
+* click on the disk storage and then select initialize disk
+
+* click on the allocated storage and then select new simple volume and then click on next and then select storage and then select drive letter and then click on finish.
+
+
+
+For Linux how to extend volume:
+
+* lsblk -> this command to list all block devices.
+
+* you have increase volume size in aws
+
+* first we need to extend the partition -> sudo growpart /dev/nvme0n1 1    i.e here /dev/nvme0n1 is disk and 1 is partition number
+
+* extend the file system -> sudo xfs_growfs -d /
+
+* run this command to verify the size is showing or not -> df -hT
+
+
+Attaching new volume to Linux:
+
+* create the volume and then attach it to the ec2 instance.
+
+* df -kh -> it will display the newly created disk.
+
+* first need to check which disk name it is using and then run this command -> file -s /dev/diskname    i.e file -s /dev/nvm1n1
+
+* make xfs file system i.e it will create the xfs file system -> mkfs -t xfs /dev/nvm1n1
+
+* we need to create a folder -> mkdir raju
+
+* now we need to mount this folder to the xfs file system that we have created above  -> sudo mount /dev/nvm1n1 /raju
+
+* run df -kh -> it will display this /dev/nvm1n1 is mounted to /raju
+
+
+                     OR
+
+* lsblk -> this command to list all block devices.
+
+* first need to check which disk name it is using and then run this command(it will show no data) -> file -s /dev/diskname i.e file -s /dev/nvm1n1  
+
+* format the disk -> sudo fdisk /dev/nvm1n1 
+
+* then type n to create partition and then type p for primary partition and then type 1-4 any number(partition number) and then enter and then enter and then type w for save and quit.
+
+* if you run this command, it will show partiton to your disk -> lsblk
+
+* now create the xfs file system from that partition  -> sudo mkfs -t xfs /dev/nvm1n1
+
+* create a folder -> mkdir raju1
+
+* mount this folder to the xfs file system that we have created above -> sudo mount /dev/nvm1n1p1(partition name) /raju1
+
+* run df -kh -> it will display this /dev/nvm1n1p1 is mounted to /raju1
+
+                     
+
+EFS(Elastic File System):
+
+* it is a shared file system and can attach it to multiple ec2 instance.
+
+* EFS can be present in any availability zone still we can attach it to the ec2 instance present in different availability zone. 
+
+
+How to attach EFS to ec2 instance:
+
+* create the EFS and then click on attach then it will show two option to mount EFS to ec2.
+
+* one is mount via DNS and another one is mount via IP.
+
+* choose mount via IP and then select your availability zone that your ec2 instance is present. it will display one command. copy it.
+
+* we need to create one folder -> mkdir raju
+
+* paste that command and then in that command last word is folder name just replace with the folder name that we have created now.
+
+* run df -kh -> it will display the ip address and then that IP is mounted to that folder that we have created.
+
+* run lsblk -> here EFS will not show because it is not Block device. it is network based storage
+
+
+
+
+How to create backup's of ec2 using AMI:
+
+* go to ec2 instance and then select the instance you want to take backup and then click on actions and then click on image and templates and then click on create image.
+
+* fill the details and then click on create image.
+
+* whenever you create AMI's(backup) of ec2 instance then it also create the snapshot and when snapshot is created then only AMI comes to available state from pending state.
+
+
+How to restore ec2 from AMI:
+
+* go to AMI in ec2  and then select the AMI you want to restore and then click on launch instance from AMI and then fill the details like name, instancetype, security groups etc.
+
+* This is how we can restore the ec2 instance from AMI.
+
+
+NOTE:
+
+* we can also create snapshot(backup) for the volumes
+
+* select the volume and then click on Actions and then click on create snapshot. it will create a snapshot of your volumes.
+
+* can we create a AMI from snapshot. Yes, we can create AMI from snapshot.
+
+* for that, select the snapshot and then click on Actions and then click on create image from snapshot.
+
+* can we create an ec2 instance from this AMI. Yes, we can create ec2 instance from the AMI that we have created but you won't work because there is no OS(Operating System)
+  in the AMI. it will on come in running state but status check will stuck in initiliazing state.
+
+* when you delete AMI then snapshot will not delete, you need to manually delete those snapshots.  
+
+
+
+
+
+
+DNS(Domain Name Server):
+
+* it is used to map ip address to name.
+
+* Route53 is DNS server in AWS.
+
+* in Route53, 53 is port for DNS.
+
+* in Route53 you can buy domain and then create hostedZones and then create record for it.
+
+* and also you can buy domain in third party like godaddy.com and then create hostedZones in route53 and then create record for it.
+
+* mainly used records are A, AAAA and CName:
+
+        A -> maps to ipv4
+
+        AAAA -> maps to ipv6
+
+        CName -> for creating alias for the same domain i.e name to name.
+
+* While creating the record, there is TTL(Time To Live) basically an expiration period in sec like 300. after 300 sec the ip address stored in it will be expired and then
+  fetches again.
+
+* For suppose, you have updated the IP address of the record and when you try to nslookup on that IP address, it will not show that updated IP address because we need to check
+  the TTL seconds, after that time only it will fetch again and then it will show updated IP address.
+
+Routing Policies:
+
+* Simple routing:
+                  just map the web server to name domain. NO extra policies.
+
+
+* failover routing:
+                    failover routing lets you route traffic to a resource is healthy or to a different resource when the first resource is unhealthy. you need to create 2 records
+                    i.e one is primary and another one is secondary.
+
+
+* weighted routing:
+                    based on the weight we can distribute the traffic to the resources. here you need to create 2 records for the resource. and mention the weight for that resource
+                    i.e o to 255. if one resouce you have given 55 then for another resource you need to give 200.
+
+
+* Geolocation routing:
+                       if the users are using your website in different countries then inorder to reduce the latency then we need to deploy to multiple regions and based on
+                       the location it will redirect the traffic.
+
+
+
+NOTE:
+
+* Lifecycle rules in S3 are a set of rules that define actions to be taken on objects throughout their lifetime. These rules help you manage your storage
+  costs by automatically transitioning objects to a more cost-effective storage class or by deleting them after a certain period.
+
+* Lifecycle rules work on a per-bucket basis and can be applied to all objects in a bucket or to a specific subset of objects based on a shared prefix (folder) or tags  
+
+A lifecycle rule consists of two main components:
+
+* Transition Actions: These actions move objects from one storage class to another. For example, you can create a rule to automatically move objects
+                      from S3 Standard (for frequently accessed data) to S3 Standard-Infrequent Access (IA) after 30 days, and then to S3 Glacier Flexible Retrieval
+                      (for archival data) after 90 days. This helps you save money on storage for data that is no longer accessed frequently.
+
+* Expiration Actions: These actions permanently delete objects after a specified period. For example, you can create a rule to delete temporary
+                      log files after 60 days to prevent them from accumulating and costing you money.  
+
+
 VPC:
 Let’s see how VPC works:
 1. The user sends requests from the browser and it will goes to the VPC.
