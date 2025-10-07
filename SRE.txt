@@ -174,6 +174,128 @@ Monitoting tools helps in identify the issue and it also tells you the performan
 
 logging tools helps in troubleshooting the issue and it also you gives you the events like what happened.
 
+SRE Interview Questions:
+
+1. what is runbook:
+                    A runbook is a documented procedure for handling specific tasks or incidents.it helps on-call engineers take consistent action without escalating.
+                    
+                    For Example:
+                                runbook for disk space issues may include checking disk space, removing old logs and restarting the service.
+
+
+
+2. what is toil:
+                 Toil is manual, repetative and automated work that has no long term values and scales linearly with service growth.
+
+                 For Example:
+                              like reboot of the system or manual deployment are performed repetatively.
+
+
+3. your web app is running slowly. what steps would you take:
+
+                                                              * start checking metrics like latency, error rates and response time
+
+                                                              * then review the logs for timeouts or exceptions.
+
+                                                              * use APM(Application Performance Monitoring) tools like datadog or newrelic or dynatrace tools to trace requests.
+                                                                to pinpoint the which service or functions causing delays.
+
+                                                              * look for backend bottlenecks, DB issues or high traffic.
+
+
+4. you receive an alert at 3 am. how do you respond:
+                                                     * first acknowledge the alert to aviod duplication
+
+                                                     * check the dashboards and logs to analyze the root cause of the issue.
+
+                                                     * determine if the issue is user impacting and priortize it.
+
+                                                     * apply a quick fix or rollback if possible.
+
+
+5. what is blameless postmortem:
+                                 it is a retrospective after an incident where focus is on understanding what happened and why, rather than assigning blame.
+
+
+6. what are error budgets:
+                           an error budget is an acceptable amount of failure a service can have in a given period, calculated as 100% SLO
+                           i.e how much downtime a system can afford without upsetting the consumers and also know as margin of error permitted
+                           by the SLO
+            
+
+7. how do you ensure zero downtime deployments:
+                                                * implement rolling, canary or bule/green deployments.
+
+                                                * use readiness and liveness probes in k8s
+
+                                                * ensure proper health checks
+
+                                                * use circuit breakers and retries.
+
+
+8. explain incident responce lifecycle:
+                                        lifecycle steps are: * detection - you will get automated alerts or user reports that detects the incident
+
+                                                             * response - first you need to acknowledge and then investigate it and then mitigate the incident.
+
+                                                             * communication - once the incident is detected and you also responded, next you need to communicate with
+                                                                               your team or stakeholders about the incident.
+
+                                                             * resolution - apply the fix and verify the service.
+
+                                                             * postmortem - find the root cause and document it and implement improvements.
+
+
+9. database latency has been increased. what would you do:
+                                                           * check the DB's cpu and memory usage.
+
+                                                           * identify the slow quries using EXPLAIN
+
+                                                           * review recent schema/index change
+
+                                                           * analyze connection pool saturation.
+
+
+10. a noisy neighbor pod is impacting others in your k8s cluster. what steps would you take:
+                                                                                             * set CPU/Memory limits and requests
+
+                                                                                             * use node affinity and taint/tolerations
+
+                                                                                             * isolate critical services in different namespace or nodes
+
+                                                                                             * implement QoS classes
+
+
+11. why horizontal scalling is preferred:
+                                          * it needs less money up front
+
+                                          * it lowers administrative costs
+
+                                          * facilitates simpler scalability as demand raises
+
+
+12. you are getting frequent noisy alerts. what do you do:
+                                                           * review and tune thresholds
+
+                                                           * suppress low-priority alerts
+
+                                                           * implement alert deduplication and grouping
+
+                                                           * use rate-limiting for flapping alerts
+
+                                                           * prioritize actionable alert.
+
+
+13. describe how would you create a post incident report:
+                                                          post incident report should include a clear timeline of events, the root cause analysis, the impact of the incident
+                                                          and steps taken to resolve it.
+
+
+14. how would you manage software deployments to minimize the risks:
+                                                                     to reduce the risks of deployment, i have strategies such as canary releases, where changes are rollled out
+                                                                     to a small subset of users before a full rollout.
+
+
 
 
       
