@@ -529,6 +529,13 @@ use --force flag i.e docker images prune command --force
 Check the logs: The most crucial step is to retrieve the logs to see what happened right before the container exited.
 Inspect the container: For more in-depth information, you can use docker inspect
 
+10. how do docker image layers work and how do they relate to the linux system
+
+Docker image layers are read-only, immutable snapshots of a container's filesystem. Each command in a Dockerfile that modifies the filesystem 
+creates a new layer, which is stacked on top of previous ones. This system, built on a Linux Union Filesystem like OverlayFS, enables efficient 
+storage and sharing, as multiple images can reuse common base layers. When a container runs, a new writable layer is added, where any changes are
+saved using a copy-on-write mechanism, leaving the original layers untouched.
+
 
 #############################################################################################################################################
 
