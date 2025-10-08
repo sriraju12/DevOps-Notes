@@ -1718,7 +1718,62 @@ i.e kubectl scale deployment deployment-name --replicas=0
 A PDB is a Kubernetes resource that lets you specify the minimum number of pods for an application that must be available at all times. 
 The main purpose of a PDB is to ensure that your application remains highly available during voluntary disruptions
 
+9. How does k8s DNS resolution work for pods and services.
 
+Kubernetes DNS resolution enables pods and services to find and communicate with each other using names instead of dynamic IP addresses. 
+This is handled by an in-cluster DNS service, typically CoreDNS, which is deployed in the kube-system namespace. Each pod is configured 
+to use this DNS service for name lookups.
+
+Kubernetes DNS resolution relies on an in-cluster DNS service, typically CoreDNS. Each pod's /etc/resolv.conf file is automatically configured 
+to use CoreDNS as its nameserver. When a pod makes a DNS query for a service or pod name, CoreDNS resolves it to the correct internal IP address
+
+for pods:
+Pods can also get DNS names, although this is less common for general communication since services provide a more stable endpoint. Pod DNS names are typically used in stateful workloads (e.g., StatefulSets) or for direct pod-to-pod communication.
+
+The DNS name for a regular pod is typically its IP address, with dashes replacing the dots, and then appended with the namespace and .pod.cluster.local.
+
+Example: A pod with IP 10-0-0-50 in the default namespace would have a DNS name of 10-0-0-50.default.pod.cluster.local.
+
+For pods in a StatefulSet, the DNS name is more stable and is in the format:
+<pod-name>.<service-name>.<namespace>.svc.cluster.local
+
+Example: A pod named web-0 managed by a StatefulSet with a service named web in the prod namespace would have a DNS name of web-0.web.prod.svc.cluster.local
+
+
+for services:
+
+Services are assigned an A record that resolves to the service's ClusterIP. This allows pods to connect to the service without knowing the IP addresses of the individual pods behind it. The DNS name format is:
+
+<service-name>.<namespace-name>.svc.cluster.local
+
+Example: A pod in the web namespace trying to connect to a service named database in the backend namespace would use the FQDN: database.backend.svc.cluster.local.
+
+Pods can also use shorter names if the target service is in the same namespace, e.g., simply database. This works because Kubernetes automatically appends the pod's namespace and other suffixes to resolve the name.
+
+
+
+10. how does kubernetes garbage collection work including finalizers and termination grace periods.
+
+Kubernetes garbage collection automatically cleans up resources based on owner references, which establish parent-child relationships between objects.
+When an owner is deleted, its dependents are also removed. Finalizers are special keys that prevent an object's immediate deletion until a controller performs
+necessary cleanup tasks. The termination grace period gives a pod a specific amount of time to shut down gracefully after a deletion request before being forcefully 
+terminated. These mechanisms ensure a clean and controlled teardown of resources.
+
+
+11. they are 200 pods and 100 pods fails due to IP shortage. how would you fix it.
+
+An IP shortage for pods means your Pod CIDR range is too small. To fix it, you need to change the cluster's network configuration, which depends on your deployment.
+For managed services like EKS, you can add a secondary CIDR range to your VPC and configure your cluster's CNI plugin to use it. On self-managed clusters,
+you'd modify core files like the kube-controller-manager manifest to specify a larger CIDR block. Another solution is to adjust CNI settings to prevent
+IP pre-allocation on nodes. Ultimately, migrating to IPv6 is the most robust, long-term fix, as it provides an almost unlimited address space.
+
+
+12. what is OIDC(OpenID Connect). where it is used and alternatives.
+
+OpenID Connect (OIDC) is an authentication protocol built on top of OAuth 2.0. It uses JSON Web Tokens (JWTs), called ID tokens, to securely verify a user's identity.
+While OAuth 2.0 is for authorization, OIDC provides the authentication layer, confirming who the user is. It's widely used for social logins (e.g., "Sign in with Google")
+and Single Sign-On (SSO) in web and mobile applications. Alternatives include SAML, which is an older, XML-based protocol often used in enterprise environments, 
+and various proprietary solutions.
 
 
 
