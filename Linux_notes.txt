@@ -836,6 +836,23 @@ Commands:
 
 15. fdisk -l –> List disk partitions
 
+systemctl list-units —type=services  -> list all running services.
+Services are special kind of process and it starts at the time of booting of the server
+
+Diff blw ps aux and ps -ef: 
+Ps aux show memory and cpu usage and ps -ef it will not show.
+
+Kill -3 process_id -> it will show the thread dump for java applications
+
+renice command to used to set priority/deprority of the process
+
+Less value more priority and higher value less priority. Value range is -19 to 20
+
+vmstat -> it reports the system performance. Basically we need to see the free memory is available or not
+
+diff filename1 filename2  -> to show the difference of this two files.
+
+
 
 
 
