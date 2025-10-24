@@ -966,6 +966,25 @@ For example, to shutdown the ec2 instances, creating file or copying a file etc.
 
 14.what is the advantage of ansible over chef.
 chef is also configuration management tool. To use chef, you need to install the agent on the target machines also learning chef is difficult. This problems will be solved by ansible.
+
+15.when to use static inventory and dynamic inventory in ansible:
+
+static inventory:
+                 A static inventory is a simple, manually created file (usually in INI or YAML format) that lists all your managed hosts.
+                 It's best for small, stable environments where hosts are not frequently added, removed, or changed.
+
+                 * On-Premise Infrastructure: For physical servers or virtual machines that are not part of a large, automated scaling group
+
+dynamic inventory:
+                  A dynamic inventory is a script or program that generates an inventory list on the fly by querying an external source.
+                  It's essential for modern, scalable, and cloud-based infrastructure.
+
+                  * Use dynamic inventory when your infrastructure is constantly changing or is managed by a cloud provider.
+
+16.what is gather facts in ansible:
+
+  Gather facts" in Ansible is the process of collecting system data from remote hosts, such as their operating system, IP address, and disk space.
+  This information, called Ansible facts, is automatically collected by default and stored in variables for use in playbooks.
                                                  
  
 
