@@ -801,6 +801,20 @@ find / -type f -size +100M  -> To search only for files (not directories)
 
    find /home/usersdata -type f -user anita -exec cp --parents {} /official/ \; 
 
+8. how to check last month modifies files in linux:
+
+  find . -mtime -30 
+
+  here find: The command used to search for files in a directory hierarchy
+       . Specifies the starting directory for the search. A dot (.) means the current directory. You can replace this with any path, like /home/user/documents
+       -mtime -30: The primary condition. -mtime refers to the file's modification time in full 24-hour periods (days). The negative sign (-) means "less than," 
+                    so -30 finds files modified less than 30 days ago (i.e., within the last 30 days).
+  find . -mtime +30 -mtime -60  -> to find files modified between 30 and 60 days ago
+
+9. how to update the package(like jenkins) from private repository only but not from public repository:
+
+  sudo yum --disablerepo="*" --enablerepo="<private_repo_id>" update jenkins
+
 
 #################################################################################################################################################
 
