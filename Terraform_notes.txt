@@ -1707,6 +1707,56 @@ this will create the new ec2 instance and then it will destroy the existing one.
 26. accidentally deleted the statefile
 
 Always store statefile in a remote backend i.e s3 bucket and turn on versioning.
+
+27. when will terraform state file will be generated:
+
+  A Terraform state file is generated after you run the terraform apply command for the first time. It is created when Terraform successfully provisions 
+  or updates your infrastructure.
+
+28. you have created the ec2 instance through terraform and someone manually deleted that ec2 from cloud and when you run terraform apply, what will happen:
+
+  When you run terraform apply after an EC2 instance has been manually deleted, Terraform will detect the change and re-create the instance.
+  This is a behavior called state drift.
+
+29. you have stored statefile in s3, and you have written main.tf file for ec2 and you run apply command, how does it fetches the state file from s3:
+
+  Terraform fetches the statefile from an S3 bucket based on the backend configuration in your .tf file and a prior terraform init command.
+
+30. Difference between local variables and input variables in terraform:
+
+
+input variables:
+                Input variables are used to make your Terraform code reusable and dynamic. You define them in a variable block and
+                then pass their values into your configuration at runtime.
+
+                * To accept values from outside a module. This allows you to use the same module for different environments
+                  (e.g., development, staging, production) by simply providing different input values.
+
+
+
+Local variables:
+                Local variables are used to give a name to an expression's result for internal use within a single module. 
+                This makes your code more readable and prevents you from repeating the same complex logic.
+
+                Example:
+                
+                locals {
+                  # This local variable combines the environment and a base name.
+                  app_name = "app-${var.environment}"
+                }
+                
+                resource "aws_s3_bucket" "my_bucket" {
+                  bucket = "${local.app_name}-bucket"
+                  # Other bucket configuration
+                }
+                
+                resource "aws_instance" "my_server" {
+                  tags = {
+                    Name = "${local.app_name}-server"
+                  }
+                  # Other instance configuration
+                 }
+                  
  
 
 
