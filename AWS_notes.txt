@@ -1503,6 +1503,17 @@ isn't configured correctly. It must have a route with the destination 0.0.0.0/0 
 the NAT gateway itself needs to be in a public subnet with a route to the Internet Gateway. Also, confirm that the security group and NACL rules 
 are allowing outbound traffic from the private subnet.
 
+24. how would you access data in a s3 bucket from account a when your application is running on ec2 instance in account b
+
+ The recommended method is using cross-account IAM roles and the STS(Security Token Service) AssumeRole action for secure access. First, in Account A 
+ (bucket owner), create an IAM role with an S3 access policy and a trust policy that permits the Account B ID to assume it.
+ Additionally, update the S3 bucket policy in Account A to explicitly allow access for the created role's ARN. Next, 
+ in Account B (EC2 owner), attach an IAM instance profile role to your EC2 instance. This EC2 role must have a 
+ permissions policy granting the sts:AssumeRole action on the target role's ARN in Account A. Finally, the application on the 
+ EC2 instance uses its current credentials to call AssumeRole, receives temporary credentials from AWS STS, and uses 
+ those temporary credentials to securely access the S3 bucket's data. This method adheres to the principle of least privilege
+ by using short-lived credentials.
+
 
 
 
