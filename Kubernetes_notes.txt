@@ -1775,6 +1775,110 @@ While OAuth 2.0 is for authorization, OIDC provides the authentication layer, co
 and Single Sign-On (SSO) in web and mobile applications. Alternatives include SAML, which is an older, XML-based protocol often used in enterprise environments, 
 and various proprietary solutions.
 
+13. How does Pod-to-Pod communication work within the same node?
+
+    Pods on the same node communicate via the CNI bridge. The CNI plugin creates a virtual Ethernet pair for each Pod,
+    with one end in the Pod's network namespace and the other connected to a bridge on the node.
+
+14. How does Pod-to-Pod communication work across different nodes?
+
+    Pods across different nodes communicate via the overlay network created by the CNI plugin. The CNI plugin encapsulates Pod
+    traffic (e.g., using VXLAN, IPIP) and routes it between nodes.  
+
+15. How does Kubernetes handle DNS for services and pods?
+
+  Kubernetes uses an internal DNS service (typically CoreDNS) to provide service discovery.
+  * Pods: Each Pod gets a DNS A record in the form pod-ip-address.namespace.pod.cluster.local.
+  * Services: Each Service gets a DNS A record in the form service- name.namespace.svc.cluster.local.
+    Headless services also get A records for their individual Pods.
+
+16. You want to ensure that a critical application always has at least 3 Pods running, even during node maintenance. 
+    How would you configure this?
+    
+  * Implement a Pod Disruption Budget (PDB) for your application with minAvailable: 3 
+  (or minAvailable: 100% if you want all of them). This will tell Kubernetes that it should try to keep at least 3 Pods
+    of that application running during voluntary disruptions like kubectl drain.    
+
+17. What is a headless Service? When is it used?
+
+    A headless Service does not have a ClusterIP. Instead of acting as a load balancer, it provides direct access to the 
+    Pod IPs via DNS. When you query the DNS name of a headless service, it returns the IP addresses of the Pods selected by 
+    the service.
+    Use cases:
+    * Stateful applications that need stable network identities for each replica (e.g., peer discovery in a distributed database
+      like Cassandra).
+    * When you want to control load balancing yourself within your application.   
+
+18. How do you manage certificates and TLS in Kubernetes?
+
+  * Kubernetes Secrets: You can store TLS certificates as Kubernetes Secrets of type kubernetes.io/tls.
+  * Ingress: Ingress resources can use these TLS Secrets to terminate SSL/TLS at the Ingress Controller.
+  * Cert-manager: A popular open-source tool that automates the issuance and renewal of TLS certificates from various issuing
+  sources (e.g., Let's Encrypt) within Kubernetes. It integrates with Ingress and creates/manages TLS Secrets.
+  * Service Mesh (e.g., Istio): Service meshes can manage mTLS (mutual TLS) between services, providing strong identity and encryption.     
+
+19. Explain the concept of Immutable fields in Kubernetes API objects.
+
+    Certain fields in Kubernetes API objects are immutable after creation. This means once the object is created, 
+    you cannot change the value of these fields directly. If you need to change an immutable field, you typically have to 
+    delete and recreate the object (e.g., changing the selector on a Service, or the volumeMounts on a Pod). 
+    This is done to maintain consistency and prevent unexpected behavior.
+
+20. What are PreStop hooks and PostStart hooks in a container lifecycle?
+
+    * PreStop hook: Executed immediately before a container is terminated due to an API request or a management event 
+    (e.g., graceful shutdown, resource contention). It's a blocking call, meaning the container will not be terminated 
+    until the hook completes. Useful for graceful shutdowns, flushing logs, or completing in-flight requests.
+    * PostStart hook: Executed immediately after a container is created. It's a non-blocking call. Useful for initial 
+    setup tasks that need to run after the container starts but before the main application logic takes over
+    (e.g., registering with a service registry).    
+
+21. What is the containerRuntimeInterface (CRI)?
+
+    CRI is a plugin interface that enables Kubernetes to use different container runtimes (like containerd, CRI-O, Docker's 
+    dockershim - now deprecated) to run containers. It provides a gRPC API for the kubelet to interact with the container runtime. 
+    This abstraction allows Kubernetes to be independent of the specific container runtime used.    
+
+22. What is kubectl diff?
+
+    kubectl diff shows a diff between the current live configuration of a Kubernetes object and a potential new configuration 
+    from a local file. It's a useful tool for previewing changes before applying them, helping to prevent unintended modifications.  
+
+23. helm deployment fails due to insufficient cluster resources. what's your approach
+
+    A Helm deployment failing due to insufficient cluster resources, typically indicated by a FailedScheduling event,
+    requires a two-pronged approach. First, immediately diagnose the specific shortage by inspecting Pod Events and
+    analyzing Node Capacity with kubectl describe nodes to confirm if the issue is CPU or memory. For short-term remediation,
+    either manually scale up the cluster by adding nodes, or temporarily scale down non-critical workloads to free up resource
+    capacity. For long-term prevention, you must optimize the Helm chart's resource requests/limits to align with actual 
+    needs and implement a robust Cluster Autoscaler (CA) to ensure the cluster automatically scales nodes when the scheduler 
+    detects resource pressure. Additionally, using Namespace ResourceQuotas prevents resource overconsumption, ensuring
+    stable deployments across the entire cluster and maintaining proper resource governance.
+
+24. what is the helm chart testing and how is it done  
+
+    Helm chart testing is a vital process to ensure that a Kubernetes application packaged as a chart is valid, functional, 
+    and correctly configured before deployment to any environment. The testing procedure operates in multiple stages, 
+    beginning with static analysis like helm lint to check for syntax errors and adherence to best practices, and using 
+    helm template with tools like Kubeconform to validate that the rendered Kubernetes manifests conform to the API schema. 
+    For true functional verification, Helm supports a feature called Chart Tests, which are short-lived Kubernetes Jobs 
+    defined in the chart's templates/tests/ directory with the helm.sh/hook: test annotation. These jobs typically contain a 
+    container image (like busybox) that runs commands, such as wget or curl, to smoke-test the newly installed release by 
+    checking for successful service connectivity or API responses. The chart test passes only if the container exits with a 
+    zero code, and it is executed on a live cluster after installation using the command helm test <RELEASE_NAME>.
+
+25. A node went down suddenly what happens to the pods running on it in k8s
+
+    When a Kubernetes node suddenly fails, the Pods running on it are initially in a state of limbo, ultimately leading to 
+    their eviction and recreation on a healthy node. First, the Kubernetes control plane detects the failure because the 
+    node's Kubelet stops sending heartbeats, marking the node as NotReady or Unknown. The Pods themselves remain in a 
+    Running state on the API server for a set duration, typically the default pod-eviction-timeout of five minutes. After 
+    this grace period, the Node Controller assumes the node is permanently down and begins the eviction process, setting the 
+    Pods to Terminating. The relevant controller (like a Deployment or ReplicaSet) then recognizes that the desired replica 
+    count is not met and provisions replacement Pods onto available, working nodes. For StatefulSets, a critical delay may 
+    occur as the old node's volume attachments must be force-detached by the cloud provider before the new Pods can mount the 
+    Persistent Volumes.
+
 
 
 
