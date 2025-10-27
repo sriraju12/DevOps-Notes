@@ -194,4 +194,91 @@ Maven Interview Questions:
     to securely store the Nexus username and password/API key. These credentials are then injected into the build environment
     (e.g., as environment variables or using the withCredentials step) to dynamically generate the necessary settings.xml on the fly for the Maven build.
 
+17. What is Sonatype Nexus, and what is its fundamental purpose?
+
+    Sonatype Nexus is a repository manager that acts as a central storage hub for all software artifacts (like compiled JARs, Docker images, or npm packages) 
+    used by a development team. Its fundamental purpose is to centralize, manage, and secure the entire software supply chain by providing a reliable
+    single source of truth for dependencies and build outputs. This improves build speed through caching and ensures version consistency and security compliance
+    across CI/CD pipelines.
+
+
+18. What is the difference between a "Proxy" and a "Hosted" repository in Nexus?
+
+    Hosted repository:
+                      A Hosted repository stores artifacts that you build and upload yourself (e.g., your company's internal JARs).
+                      
+    Proxy repository:
+                     A Proxy repository acts as a smart cache for external public repositories (like Maven Central or npm). When your build requests a dependency,
+                     the Proxy fetches it once from the public source, stores it locally, and serves it from the cache on subsequent requests, drastically speeding 
+                     up builds and reducing reliance on the external network.
+
+
+19. What is a "Group" repository, and why is it recommended for developers? 
+
+    A Group repository is a single URL endpoint that aggregates multiple hosted and proxy repositories. It is recommended because it simplifies client configuration.
+    Developers only need to configure the single Group URL in their settings.xml, and Nexus handles the search order internally.
+
+    
+
+20. How do you configure a Maven project to use Nexus for downloading dependencies?
+
+    To configure Maven to use Nexus for downloading dependencies, you primarily edit your user's settings.xml file (located in ~/.m2/). 
+    You add a <mirror> block whose URL points to your Nexus Group Repository (e.g., http://your.nexus.host/repository/maven-public/).
+    You set the <mirrorOf> value to * to ensure all dependency requests—including those for Maven Central—are redirected to Nexus first. 
+    This single configuration step centralizes all dependency traffic through your Nexus instance.
+
+
+21. Explain the role of a "Blob Store" in Nexus architecture.
+
+    The Blob Store is the physical storage location where Nexus keeps the actual binary files of all artifacts (the "Blobs").
+    Its fundamental role is to decouple the binary data from the repository metadata, which is stored separately in a database.
+    This design allows for flexible storage, enabling administrators to use local disk, network filesystems, or cloud storage solutions
+    like AWS S3 or Azure Blob Storage, making it highly scalable and easy to manage backups and space independently of Nexus's core database.
+
+
+22. What is the default port used by Nexus Repository Manager 3?
+
+    Nexus Repository Manager 3 typically runs on port 8081 by default.
+
+    you can manually change the port number in the Nexus configuration file, typically found at NEXUS_HOME/etc/nexus.properties
+
+
+23. How do you access Nexus repositories from a build tool like Maven or Gradle?
+
+    Maven uses the repository's URL defined in settings.xml (via a <mirror>) for pulling dependencies and 
+    the <distributionManagement> tag in pom.xml for pushing artifacts (via mvn deploy).
+
+
+24. In Nexus, what is the importance of having separate repositories for "Snapshots" and "Releases"?
+
+    Snapshots are mutable (can be overwritten), used for active development, and often aggressively cleaned up. 
+    Releases are immutable (cannot be changed once uploaded) and are critical for production stability and auditability.
+    Separating them enforces proper artifact management hygiene.
+
+
+25. Nexus supports Docker registries. How do you integrate Nexus with a Kubernetes CI/CD process for container images?
+
+    I use Nexus as a private hosted Docker registry. 
+    The process is:
+                 1) The CI pipeline builds the Docker image.
+                 2) The pipeline tags the image with the Nexus registry URL and the artifact version.
+                 3) The pipeline uses docker push (authenticated against Nexus) to push the image to the Nexus hosted Docker repository.
+                 4) The Kubernetes deployment manifests are configured to pull images from this authenticated, internal Nexus registry, ensuring image provenance and faster pull times.
+
+
+26. Explain the purpose of the .maven/settings.xml file within the Nexus instance's configuration directory.
+
+    The .m2/settings.xml file's role within the Nexus server's configuration directory (often /etc/nexus) is to define Nexus's own outgoing network needs.
+    It doesn't configure developers' local Maven builds. Instead, Nexus uses it to store secrets and configurations—like proxy server details
+    or authentication credentials—that the repository manager itself needs to connect to external systems, such as downloading
+    security updates or fetching components from Maven Central.
+
+
+27. What is the concept of a "High Availability (HA)" Nexus setup, and why would a release team require it?
+
+    A High Availability (HA) Nexus setup is a configuration where multiple Nexus instances run simultaneously, sharing a common database and Blob Store (storage).
+    Its purpose is to ensure the artifact repository remains continuously operational (no single point of failure). A release team requires HA because 
+    it eliminates downtime during system maintenance or hardware failure, guaranteeing that CI/CD pipelines can always access or deploy mission-critical artifacts,
+    thereby preventing release blockages.
+
                
