@@ -1756,7 +1756,148 @@ Local variables:
                   }
                   # Other instance configuration
                  }
-                  
+
+31. How does Terraform handle resource dependencies and ordering?
+    Terraform uses a resource graph to determine dependencies and the order of operations.
+    Dependencies can be:
+   
+    Implicit: Automatically inferred when one resource references another (e.g., using
+    resource.id).
+    Explicit: Defined using the depends_on argument to specify a dependency manually.
+    Terraform ensures that dependent resources are created, updated, or destroyed in the
+    correct order.
+ 
+
+32. How does terraform plan work, and what information does it provide?
+    The terraform plan command creates an execution plan by comparing the current state of
+    the infrastructure (from the state file) with the desired state (from the configuration files).
+    It shows what resources will be created, updated, or destroyed.
+    It allows you to review changes before applying them, reducing the risk of unintended
+    modifications 
+
+33. How do you reference a resource in another resource configuration?
+    You can reference a resource using its type and name in the format
+    resource_type.resource_name.attribute.   
+
+34. What happens if Terraform state gets corrupted?
+    If the state file is corrupted:
+    Terraform cannot track the current infrastructure, leading to errors in plan or apply.
+    You can restore the state from a backup or manually fix the corruption by editing the state
+    file (with caution).   
+
+35. How do you back up and restore Terraform state?
+    Backup: Terraform automatically creates a backup of the state file
+    (terraform.tfstate.backup) in the working directory.
+    Restore: Replace the corrupted state file with the backup or retrieve it from remote storage
+    if using a remote backend.   
+
+36. How do you manage provider versions in Terraform?
+    Use the required_providers block in the terraform block to specify provider versions.
+    Example:
+    terraform {
+    required_providers {
+    aws = {
+    source = "hashicorp/aws"
+    version = "~> 4.0"
+    }
+    }
+    }
+    This ensures consistent provider versions across environments. 
+
+37. What is the role of provider blocks in Terraform configuration files?
+    The provider block configures the provider settings, such as authentication, region, or API endpoints.
+    It tells Terraform how to interact with the infrastructure platform.   
+
+38. How would you handle errors in provisioning scripts with Terraform?
+    Use the on_failure argument in the provisioner to specify the behavior on failure.
+    Example:
+    provisioner "remote-exec" {
+    inline = ["sudo apt-get update"]
+    on_failure = "continue" # Options: "continue" or "fail"
+    }
+    Log errors and debug the script to identify the issue.  
+
+39. What is the default workspace in Terraform?
+    The default workspace is named default.
+    It is automatically created when you initialize a Terraform project.
+    You can switch to other workspaces as needed.  
+
+40. What happens when you change workspaces in Terraform?
+    Terraform switches to a different state file associated with the selected workspace.
+    The resources in the new workspace are managed independently of the previous workspace.               
+
+41. How do you configure workspaces in a CI/CD pipeline?
+    Use environment variables or pipeline parameters to specify the workspace.
+    Example in a CI/CD script:
+    terraform workspace select $WORKSPACE
+    terraform apply -auto-approve
+    Ensure the pipeline dynamically selects the correct workspace based on the environment
+    (e.g., dev, staging, prod).
+
+42. terraform version ->  Displays the Terraform version.    
+
+43. EnvironmentVariables:exportTF_VAR_instance_type="t2.small" o Command-Line Flags: terraform apply - var="instance_type=t2.small"
+
+44. How do you handle secrets or sensitive data in Terraform? 
+    Sensitive Variables:
+    * Mark variables as sensitive to prevent them from being
+    displayed in logs. {
+    type = string
+    sensitive = true }
+    * Avoid Hardcoding:
+      Do not store secrets in code or version control. o Use environment variables or prompt for input.
+    * Use Vault or Secret Management Services:
+      Integrate with tools like HashiCorp Vault to fetch secrets at runtime.
+    * Secure State Storage:
+      Use encrypted remote backends to store state files securely.
+
+45. How does Terraform handle resource dependencies?
+
+    * Implicit Dependencies:
+      Terraform automatically determines resource dependencies by analyzing references in configurations.
+    {
+    ami =
+    instance_type = "t2.micro"
+    subnet_id = aws_subnet.example.id
+    }
+    cidr_block = "10.0.1.0/24" }
+    Here, the aws_instance depends on aws_subnet because of the subnet_id reference.
+    * Explicit Dependencies:
+      Use depends_on when a dependency isn’t detected
+    automatically. resource "null_resource" "example" { depends_on = [aws_instance.example]
+    }    
+
+ 46. How do you roll back changes in Terraform if something goes wrong?
+
+    * Options for Rollback:
+      State Restoration: Restore a previous state backup if state file corruption occurs.
+      cp terraform.tfstate.backup terraform.tfstate
+
+    * Revert Code Changes: Revert to a previous commit in version control and reapply:
+      git checkout <commit-id>
+    * Manual Correction: Edit configurations and use terraform plan to apply corrective changes.
+
+47. How can you manage secrets securely in Terraform? 
+    Options:
+    1. Environment Variables:
+    2. SecretManagementTools:UseHashiCorpVault,AWS Secrets Manager, or Azure Key Vault.
+    data {   
+      path = "secret/data/db_password" }
+    3. SensitiveVariables: {
+    type = string
+    sensitive = true } 
+
+48. how would you provision infra across 10 aws regions simultaneously
+
+    The most concise and efficient Terraform approach for provisioning infrastructure across 10 AWS regions simultaneously 
+    is by using the for_each meta-argument with a local list of region names. First, define the 10 target regions in a 
+    local block as a set of strings. Then, define a single resource block, such as an aws_vpc or aws_s3_bucket, and set 
+    its for_each argument to iterate over the region set. Crucially, inside the resource block, use the region = each.key 
+    meta-argument. This instructs the AWS provider to create one instance of the resource in each region specified in the set,
+    and Terraform handles the concurrent execution of these independent deployments across all 10 regions automatically. 
+    This method minimizes code duplication, ensures consistency, and leverages Terraform’s built-in parallelism for rapid, 
+    simultaneous multi-region provisioning.
+
  
 
 
