@@ -728,3 +728,137 @@ stability before user impact.
 
 
 
+
+
+In production, Jenkins agents use IRSA to access AWS Secrets Manager. We create a shared library function like getSecret() that retrieves secrets dynamically at runtime. Jenkinsfiles only call getSecret('prod/sonar/token') or getSecret('prod/github/token') rather than embedding AWS CLI commands repeatedly. This keeps pipelines clean, reusable, and secure.
+
+for ECR: we don't need to create a secret in aws secrets manager for stroing the password.
+instead we use IRSA and aws ecr get-login-password
+
+aws ecr get-login-password \
+| docker login \
+--username AWS \
+--password-stdin \
+123456789012.dkr.ecr.ap-south-1.amazonaws.com
+
+
+for external application tokens like github, sonar, argocd we will store them in aws secrets manager and fetch them in jenkinsfile.
+
+process:
+
+way 1:
+
+* create the secrets for external application token like github, sonar, argocd in aws secrets manager
+
+* Jenkins agents use IRSA to access AWS Secrets Manager securely without storing AWS access keys.
+
+* in jenkinsfile, create a stage at first to fetch the all this creds and basically we are fetching and
+  store them to environment variable. so that we can refer in the required stages.
+
+
+stage('Get Sonar Token') {
+    steps {
+        container('aws') {
+            script {
+                env.SONAR_TOKEN = sh(
+                    script: """
+                    aws secretsmanager get-secret-value \
+                    --secret-id prod/sonar/token \
+                    --query SecretString \
+                    --output text
+                    """,
+                    returnStdout: true
+                ).trim()
+            }
+        }
+    }
+}
+
+
+way-2: since we are duplicating the same code again and again for fetching the secrets we can use shared library
+
+* we need to create a shared library and we need to create the function to fetch the secrets.
+
+* we will call that function in the jenkinsfile at first we fetch the creds.
+
+
+share library fucntion code:
+
+def getSecret(secretName) {
+    return sh(
+        script: """
+        aws secretsmanager get-secret-value \
+        --secret-id ${secretName} \
+        --query SecretString \
+        --output text
+        """,
+        returnStdout: true
+    ).trim()
+}
+
+
+jenkinsfile call:
+
+stage('Fetch Application Secrets') {
+    steps {
+        container('aws') {
+            script {
+                env.SONAR_TOKEN = getSecret('prod/sonar/token')
+                env.GITHUB_TOKEN = getSecret('prod/github/token')
+                env.ARGOCD_TOKEN = getSecret('prod/argocd/token')
+            }
+        }
+    }
+}
+
+
+IRSA process(IAM Role for Service Account):
+
+1. create a IAM Role
+2. assign required permissions
+3. for EKS,OIDC identity provider needs to be enabled(one time setup)
+4. create a service account in k8s
+5. in that SA, annotate the ROLE ARN (in the metadata section)
+6. whichever pods has this SA, they will authenticate to AWS and access the assigned resources.
+
+
+for webhook events commonly used in production:
+
+* push
+
+* pull request
+
+  - Opened
+  - Synchronize
+  - Reopened
+  - merged
+
+
+RBAC in jenkins:
+
+the Role-Based Authorization Strategy plugin is commonly used in production Jenkins environments. Typically it is integrated with Azure AD, LDAP, or Okta for authentication, while the plugin handles authorization. Organizations usually implement folder-level RBAC, where developer groups can access only their team's pipelines, DevOps engineers manage CI/CD jobs, and only a small number of administrators have full Jenkins access. This follows the principle of least privilege.
+
+* for RBAC in jenkins, basically we need to install the plugin.(Role-Based Authorization Strategy)
+
+* we need to enable the authorization(manage jenkins > security > authorization > role based strategy > save)
+
+* create the role (manage jenkins > manage and assign roles > manage roles > create role)
+
+* define permissions for each role such as:
+  - Admin
+  - DevOps
+  - Developer
+  - Viewer
+
+* if you want to implement folder based RBAC then while creating the role you can give the pattern (Payments/.*)
+  to have access to that particular folder only.
+
+We implement Jenkins RBAC using the Role-Based Authorization Strategy plugin. We create roles such as Admin, DevOps, Developer, and Viewer, assign least-privilege permissions, and use folder-based patterns like Payments/.* or Orders/.* to restrict access to team-specific pipelines. Users or AD groups are then mapped to the appropriate roles.
+
+
+How Docker Caching works:
+When Docker builds an image, it executes the Dockerfile line by line.
+
+Docker caching works at the layer level. Every Dockerfile instruction creates a layer. During subsequent builds, Docker reuses unchanged layers from its cache and rebuilds only the layer that changed and all layers after it. In production CI/CD environments with ephemeral Jenkins agents, local cache is lost, so we typically use registry-based caching by pulling the previous image from ECR and building with --cache-from, or use Docker Buildx cache stored in the registry. This significantly reduces build time by avoiding reinstallation of unchanged dependencies
+
+
