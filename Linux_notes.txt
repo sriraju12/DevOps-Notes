@@ -868,3 +868,446 @@ diff filename1 filename2  -> to show the difference of this two files.
 
 
 
+
+
+
+
+1. SYSTEMD & SERVICES (systemctl)
+===================================================================
+
+List all running services:
+    systemctl --type=service --state=running
+
+Filter for a specific service:
+    systemctl --type=service --state=running | grep ssh    # ssh = service name
+
+List failed / exited services:
+    systemctl --type=service --state=failed,exited
+
+List unit files that are enabled to start automatically during boot:
+    systemctl list-unit-files --state=enabled
+
+WHY IT MATTERS
+--------------
+systemd is the "init" system (PID 1) that starts and supervises everything on a modern Linux host. A *service* is a background program (like sshd, jenkins, nginx) that systemd manages for you.
+
+Two states are often confused:
+    * state=running  -> the service is executing RIGHT NOW.
+    * state=enabled  -> the service is configured to START AUTOMATICALLY at boot
+                        (it may or may not be running at this moment).
+
+So a service can be enabled but stopped, or running but not enabled. Checking both tells you whether it will come back after a reboot.
+
+The `--type=service` flag filters to service units only, ignoring other unit types (sockets, timers, mounts, targets, etc.).
+
+===================================================================
+2. UNIT FILES
+===================================================================
+
+A unit file is simply a systemd configuration file that defines how Linux should start, stop, monitor, restart, and manage a service or other system resource.
+
+This service configuration is called a unit file:
+
+    [Unit]
+    Description=Jenkins Agent
+    After=network.target
+
+    [Service]
+    User=jenkins
+    ExecStart=/usr/bin/java -jar /opt/agent/agent.jar \
+        -url https://jenkins.company.com \
+        -secret XXXXX \
+        -name agent1
+    Restart=always
+
+    [Install]
+    WantedBy=multi-user.target
+
+HOW IT WORKS
+------------
+A unit file is divided into sections:
+
+    [Unit]      Metadata and ordering.
+                - Description = human-readable name.
+                - After=network.target means "start this only after the network is up", so the agent can actually reach the Jenkins server.
+
+    [Service]   How to run the program.
+                - User=jenkins    -> run as this account, not root (least privilege).
+                - ExecStart       -> the exact command to launch the service. The trailing "\" continues the command onto the next line for readability.
+                - Restart=always  -> automatically restart the service if it crashes or exits, giving self-healing behaviour.
+
+    [Install]   Controls enabling at boot.
+                - WantedBy=multi-user.target ties this unit to the normal multi-user boot target, so `systemctl enable` will start it automatically at boot.
+
+Typical file location: /etc/systemd/system/<name>.service
+After editing a unit file, run: sudo systemctl daemon-reload
+
+===================================================================
+3. LOGS (AUTH LOGS & journalctl)
+===================================================================
+
+Authentication logs (path):
+    sudo tail -f /var/log/auth.log
+
+Check the logs of a particular service:
+    journalctl -u ssh
+
+Check today's logs:
+    journalctl -u ssh --since today
+
+Follow real-time logs:
+    journalctl -u ssh -f
+
+HOW IT WORKS
+------------
+* /var/log/auth.log records authentication events: logins, sudo usage, SSH sessions, failed password attempts, etc. `tail -f` keeps the file open and prints new lines live as they are written - perfect for watching an event happen in real time.
+
+* journalctl reads the systemd journal, a centralized binary log that captures output from all services. Useful flags:
+    -u <service>  filter to one unit (e.g. ssh)
+    --since today  only show entries from today
+    -f             follow (stream) new entries live, like tail -f
+
+WHY IT MATTERS
+--------------
+When a service "is not working", the journal usually tells you exactly why (permission denied, port already in use, missing file). Reading the log for that specific unit is the fastest path to the root cause.
+
+===================================================================
+4. MEMORY USAGE
+===================================================================
+
+Commands to check memory usage:
+    vmstat -s
+    free -m
+    top
+    cat /proc/meminfo
+
+WHY IT MATTERS / WHICH TO USE
+-----------------------------
+* free -m             -> quick snapshot of total / used / free / cached memory in megabytes. Easiest first command to run.
+* vmstat -s           -> summary statistics: memory, swap, CPU activity, and more, in one table. Good for a broader system health view.
+* top                 -> live, refreshing view of memory AND per-process CPU usage, so you can spot which process is consuming resources.
+* cat /proc/meminfo   -> the raw kernel memory report; every other tool derives its numbers from here. Use it when you need exact detail.
+
+TIP: High "used" memory is not automatically a problem - Linux uses spare RAM for disk caching (shown as buff/cache) and frees it on demand. What truly matters is low available memory plus heavy swap usage.
+
+===================================================================
+5. PACKAGE MANAGEMENT (apt)
+===================================================================
+
+List installed packages (Ubuntu):
+    apt list --installed
+
+Remove a package (keeps the configuration files):
+    sudo apt remove <package-name>
+
+WHY IT MATTERS
+--------------
+* apt is the package manager for Debian/Ubuntu systems. It resolves dependencies for you and installs/removes software from configured repos.
+* `apt remove` deletes the program but LEAVES its configuration files behind. If you want a clean slate (configs gone too), use `sudo apt purge <package>`.
+* `apt list --installed` is handy for auditing what is on a server.
+
+===================================================================
+6. INODES
+===================================================================
+
+An inode (index node) is a data structure that stores metadata about a file or directory, but NOT the file name and content.
+
+Key points:
+    * A filesystem has a fixed number of inodes created during formatting.
+    * You can run out of space on a disk if all inodes are used up, even if free disk space remains.
+    * Every file or directory corresponds to exactly one inode, identified by a unique inode number within the filesystem.
+
+Commands:
+    ls -i filename     # view a file's inode number
+    df -i              # check inode usage on a filesystem
+    stat filename      # view detailed inode metadata
+
+WHY IT MATTERS
+--------------
+Think of an inode as a "record card" for a file: it holds permissions, owner, size, timestamps, and pointers to the data blocks on disk. The directory entry is what maps the human-readable filename to the inode number.
+
+Because the total inode count is fixed at filesystem creation, a disk full of millions of tiny files (logs, mail queues, cache) can exhaust all inodes while `df -h` still shows plenty of free bytes. In that case writes fail with "No space left on device" even though there is disk space - `df -i` reveals the real culprit.
+
+===================================================================
+7. FILESYSTEMS
+===================================================================
+
+Filesystems define how files are stored and organized on Linux storage disks, ensuring data integrity, reliability, and efficient access. Linux supports various types like EXT4, XFS, and BTRFS with different performance and recovery capabilities. All files start from the root directory '/'.
+
+Commands:
+    df -T              # display filesystem types and disk usage status
+    lsblk -f           # display list of filesystem types
+    lsblk              # list block devices
+
+WHY IT MATTERS
+--------------
+Choosing the right filesystem affects performance and resilience:
+    * EXT4   -> mature, stable, the Ubuntu default. Great general-purpose choice.
+    * XFS    -> excellent for large files and high-throughput workloads (common on RHEL/CentOS servers and databases).
+    * BTRFS  -> modern copy-on-write filesystem with snapshots, checksums, and built-in volume management.
+
+`df -T` shows the TYPE of each mounted filesystem alongside usage; `lsblk -f` shows the same for block devices even before they are mounted.
+
+===================================================================
+8. MOUNTING & UNMOUNTING
+===================================================================
+
+Mounting means attaching a filesystem (disk, partition, USB drive, NFS share, etc.) to a directory so that Linux can access its files.
+
+--- Mount Steps ---
+1. Run `lsblk -f` to locate the partition you want to mount and its filesystem type.
+2. Create a mount point directory using `mkdir`.
+3. Run the mount command to mount the filesystem to the directory:
+       mount /dev/sda2 /mnt/data
+4. Verify the filesystem is mounted and accessible:
+       findmnt /mnt/data   or   df -h
+
+--- Fixing the "target is busy" error during unmount ---
+* Identify which user or process is using a mounted directory:
+      fuser -v /mnt/data   or   lsof /mnt/data
+
+* Kill all the processes holding files open on a mount point:
+      fuser -km /mnt/data
+      k -> kill
+      m -> applies to the entire mounted filesystem
+
+* Perform a lazy unmount (detaches instantly, cleans up when processes finish):
+      umount -l /mnt/data
+
+HOW IT WORKS
+------------
+Linux has a single unified directory tree starting at '/'. There are no drive letters. To make the contents of a disk available, you "mount" it onto an existing empty directory (the mount point). Anything already in that directory is hidden while the filesystem is mounted there.
+
+A plain `mount` is TEMPORARY - it disappears on reboot. To make it permanent, add an entry to /etc/fstab (see section 10).
+
+"target is busy" means a process still has a file open inside the mount. You must find and stop that process before a normal unmount will succeed, or use a lazy unmount (`umount -l`) to detach now and clean up later.
+
+===================================================================
+9. fuser
+===================================================================
+
+fuser (file user) is a Linux command-line utility used to identify and kill active processes that are using specific files, a directory, or mounted filesystems.
+
+HOW IT WORKS / FLAGS
+--------------------
+    fuser -v <path>    -> verbose: list the PIDs, users, and access types using it
+    fuser -k <path>    -> kill the processes using the path
+    fuser -m <path>    -> match any process using the whole mounted filesystem that contains the path
+
+WHY IT MATTERS
+--------------
+It is the go-to tool when an unmount fails because "the device is busy" - it tells you exactly which process is holding the mount open.
+
+===================================================================
+10. /etc/fstab
+===================================================================
+
+/etc/fstab (filesystem table) is the central configuration file in Linux that defines how disk partitions, remote network shares, and swap space are automatically mounted at system startup.
+
+HOW IT WORKS
+------------
+Each line in fstab has six fields:
+
+    <device>  <mount-point>  <type>  <options>  <dump>  <pass>
+
+Example:
+    UUID=abcd-1234  /mnt/data  ext4  defaults  0  2
+
+    - device       : partition to mount (prefer UUID= over /dev/sdX, because /dev names can change between reboots).
+    - mount-point  : directory to attach it to.
+    - type         : filesystem type (ext4, xfs, nfs, swap...).
+    - options      : mount options; "defaults" is the common safe choice.
+    - dump         : backup flag, usually 0.
+    - pass         : fsck order at boot; 0 = skip, 1 = root, 2 = other disks.
+
+WHY IT MATTERS
+--------------
+Editing fstab is how you make a mount permanent. Always test with `sudo mount -a` afterwards - it attempts to mount everything in fstab and will surface syntax errors before the next reboot. A broken fstab can prevent a system from booting, so verify carefully.
+
+===================================================================
+11. ADDING A NEW DISK
+===================================================================
+
+* List all block devices to identify the new unpartitioned disk:
+      lsblk
+  The new disk shows its size but no partition tree beneath it and no active mount point.
+
+* Use parted to create a GPT label and allocate 100% of the disk to a primary partition (this creates the partition tree beneath it):
+      sudo parted /dev/sdb --script mklabel primary ext4 0% 100%
+
+  Verify:
+      lsblk /dev/sdb
+
+* Create an ext4 filesystem on the new partition:
+      sudo mkfs.ext4 /dev/sdb1
+
+* Create a new mount point directory:
+      mkdir /mnt/newdisk
+
+* Get the partition UUID:
+      sudo blkid /dev/sdb1
+
+* Add an entry to /etc/fstab for persistence across boots.
+
+* Check for syntax issues in the /etc/fstab file:
+      sudo mount -a
+
+* Check the active mount:
+      df -h /mnt/newdisk
+
+HOW IT WORKS
+------------
+Adding a disk is a three-stage process:
+  1. PARTITION -> divide the raw disk into usable partitions (parted).
+  2. FORMAT    -> lay down a filesystem on the partition (mkfs.ext4). Until
+                  this step the partition holds no usable file structure.
+  3. MOUNT     -> attach it to a directory so you can read/write files.
+
+The UUID from `blkid` uniquely identifies the partition; using it in fstab keeps the mount stable even if the device name changes.
+
+===================================================================
+12. DNS RESOLUTION
+===================================================================
+
+/etc/resolv.conf is used by Linux systems to configure DNS resolution.
+
+Commands:
+    nslookup google.com      # fetch the A record IP
+    nslookup <IP_address>    # fetch the domain name pointing to that IP
+
+HOW IT WORKS
+------------
+DNS translates human-friendly names (google.com) into IP addresses. The resolver reads its nameserver settings from /etc/resolv.conf.
+
+nslookup has two useful directions:
+  * Forward lookup : name -> IP   (nslookup google.com returns the A record).
+  * Reverse lookup : IP   -> name (nslookup <IP> returns the PTR record).
+
+WHY IT MATTERS
+--------------
+"Cannot reach the site" is often really "cannot resolve the name". Verifying DNS with nslookup separates a name-resolution problem from a connectivity problem.
+
+===================================================================
+13. COPYING FILES (scp)
+===================================================================
+
+Copy a local file to a remote server:
+    scp local_file_path username@ip:remote_destination_path
+
+HOW IT WORKS
+------------
+scp (secure copy) transfers files over SSH, so everything is encrypted in transit and it reuses your SSH credentials/keys.
+
+Breaking down the syntax:
+    local_file_path                  -> the file on your machine
+    username@ip                      -> the remote account and host
+    :remote_destination_path         -> the path on the remote server
+                                        (note the colon separating host and path)
+
+Example:
+    scp report.pdf alice@10.0.0.5:/home/alice/reports/
+
+===================================================================
+14. ping
+===================================================================
+
+The ping command is essential for Linux network troubleshooting, checking connectivity between your host and target machines.
+
+How it works:
+  * Ping sends one or more ICMP (Internet Control Message Protocol) Echo Request packets to a specified destination IP on the network and waits for a reply.
+  * When the destination receives the packet, it responds with an ICMP echo reply.
+
+What you can determine with ping:
+  * Whether a remote destination IP is active or inactive.
+  * The round-trip delay in communicating with the destination.
+  * Whether there is packet loss.
+
+Packet loss:
+  * Means the data was dropped somewhere in the network, indicating an issue within the network.
+  * If there is packet loss, use traceroute to identify where the packet loss occurs.
+  * For packet-level capture, use tcpdump.
+
+Usage:
+    ping <ip or hostname>
+
+WHY IT MATTERS
+--------------
+ping is the fastest "is the printing side alive and reachable?" test. If ping succeeds but an application fails, the network path is fine and the problem is higher up (service down, firewall blocking a specific port, DNS, etc.).
+
+===================================================================
+15. traceroute
+===================================================================
+
+traceroute is a network diagnostic tool that displays the path packets take from your system to a destination host. It shows each hop (router) along the route and the time it takes for packets to reach each one.
+
+Network administrators use traceroute to identify where packets are being delayed or dropped, making it essential for troubleshooting connectivity issues, latency problems, and routing failures.
+
+Usage:
+    traceroute <IP or hostname>
+
+HOW IT WORKS
+------------
+traceroute sends packets with gradually increasing "time to live" (TTL) values. Each router that a packet passes through decrements the TTL; when it hits zero, that router replies with an error, revealing its identity. By starting at TTL=1 and increasing it, traceroute maps every hop from you to the destination.
+
+--- ping vs traceroute ---
+Ping checks:       Reachability, DNS resolution, latency, packet loss.
+Traceroute checks: Network path, hop count, where traffic stops, latency per hop, routing issues.
+
+===================================================================
+16. NETSTAT
+===================================================================
+
+Netstat is a command-line tool for network troubleshooting and performance measurement in Linux. It provides network statistics, open ports, routing table information, and protocol details.
+
+Commands:
+    netstat -l         # display all listening ports
+    netstat -tl        # display TCP listening ports
+
+HOW IT WORKS / FLAGS
+--------------------
+    -l -> show only LISTENING sockets (services waiting for connections)
+    -t -> limit to TCP (combine as -tl)
+    -u -> limit to UDP
+    -n -> show numeric addresses instead of resolving names (faster)
+    -p -> show the process/PID that owns each socket
+
+WHY IT MATTERS
+--------------
+"Listening ports" tell you which services are accepting connections - vital for confirming a service started correctly or spotting unexpected open ports.
+
+NOTE: netstat is considered deprecated on modern systems; the equivalent and preferred tool is `ss` (e.g. `ss -tlnp`).
+
+===================================================================
+17. PACKET ANALYSIS (tcpdump)
+===================================================================
+
+Packet analysis is a key Linux network troubleshooting skill involving capturing and analyzing network traffic to identify performance issues, connectivity problems, and security vulnerabilities.
+
+Commands:
+    sudo tcpdump -i eth0
+        Capture traffic on interface eth0 and show all incoming and outgoing packets. Use when you want to see whether traffic is reaching the server.
+
+    tcpdump -D
+        Show interface names. Use when you are unsure which interface to capture on.
+
+    sudo tcpdump -i eth0 host 10.0.0.25
+        Capture a specific host. Captures traffic to and from a single IP. Useful for investigating one server.
+
+    sudo tcpdump -nn -i eth0 port 443
+        Use when an application is not reachable, e.g. to check whether requests are reaching the server and whether the server is sending a response.
+
+HOW IT WORKS / FLAGS
+--------------------
+    -i <interface> -> capture on a specific network interface (eth0, ens5...)
+    -D             -> list available interfaces
+    host <ip>      -> filter to traffic to/from a single IP
+    port <number>  -> filter to a single port (e.g. 443 for HTTPS)
+    -nn            -> don't resolve hostnames or port names (keeps output fast and literal, avoids extra DNS lookups)
+
+WHY IT MATTERS
+--------------
+tcpdump works at the packet level - below the application. It answers questions logs cannot: "Is the request even arriving?" and "Is a reply being sent back?" This pinpoints whether the fault is the network or the application. Requires root/sudo because raw packet capture is privileged.
+
+
+
+
